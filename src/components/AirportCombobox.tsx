@@ -33,6 +33,8 @@ interface AirportComboboxProps {
   className?: string;
   showNearby?: boolean;
   fieldType?: FieldType;
+  autoFocus?: boolean;
+  disabled?: boolean;
 }
 
 export function AirportCombobox({
@@ -43,6 +45,8 @@ export function AirportCombobox({
   className,
   showNearby = true,
   fieldType,
+  autoFocus = false,
+  disabled = false,
 }: AirportComboboxProps) {
   const [open, setOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState('');
@@ -50,6 +54,13 @@ export function AirportCombobox({
   const [nearbyAirports, setNearbyAirports] = React.useState<Airport[]>([]);
   const [recentSearches, setRecentSearches] = React.useState<Airport[]>([]);
   const [loadingNearby, setLoadingNearby] = React.useState(false);
+
+  // Auto-open when autoFocus changes
+  React.useEffect(() => {
+    if (autoFocus) {
+      setOpen(true);
+    }
+  }, [autoFocus]);
 
   // Load nearby airports and recent searches when dropdown opens
   React.useEffect(() => {
@@ -87,12 +98,34 @@ export function AirportCombobox({
     setSearchQuery('');
   };
 
+  // If disabled, render a static display without popover functionality
+  if (disabled) {
+    return (
+      <div
+        className={cn(
+          'flex items-center space-x-2 h-full px-2 cursor-not-allowed opacity-60',
+          className
+        )}
+      >
+        {icon && <div className="flex-shrink-0">{icon}</div>}
+        <input
+          type="text"
+          placeholder={placeholder}
+          value={value}
+          readOnly
+          disabled
+          className="w-full border-0 bg-transparent text-sm font-medium focus:outline-none cursor-not-allowed"
+        />
+      </div>
+    );
+  }
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <div
           className={cn(
-            'flex items-center space-x-2 h-full cursor-pointer px-2',
+            'flex items-center space-x-2 h-full px-2 cursor-pointer',
             className
           )}
           onClick={() => setOpen(true)}

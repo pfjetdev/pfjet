@@ -2,13 +2,60 @@
 
 import { useTheme } from 'next-themes'
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import SearchForm from './SearchForm'
 import { Plane, Plus } from 'lucide-react'
+import { useFormContext } from '@/contexts/FormContext'
 
 const HeroSection = () => {
   const { theme } = useTheme()
+  const router = useRouter()
   const [mounted, setMounted] = useState(false)
   const [activeTab, setActiveTab] = useState('plane') // 'plane' или 'seat'
+  const [focusTrigger, setFocusTrigger] = useState(0)
+  const [fieldToFocus, setFieldToFocus] = useState<'from' | 'to' | 'date' | null>(null)
+
+  // Use global form context
+  const { formData, updateFormData } = useFormContext()
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  const handleFormChange = (field: string, value: string) => {
+    updateFormData(field, value)
+  }
+
+  const handleAddDestination = () => {
+    // Sequential validation: check each field and focus the first empty one
+    if (!formData.from) {
+      setFieldToFocus('from')
+      setFocusTrigger(prev => prev + 1)
+      return
+    }
+
+    if (!formData.to) {
+      setFieldToFocus('to')
+      setFocusTrigger(prev => prev + 1)
+      return
+    }
+
+    if (!formData.date) {
+      setFieldToFocus('date')
+      setFocusTrigger(prev => prev + 1)
+      return
+    }
+
+    // All required fields filled, navigate to multi-city
+    const params = new URLSearchParams({
+      from: formData.from,
+      to: formData.to,
+      date: formData.date,
+      time: formData.time,
+      passengers: formData.passengers
+    })
+    router.push(`/multi-city?${params.toString()}`)
+  }
 
   useEffect(() => {
     setMounted(true)
@@ -73,7 +120,7 @@ const HeroSection = () => {
                   <span className="font-medium">Private Jet</span>
                 </button>
                 <button
-                  onClick={() => setActiveTab('seat')}
+                  onClick={() => router.push('/jet-sharing')}
                   className={`flex items-center gap-1.5 px-4 py-2 rounded-full transition-all duration-200 text-sm ${
                     activeTab === 'seat'
                       ? theme === 'dark'
@@ -94,12 +141,18 @@ const HeroSection = () => {
 
             {/* Search Form */}
             <div>
-              <SearchForm />
+              <SearchForm
+                formData={formData}
+                onFormChange={handleFormChange}
+                focusTrigger={focusTrigger}
+                fieldToFocus={fieldToFocus}
+              />
             </div>
 
             {/* Add Destination Button */}
             <div className="w-full max-w-6xl mx-auto">
               <button
+                onClick={handleAddDestination}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 text-sm font-medium ${
                   theme === 'dark'
                     ? 'bg-gray-800/80 border border-gray-600/50 text-gray-200 hover:bg-gray-700/80 hover:border-gray-500/60'

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useTheme } from 'next-themes'
 import { Phone, Menu, X } from 'lucide-react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { ThemeToggle } from './ThemeToggle'
 
 const NavBar = () => {
@@ -26,14 +27,16 @@ const NavBar = () => {
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Logo */}
         <div className="flex-shrink-0">
-          <Image
-            src={theme === 'dark' ? '/white-logo.svg' : '/black-logo.svg'}
-            alt="Logo"
-            width={170}
-            height={40}
-            className="h-5 w-auto"
-            priority
-          />
+          <Link href="/" className="cursor-pointer">
+            <Image
+              src={theme === 'dark' ? '/white-logo.svg' : '/black-logo.svg'}
+              alt="Logo"
+              width={170}
+              height={40}
+              className="h-5 w-auto"
+              priority
+            />
+          </Link>
         </div>
 
         {/* Desktop Navigation */}

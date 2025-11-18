@@ -1,14 +1,48 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { ArrowUpRight } from 'lucide-react';
 import Footer from '@/components/Footer';
 import { countriesByContinent, groupCountriesByLetter, type Continent, type Country } from '@/data/countries';
 
 const continents: Continent[] = ['Europe', 'Asia', 'North America', 'South America', 'Africa', 'Oceania'];
 
+// Mapping for continent names from DestinationsSection to Countries page
+const continentMapping: Record<string, Continent> = {
+  'Europe': 'Europe',
+  'Asia': 'Asia',
+  'Americas': 'North America',
+  'Africa': 'Africa',
+  'Oceania': 'Oceania',
+};
+
 export default function CountriesPage() {
-  const [selectedContinent, setSelectedContinent] = useState<Continent>('Europe');
+  const searchParams = useSearchParams();
+  const continentParam = searchParams.get('continent');
+
+  // Get initial continent from URL or default to 'Europe'
+  const getInitialContinent = (): Continent => {
+    if (continentParam) {
+      const mappedContinent = continentMapping[continentParam];
+      if (mappedContinent) {
+        return mappedContinent;
+      }
+      // Check if it's a valid continent name directly
+      if (continents.includes(continentParam as Continent)) {
+        return continentParam as Continent;
+      }
+    }
+    return 'Europe';
+  };
+
+  const [selectedContinent, setSelectedContinent] = useState<Continent>(getInitialContinent());
+
+  // Update selected continent when URL parameter changes
+  useEffect(() => {
+    const newContinent = getInitialContinent();
+    setSelectedContinent(newContinent);
+  }, [continentParam]);
 
   const countries = countriesByContinent[selectedContinent];
   const groupedCountries = groupCountriesByLetter(countries);

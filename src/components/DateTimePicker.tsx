@@ -18,6 +18,7 @@ interface DateTimePickerProps {
   time: string;
   onDateChange: (date: string) => void;
   onTimeChange: (time: string) => void;
+  autoFocus?: boolean;
 }
 
 export function DateTimePicker({
@@ -25,9 +26,17 @@ export function DateTimePicker({
   time,
   onDateChange,
   onTimeChange,
+  autoFocus = false,
 }: DateTimePickerProps) {
   const { theme } = useTheme();
   const [open, setOpen] = React.useState(false);
+
+  // Auto-open when autoFocus changes
+  React.useEffect(() => {
+    if (autoFocus) {
+      setOpen(true);
+    }
+  }, [autoFocus]);
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(
     date ? new Date(date) : undefined
   );

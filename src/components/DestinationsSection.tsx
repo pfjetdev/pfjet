@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ChevronDown, MoveRight } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -265,15 +266,20 @@ const continents = {
 type ContinentKey = keyof typeof continents;
 
 export default function DestinationsSection() {
+  const router = useRouter();
   const [selectedContinent, setSelectedContinent] = useState<ContinentKey>("Europe");
 
   const currentData = continents[selectedContinent];
 
+  const handleViewAll = () => {
+    router.push(`/countries?continent=${selectedContinent}`);
+  };
+
   return (
     <section className="py-16 px-4 bg-background">
       <div className="max-w-7xl mx-auto">
-        {/* Header with Continent Selector */}
-        <div className="mb-12">
+        {/* Header with Continent Selector and View all button */}
+        <div className="flex items-center justify-between mb-12">
           <Select
             value={selectedContinent}
             onValueChange={(value) => setSelectedContinent(value as ContinentKey)}
@@ -282,7 +288,7 @@ export default function DestinationsSection() {
               className="!border-0 !p-0 !h-auto !w-auto !shadow-none !bg-transparent !outline-none focus-visible:!ring-0 focus-visible:!ring-offset-0 focus:!ring-0 focus:!ring-offset-0 hover:opacity-80 transition-opacity [&>svg]:hidden data-[state=open]:!bg-transparent data-[state=closed]:!bg-transparent"
               style={{ border: 'none', boxShadow: 'none', background: 'transparent' }}
             >
-              <h2 className="text-6xl font-bold text-foreground flex items-center gap-3 cursor-pointer" style={{ fontFamily: 'Clash Display, sans-serif' }}>
+              <h2 className="text-6xl font-medium text-foreground flex items-center gap-3 cursor-pointer" style={{ fontFamily: 'Clash Display, sans-serif' }}>
                 {selectedContinent}
                 <ChevronDown className="w-8 h-8 opacity-70" />
               </h2>
@@ -299,6 +305,17 @@ export default function DestinationsSection() {
               ))}
             </SelectContent>
           </Select>
+
+          {/* View all button */}
+          <button
+            onClick={handleViewAll}
+            className="flex items-center gap-2 px-6 py-3 border-2 border-foreground text-foreground hover:bg-foreground hover:text-background transition-all duration-300 rounded-lg group"
+          >
+            <span className="font-semibold text-lg" style={{ fontFamily: 'Clash Display, sans-serif' }}>
+              View all
+            </span>
+            <MoveRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+          </button>
         </div>
 
         {/* Country Flags Grid */}

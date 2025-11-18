@@ -31,18 +31,18 @@ export default function LatestNewsSection() {
         {/* Header with title and View all button */}
         <div className="flex items-center justify-between mb-8">
           <h2
-            className="text-6xl font-bold text-foreground"
+            className="text-6xl font-medium text-foreground"
             style={{ fontFamily: 'Clash Display, sans-serif' }}
           >
             Latest news
           </h2>
 
           {/* View all button */}
-          <button className="flex items-center gap-2 text-foreground hover:text-primary transition-colors group">
-            <span className="font-medium" style={{ fontFamily: 'Clash Display, sans-serif' }}>
+          <button className="flex items-center gap-2 px-6 py-3 border-2 border-foreground text-foreground hover:bg-foreground hover:text-background transition-all duration-300 rounded-lg group">
+            <span className="font-semibold text-lg" style={{ fontFamily: 'Clash Display, sans-serif' }}>
               View all
             </span>
-            <MoveRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            <MoveRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </button>
         </div>
 

@@ -11,7 +11,7 @@ export default function PackagesSection() {
           {/* Левая сторона - заголовок и текст */}
           <div className="flex flex-col justify-between h-full">
             <div className="w-4/5">
-              <h2 className="text-6xl font-bold text-foreground mb-6" style={{ fontFamily: 'Clash Display, sans-serif' }}>
+              <h2 className="text-6xl font-medium text-foreground mb-6" style={{ fontFamily: 'Clash Display, sans-serif' }}>
                 Packages
               </h2>
               <p className="text-lg text-foreground/80 leading-relaxed">

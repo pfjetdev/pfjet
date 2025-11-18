@@ -1,4 +1,5 @@
 import HeroSection from "@/components/HeroSection";
+import FlightClassBanner from "@/components/FlightClassBanner";
 import FeaturesSection from "@/components/FeaturesSection";
 import EmptyLegsSection from "@/components/EmptyLegsSection";
 import PackagesSection from "@/components/PackagesSection";
@@ -15,6 +16,8 @@ export default function Home() {
       {/* Hero Section */}
       <main className="pt-0">
         <HeroSection />
+        {/* Flight Class Banner */}
+        <FlightClassBanner />
         {/* Features Section */}
         <FeaturesSection />
         {/* Empty Legs Section */}

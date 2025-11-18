@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { FormProvider } from "@/contexts/FormContext";
 import NavBar from "@/components/NavBar";
 
 const geistSans = Geist({
@@ -35,8 +36,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <NavBar />
-          {children}
+          <FormProvider>
+            <NavBar />
+            {children}
+          </FormProvider>
         </ThemeProvider>
       </body>
     </html>

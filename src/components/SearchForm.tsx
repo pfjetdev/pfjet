@@ -1,27 +1,52 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { useTheme } from 'next-themes'
 import { PlaneTakeoff, PlaneLanding, Plane } from 'lucide-react'
 import { AirportCombobox } from '@/components/AirportCombobox'
 import { DateTimePicker } from '@/components/DateTimePicker'
 import { PassengerPicker } from '@/components/PassengerPicker'
 
-const SearchForm = () => {
+interface SearchFormProps {
+  formData: {
+    from: string
+    to: string
+    date: string
+    time: string
+    passengers: string
+  }
+  onFormChange: (field: string, value: string) => void
+  focusTrigger?: number
+  fieldToFocus?: 'from' | 'to' | 'date' | null
+}
+
+const SearchForm = ({ formData, onFormChange, focusTrigger, fieldToFocus }: SearchFormProps) => {
   const { theme } = useTheme()
-  const [formData, setFormData] = useState({
-    from: '',
-    to: '',
-    date: '',
-    time: '',
-    passengers: '2'
-  })
+  const [shouldAutoFocusFrom, setShouldAutoFocusFrom] = useState(false)
+  const [shouldAutoFocusTo, setShouldAutoFocusTo] = useState(false)
+  const [shouldAutoFocusDate, setShouldAutoFocusDate] = useState(false)
+
+  // Auto-focus when focusTrigger changes
+  useEffect(() => {
+    if (focusTrigger && focusTrigger > 0) {
+      if (fieldToFocus === 'from') {
+        setShouldAutoFocusFrom(true)
+        const timer = setTimeout(() => setShouldAutoFocusFrom(false), 100)
+        return () => clearTimeout(timer)
+      } else if (fieldToFocus === 'to') {
+        setShouldAutoFocusTo(true)
+        const timer = setTimeout(() => setShouldAutoFocusTo(false), 100)
+        return () => clearTimeout(timer)
+      } else if (fieldToFocus === 'date') {
+        setShouldAutoFocusDate(true)
+        const timer = setTimeout(() => setShouldAutoFocusDate(false), 100)
+        return () => clearTimeout(timer)
+      }
+    }
+  }, [focusTrigger, fieldToFocus])
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }))
+    onFormChange(field, value)
   }
 
   const handleSearch = () => {
@@ -54,6 +79,7 @@ const SearchForm = () => {
               }
               className={theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}
               fieldType="from"
+              autoFocus={shouldAutoFocusFrom}
             />
           </div>
 
@@ -76,6 +102,7 @@ const SearchForm = () => {
               className={theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}
               showNearby={false}
               fieldType="to"
+              autoFocus={shouldAutoFocusTo}
             />
           </div>
 
@@ -89,6 +116,7 @@ const SearchForm = () => {
               time={formData.time}
               onDateChange={(value) => handleInputChange('date', value)}
               onTimeChange={(value) => handleInputChange('time', value)}
+              autoFocus={shouldAutoFocusDate}
             />
           </div>
 

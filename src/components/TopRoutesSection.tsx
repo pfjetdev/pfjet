@@ -76,7 +76,7 @@ export default function TopRoutesSection() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-12">
-          <h2 className="text-6xl font-bold text-foreground" style={{ fontFamily: 'Clash Display, sans-serif' }}>
+          <h2 className="text-6xl font-medium text-foreground" style={{ fontFamily: 'Clash Display, sans-serif' }}>
             Top Routes
           </h2>
         </div>
