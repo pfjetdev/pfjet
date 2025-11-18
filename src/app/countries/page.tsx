@@ -95,8 +95,9 @@ export default function CountriesPage() {
                 {/* Countries under this letter */}
                 <div className="space-y-2">
                   {groupedCountries[letter].map((country: Country) => (
-                    <button
+                    <a
                       key={country.code}
+                      href={`/countries/${country.code}`}
                       className="w-full flex items-center justify-between px-4 py-3 bg-card border border-border rounded-xl hover:bg-accent hover:shadow-md transition-all duration-200 group"
                     >
                       <div className="flex items-center gap-3">
@@ -109,7 +110,7 @@ export default function CountriesPage() {
                         </span>
                       </div>
                       <ArrowUpRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" strokeWidth={2} />
-                    </button>
+                    </a>
                   ))}
                 </div>
               </div>
