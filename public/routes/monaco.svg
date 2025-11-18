@@ -1,0 +1,53 @@
+<svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="skyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#87CEEB;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#B0E0E6;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="buildingGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#F5DEB3;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#DEB887;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Sky background -->
+  <rect width="400" height="300" fill="url(#skyGradient)"/>
+  
+  <!-- Sea -->
+  <rect x="0" y="200" width="400" height="100" fill="#4682B4"/>
+  
+  <!-- Monaco buildings -->
+  <rect x="50" y="120" width="40" height="80" fill="url(#buildingGradient)"/>
+  <rect x="100" y="100" width="35" height="100" fill="url(#buildingGradient)"/>
+  <rect x="150" y="110" width="45" height="90" fill="url(#buildingGradient)"/>
+  <rect x="210" y="90" width="50" height="110" fill="url(#buildingGradient)"/>
+  <rect x="270" y="130" width="40" height="70" fill="url(#buildingGradient)"/>
+  <rect x="320" y="140" width="35" height="60" fill="url(#buildingGradient)"/>
+  
+  <!-- Casino Monte Carlo -->
+  <rect x="180" y="80" width="80" height="40" fill="#DAA520"/>
+  <rect x="190" y="70" width="60" height="10" fill="#B8860B"/>
+  <circle cx="220" cy="75" r="3" fill="#FFD700"/>
+  
+  <!-- Yachts -->
+  <ellipse cx="80" cy="230" rx="25" ry="8" fill="white"/>
+  <rect x="75" y="220" width="10" height="15" fill="#8B4513"/>
+  <polygon points="85,220 85,210 95,215" fill="white"/>
+  
+  <ellipse cx="180" cy="240" rx="30" ry="10" fill="white"/>
+  <rect x="175" y="225" width="10" height="20" fill="#8B4513"/>
+  <polygon points="185,225 185,210 200,220" fill="white"/>
+  
+  <ellipse cx="300" cy="235" rx="20" ry="6" fill="white"/>
+  <rect x="298" y="225" width="6" height="12" fill="#8B4513"/>
+  
+  <!-- Palm trees -->
+  <ellipse cx="30" cy="180" rx="12" ry="15" fill="#228B22"/>
+  <rect x="28" y="180" width="4" height="20" fill="#8B4513"/>
+  
+  <ellipse cx="370" cy="185" rx="10" ry="12" fill="#228B22"/>
+  <rect x="368" y="185" width="4" height="15" fill="#8B4513"/>
+  
+  <!-- Sun -->
+  <circle cx="350" cy="50" r="20" fill="#FFD700"/>
+</svg>

@@ -1,0 +1,124 @@
+'use client'
+
+import { useState } from 'react'
+import { useTheme } from 'next-themes'
+import { PlaneTakeoff, PlaneLanding, Plane } from 'lucide-react'
+import { AirportCombobox } from '@/components/AirportCombobox'
+import { DateTimePicker } from '@/components/DateTimePicker'
+import { PassengerPicker } from '@/components/PassengerPicker'
+
+const SearchForm = () => {
+  const { theme } = useTheme()
+  const [formData, setFormData] = useState({
+    from: '',
+    to: '',
+    date: '',
+    time: '',
+    passengers: '2'
+  })
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }))
+  }
+
+  const handleSearch = () => {
+    console.log('Search data:', formData)
+    // Добавляем визуальную обратную связь
+    alert('Searching for jets with your criteria...')
+  }
+
+  return (
+    <div className="w-full max-w-6xl mx-auto mt-6">
+      <div className={`backdrop-blur-sm rounded-xl shadow-xl border p-2 h-16 ${
+        theme === 'dark' 
+          ? 'bg-gray-800/95 border-white/30' 
+          : 'bg-white/95 border-white/50'
+      }`}>
+        <div className="flex flex-col lg:flex-row items-center gap-2 lg:gap-0 h-full">
+          
+          {/* From Field - Large */}
+          <div className="flex-1 lg:flex-[2] relative h-full">
+            <AirportCombobox
+              value={formData.from}
+              onValueChange={(value) => handleInputChange('from', value)}
+              placeholder="From"
+              icon={
+                <PlaneTakeoff
+                  className={`w-4 h-4 ${
+                    theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+                  }`}
+                />
+              }
+              className={theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}
+              fieldType="from"
+            />
+          </div>
+
+          {/* Divider */}
+          <div className={`hidden lg:block w-px h-8 ${theme === 'dark' ? 'bg-gray-600' : 'bg-gray-200'}`}></div>
+
+          {/* Going To Field - Large */}
+          <div className="flex-1 lg:flex-[2] relative h-full">
+            <AirportCombobox
+              value={formData.to}
+              onValueChange={(value) => handleInputChange('to', value)}
+              placeholder="To"
+              icon={
+                <PlaneLanding
+                  className={`w-4 h-4 ${
+                    theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+                  }`}
+                />
+              }
+              className={theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}
+              showNearby={false}
+              fieldType="to"
+            />
+          </div>
+
+          {/* Divider */}
+          <div className={`hidden lg:block w-px h-8 ${theme === 'dark' ? 'bg-gray-600' : 'bg-gray-200'}`}></div>
+
+          {/* Date and Time Picker */}
+          <div className="flex-[2] relative h-full px-2">
+            <DateTimePicker
+              date={formData.date}
+              time={formData.time}
+              onDateChange={(value) => handleInputChange('date', value)}
+              onTimeChange={(value) => handleInputChange('time', value)}
+            />
+          </div>
+
+          {/* Divider */}
+          <div className={`hidden lg:block w-px h-8 ${theme === 'dark' ? 'bg-gray-600' : 'bg-gray-200'}`}></div>
+
+          {/* Passengers Field */}
+          <div className="flex-shrink-0 w-20 relative h-full">
+            <PassengerPicker
+              value={formData.passengers}
+              onChange={(value) => handleInputChange('passengers', value)}
+            />
+          </div>
+
+          {/* Search Button */}
+          <div className="flex-shrink-0 h-full flex items-center ml-4">
+            <button
+              onClick={handleSearch}
+              className="text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-lg h-12 w-40 hover:opacity-90 cursor-pointer"
+              style={{ backgroundColor: 'var(--brand-red)' }}
+            >
+              <span className="text-sm">Search a Jet</span>
+              <Plane className="w-4 h-4 rotate-45" />
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default SearchForm

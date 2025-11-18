@@ -1,0 +1,522 @@
+"use client";
+
+import React, { useState } from "react";
+import Image from "next/image";
+import { useParams, useRouter } from "next/navigation";
+import Footer from "@/components/Footer";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogClose,
+} from "@/components/ui/dialog";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import {
+  Plane,
+  Users,
+  Gauge,
+  Briefcase,
+  ArrowLeft,
+  CheckCircle2,
+  X,
+  ZoomIn,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+
+// Aircraft data structure
+const aircraftCategories = {
+  turboprop: {
+    name: "Turboprop",
+    models: {
+      "king-air-260": {
+        name: "King Air 260",
+        description: "The King Air 260 is a twin-turboprop aircraft that combines efficiency with versatility. Perfect for short to medium-range flights, it offers exceptional reliability and comfort for up to 9 passengers.",
+        fullDescription: "The Beechcraft King Air 260 represents the pinnacle of turboprop aviation, offering a perfect blend of performance, efficiency, and comfort. With its advanced Proline Fusion avionics suite and powerful PT6A-52 engines, the King Air 260 delivers superior speed and range while maintaining exceptional fuel efficiency. The spacious cabin features executive seating, full refreshment center, and large windows providing stunning views.",
+        specifications: {
+          passengers: "Up to 9",
+          range: "1,720 nm",
+          speed: "310 mph",
+          baggage: "55 cu ft",
+          cabin_height: "4.8 ft",
+          cabin_width: "4.5 ft",
+        },
+        features: [
+          "Advanced Proline Fusion Avionics",
+          "Executive Seating Configuration",
+          "Full Refreshment Center",
+          "High-Speed WiFi Available",
+          "Climate Control System",
+          "LED Cabin Lighting"
+        ],
+        gallery: [
+          "/aircraft/turboprops.png",
+          "/aircraft/turboprops.png",
+          "/aircraft/turboprops.png",
+        ],
+      },
+      "piaggio-avanti": {
+        name: "Piaggio Avanti",
+        description: "The Piaggio Avanti is a unique Italian turboprop that offers jet-like speed with turboprop efficiency, featuring a distinctive three-surface design.",
+        fullDescription: "The Piaggio Avanti Evo is one of the fastest turboprop aircraft in the world, capable of flying at speeds typically reserved for jets while maintaining the fuel efficiency of a turboprop. Its distinctive three-surface design and pusher propellers provide an exceptionally quiet and smooth cabin experience.",
+        specifications: {
+          passengers: "Up to 9",
+          range: "1,470 nm",
+          speed: "402 mph",
+          baggage: "49 cu ft",
+          cabin_height: "5.7 ft",
+          cabin_width: "6.0 ft",
+        },
+        features: [
+          "Jet-Like Speed",
+          "Exceptionally Quiet Cabin",
+          "Stand-Up Cabin Height",
+          "Advanced Avionics Suite",
+          "Pusher Propeller Design",
+          "Excellent Fuel Efficiency"
+        ],
+        gallery: [
+          "/aircraft/turboprops.png",
+          "/aircraft/turboprops.png",
+          "/aircraft/turboprops.png",
+        ],
+      },
+    },
+  },
+  "very-light": {
+    name: "Very Light Jets",
+    models: {
+      "citation-mustang": {
+        name: "Citation Mustang",
+        description: "The Citation Mustang is Cessna's entry-level jet, offering excellent performance and value for short trips.",
+        fullDescription: "The Cessna Citation Mustang revolutionized the very light jet category by combining exceptional performance with owner-operator simplicity. Perfect for short business trips, the Mustang offers jet performance at turboprop costs.",
+        specifications: {
+          passengers: "4-5",
+          range: "1,150 nm",
+          speed: "340 mph",
+          baggage: "57 cu ft",
+          cabin_height: "4.5 ft",
+          cabin_width: "4.8 ft",
+        },
+        features: [
+          "Garmin G1000 Avionics",
+          "Single-Pilot Certified",
+          "Excellent Short-Field Performance",
+          "WiFi Connectivity",
+          "Climate Control",
+          "LED Lighting"
+        ],
+        gallery: [
+          "/aircraft/verylightjet.png",
+          "/aircraft/verylightjet.png",
+          "/aircraft/verylightjet.png",
+        ],
+      },
+    },
+  },
+};
+
+export default function AircraftModelPage() {
+  const params = useParams();
+  const router = useRouter();
+  const category = params.category as string;
+  const model = params.model as string;
+
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [lightboxImageIndex, setLightboxImageIndex] = useState(0);
+
+  const categoryData = aircraftCategories[category as keyof typeof aircraftCategories];
+  const aircraftData = categoryData?.models[model as keyof typeof categoryData.models];
+
+  if (!aircraftData) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-foreground mb-4">Aircraft Not Found</h1>
+          <Button onClick={() => router.push("/aircraft")}>
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Fleet
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const categoryModels = Object.entries(categoryData.models).map(([slug, data]) => ({
+    slug,
+    ...data,
+  }));
+
+  return (
+    <div className="min-h-screen bg-background transition-colors duration-300">
+      <main className="pt-6 px-4 pb-12">
+        <div className="max-w-7xl mx-auto space-y-6">
+          {/* Back Button */}
+          <Button
+            variant="ghost"
+            onClick={() => router.push("/aircraft")}
+            className="mb-4"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Fleet
+          </Button>
+
+          {/* Header */}
+          <div className="space-y-2">
+            <Badge variant="outline" className="mb-2">
+              {categoryData.name}
+            </Badge>
+            <h1
+              className="text-4xl md:text-5xl font-medium text-foreground tracking-[2.4px]"
+              style={{ fontFamily: "Clash Display, sans-serif" }}
+            >
+              {aircraftData.name}
+            </h1>
+          </div>
+
+          {/* Main Content */}
+          <div className="flex flex-col lg:flex-row gap-6">
+            {/* Left Column - 70% */}
+            <div className="lg:w-[70%] space-y-6">
+              {/* Gallery - Bento Grid */}
+              <Card>
+                <CardContent className="p-6">
+                  <div className="grid grid-cols-4 gap-3 h-[500px]">
+                    {/* Large Image - Takes 2x2 grid */}
+                    {aircraftData.gallery[0] && (
+                      <button
+                        onClick={() => {
+                          setLightboxImageIndex(0);
+                          setIsLightboxOpen(true);
+                        }}
+                        className="col-span-2 row-span-2 relative rounded-lg overflow-hidden bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/30 group cursor-pointer hover:shadow-lg transition-all duration-300"
+                      >
+                        <Image
+                          src={aircraftData.gallery[0]}
+                          alt={`${aircraftData.name} - Image 1`}
+                          fill
+                          className="object-contain p-6 group-hover:scale-105 transition-transform duration-300"
+                          priority
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-all duration-300 flex items-center justify-center">
+                          <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 bg-white/90 dark:bg-black/90 rounded-full p-3 shadow-lg">
+                            <ZoomIn className="w-6 h-6 text-foreground" />
+                          </div>
+                        </div>
+                      </button>
+                    )}
+
+                    {/* Small Images - 4 images in 2x2 on the right */}
+                    {[1, 2, 3, 4].map((index) => {
+                      const imageExists = aircraftData.gallery[index];
+                      const remainingImages = aircraftData.gallery.length - 5;
+                      const isLastImage = index === 4;
+                      const shouldShowCounter = isLastImage && remainingImages > 0;
+
+                      if (!imageExists && index > aircraftData.gallery.length - 1) {
+                        return (
+                          <div
+                            key={index}
+                            className="relative rounded-lg bg-muted/30 border-2 border-dashed border-border"
+                          />
+                        );
+                      }
+
+                      return (
+                        <button
+                          key={index}
+                          onClick={() => {
+                            setLightboxImageIndex(index);
+                            setIsLightboxOpen(true);
+                          }}
+                          className="relative rounded-lg overflow-hidden bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/30 group cursor-pointer hover:shadow-lg transition-all duration-300"
+                        >
+                          <Image
+                            src={aircraftData.gallery[index]}
+                            alt={`${aircraftData.name} - Image ${index + 1}`}
+                            fill
+                            className="object-contain p-3 group-hover:scale-110 transition-transform duration-300"
+                          />
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-all duration-300 flex items-center justify-center">
+                            <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 bg-white/90 dark:bg-black/90 rounded-full p-2 shadow-lg">
+                              <ZoomIn className="w-5 h-5 text-foreground" />
+                            </div>
+                          </div>
+
+                          {/* Counter Overlay for last image if there are more */}
+                          {shouldShowCounter && (
+                            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center">
+                              <div className="text-white text-4xl font-bold">
+                                +{remainingImages}
+                              </div>
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Specifications */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Specifications</CardTitle>
+                  <CardDescription>
+                    Technical details and performance metrics
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div className="flex items-start space-x-3 p-3 rounded-lg bg-muted/50">
+                      <Users className="w-5 h-5 text-primary mt-0.5" />
+                      <div>
+                        <p className="text-xs text-muted-foreground">Passengers</p>
+                        <p className="text-sm font-semibold text-foreground">
+                          {aircraftData.specifications.passengers}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start space-x-3 p-3 rounded-lg bg-muted/50">
+                      <Plane className="w-5 h-5 text-primary mt-0.5" />
+                      <div>
+                        <p className="text-xs text-muted-foreground">Range</p>
+                        <p className="text-sm font-semibold text-foreground">
+                          {aircraftData.specifications.range}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start space-x-3 p-3 rounded-lg bg-muted/50">
+                      <Gauge className="w-5 h-5 text-primary mt-0.5" />
+                      <div>
+                        <p className="text-xs text-muted-foreground">Speed</p>
+                        <p className="text-sm font-semibold text-foreground">
+                          {aircraftData.specifications.speed}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start space-x-3 p-3 rounded-lg bg-muted/50">
+                      <Briefcase className="w-5 h-5 text-primary mt-0.5" />
+                      <div>
+                        <p className="text-xs text-muted-foreground">Baggage</p>
+                        <p className="text-sm font-semibold text-foreground">
+                          {aircraftData.specifications.baggage}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start space-x-3 p-3 rounded-lg bg-muted/50">
+                      <div className="w-5 h-5 text-primary mt-0.5 flex items-center justify-center text-xs font-bold">
+                        H
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Cabin Height</p>
+                        <p className="text-sm font-semibold text-foreground">
+                          {aircraftData.specifications.cabin_height}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start space-x-3 p-3 rounded-lg bg-muted/50">
+                      <div className="w-5 h-5 text-primary mt-0.5 flex items-center justify-center text-xs font-bold">
+                        W
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Cabin Width</p>
+                        <p className="text-sm font-semibold text-foreground">
+                          {aircraftData.specifications.cabin_width}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Description & Features */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>About This Aircraft</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-muted-foreground leading-relaxed">
+                    {aircraftData.fullDescription}
+                  </p>
+                  <div>
+                    <h3 className="font-semibold text-foreground mb-3">Key Features</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      {aircraftData.features.map((feature, index) => (
+                        <div key={index} className="flex items-center space-x-2">
+                          <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0" />
+                          <span className="text-sm text-muted-foreground">{feature}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Right Column - 30% */}
+            <div className="lg:w-[30%]">
+              <Card className="sticky top-6">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Plane className="w-5 h-5 text-primary" />
+                    Available {categoryData.name} Models
+                  </CardTitle>
+                  <CardDescription>
+                    Explore other aircraft in this category
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {categoryModels.map((aircraft) => (
+                    <button
+                      key={aircraft.slug}
+                      onClick={() => router.push(`/aircraft/${category}/${aircraft.slug}`)}
+                      className={`
+                        w-full text-left p-4 rounded-lg border transition-all
+                        ${
+                          aircraft.slug === model
+                            ? "bg-primary border-primary text-primary-foreground"
+                            : "bg-card border-border hover:border-primary hover:bg-card/80"
+                        }
+                      `}
+                    >
+                      <h3 className="font-semibold text-sm mb-1">{aircraft.name}</h3>
+                      <p className={`text-xs ${
+                        aircraft.slug === model
+                          ? "text-primary-foreground/80"
+                          : "text-muted-foreground"
+                      }`}>
+                        {aircraft.specifications.passengers} • {aircraft.specifications.range}
+                      </p>
+                    </button>
+                  ))}
+
+                  <div className="pt-4 border-t border-border">
+                    <Button className="w-full" size="lg">
+                      Request a Quote
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      {/* Footer */}
+      <Footer />
+
+      {/* Fullscreen Lightbox Dialog */}
+      <Dialog open={isLightboxOpen} onOpenChange={setIsLightboxOpen}>
+        <DialogContent className="max-w-[95vw] w-full h-[95vh] p-0 bg-black/95 border-0">
+          <div className="relative w-full h-full flex flex-col">
+            {/* Close Button */}
+            <DialogClose className="absolute top-4 right-4 z-50 rounded-full bg-white/10 hover:bg-white/20 p-2 transition-all duration-300 backdrop-blur-sm">
+              <X className="h-6 w-6 text-white" />
+              <span className="sr-only">Close</span>
+            </DialogClose>
+
+            {/* Image Counter */}
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full">
+              <span className="text-white text-sm font-medium">
+                {lightboxImageIndex + 1} / {aircraftData.gallery.length}
+              </span>
+            </div>
+
+            {/* Aircraft Name */}
+            <div className="absolute top-4 left-4 z-50 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
+              <span className="text-white text-sm font-medium">
+                {aircraftData.name}
+              </span>
+            </div>
+
+            {/* Carousel */}
+            <div className="flex-1 flex items-center justify-center p-8">
+              <Carousel
+                opts={{
+                  align: "center",
+                  loop: true,
+                }}
+                className="w-full h-full"
+              >
+                <CarouselContent className="h-full">
+                  {aircraftData.gallery.map((image, index) => (
+                    <CarouselItem key={index} className="h-full">
+                      <div className="relative w-full h-full flex items-center justify-center">
+                        <div className="relative w-full h-[80vh]">
+                          <Image
+                            src={image}
+                            alt={`${aircraftData.name} - Image ${index + 1}`}
+                            fill
+                            className="object-contain"
+                            priority={index === lightboxImageIndex}
+                          />
+                        </div>
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+
+                {/* Navigation Arrows */}
+                <CarouselPrevious
+                  className="left-4 h-12 w-12 bg-white/10 hover:bg-white/20 border-0 backdrop-blur-sm text-white"
+                  onClick={() => setLightboxImageIndex((prev) =>
+                    prev === 0 ? aircraftData.gallery.length - 1 : prev - 1
+                  )}
+                />
+                <CarouselNext
+                  className="right-4 h-12 w-12 bg-white/10 hover:bg-white/20 border-0 backdrop-blur-sm text-white"
+                  onClick={() => setLightboxImageIndex((prev) =>
+                    prev === aircraftData.gallery.length - 1 ? 0 : prev + 1
+                  )}
+                />
+              </Carousel>
+            </div>
+
+            {/* Thumbnail Navigation */}
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 max-w-[90vw] overflow-x-auto">
+              <div className="flex gap-2 p-2 bg-white/10 backdrop-blur-sm rounded-lg">
+                {aircraftData.gallery.map((image, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setLightboxImageIndex(index)}
+                    className={`
+                      relative flex-shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 transition-all duration-300
+                      ${
+                        lightboxImageIndex === index
+                          ? "border-white scale-110 shadow-lg"
+                          : "border-white/30 hover:border-white/60 opacity-60 hover:opacity-100"
+                      }
+                    `}
+                  >
+                    <Image
+                      src={image}
+                      alt={`Thumbnail ${index + 1}`}
+                      fill
+                      className="object-contain p-1"
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
