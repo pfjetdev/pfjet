@@ -1,7 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import Image from 'next/image';
-import { Calendar, Clock, Users, Edit2 } from 'lucide-react';
+import { Calendar, Clock, Users } from 'lucide-react';
+import { PassengerPicker } from './PassengerPicker';
 
 interface EmptyLegHeroBlockProps {
   departureDate: string;
@@ -18,6 +20,7 @@ export default function EmptyLegHeroBlock({
   image,
   pricePerJet
 }: EmptyLegHeroBlockProps) {
+  const [selectedPassengers, setSelectedPassengers] = useState('1');
   return (
     <div className="bg-card rounded-3xl border border-border overflow-hidden">
       {/* Image Section */}
@@ -73,24 +76,13 @@ export default function EmptyLegHeroBlock({
           </div>
 
           {/* Passengers Card - Editable */}
-          <div className="bg-white/95 dark:bg-white backdrop-blur-md rounded-2xl px-5 py-3 shadow-lg flex items-center gap-3">
-            <div className="flex-1">
-              <p
-                className="text-xs text-gray-500 mb-0.5"
-                style={{ fontFamily: 'Montserrat, sans-serif' }}
-              >
-                Passengers
-              </p>
-              <p
-                className="text-base font-bold text-gray-900"
-                style={{ fontFamily: 'Clash Display, sans-serif' }}
-              >
-                {passengers} PASSENGERS
-              </p>
-            </div>
-            <button className="w-8 h-8 bg-gray-200 rounded-lg flex items-center justify-center hover:bg-gray-300 transition-colors">
-              <Edit2 className="w-4 h-4 text-gray-600" />
-            </button>
+          <div className="bg-white/95 dark:bg-white backdrop-blur-md rounded-2xl px-5 py-3 shadow-lg">
+            <PassengerPicker
+              value={selectedPassengers}
+              onChange={setSelectedPassengers}
+              maxPassengers={passengers}
+              fullCard={true}
+            />
           </div>
         </div>
       </div>
@@ -144,13 +136,13 @@ export default function EmptyLegHeroBlock({
                 className="text-base font-semibold text-foreground"
                 style={{ fontFamily: 'Clash Display, sans-serif' }}
               >
-                Up to {passengers}
+                {selectedPassengers} {parseInt(selectedPassengers) === 1 ? 'Passenger' : 'Passengers'}
               </p>
               <p
                 className="text-xs text-muted-foreground"
                 style={{ fontFamily: 'Montserrat, sans-serif' }}
               >
-                Passengers
+                Selected (up to {passengers})
               </p>
             </div>
           </div>

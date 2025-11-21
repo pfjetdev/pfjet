@@ -2,6 +2,7 @@
 
 import { useRef, useEffect, useState } from 'react'
 import { useTheme } from 'next-themes'
+import { useRouter } from 'next/navigation'
 import { PlaneTakeoff, PlaneLanding, Plane } from 'lucide-react'
 import { AirportCombobox } from '@/components/AirportCombobox'
 import { DateTimePicker } from '@/components/DateTimePicker'
@@ -18,10 +19,12 @@ interface SearchFormProps {
   onFormChange: (field: string, value: string) => void
   focusTrigger?: number
   fieldToFocus?: 'from' | 'to' | 'date' | null
+  isSticky?: boolean
 }
 
-const SearchForm = ({ formData, onFormChange, focusTrigger, fieldToFocus }: SearchFormProps) => {
+const SearchForm = ({ formData, onFormChange, focusTrigger, fieldToFocus, isSticky = false }: SearchFormProps) => {
   const { theme } = useTheme()
+  const router = useRouter()
   const [shouldAutoFocusFrom, setShouldAutoFocusFrom] = useState(false)
   const [shouldAutoFocusTo, setShouldAutoFocusTo] = useState(false)
   const [shouldAutoFocusDate, setShouldAutoFocusDate] = useState(false)
@@ -50,16 +53,29 @@ const SearchForm = ({ formData, onFormChange, focusTrigger, fieldToFocus }: Sear
   }
 
   const handleSearch = () => {
-    console.log('Search data:', formData)
-    // Добавляем визуальную обратную связь
-    alert('Searching for jets with your criteria...')
+    // Validate required fields
+    if (!formData.from || !formData.to) {
+      alert('Please select both departure and destination airports')
+      return
+    }
+
+    // Navigate to search results with form data
+    const params = new URLSearchParams({
+      from: formData.from,
+      to: formData.to,
+      date: formData.date || new Date().toISOString().split('T')[0],
+      time: formData.time || '10:00',
+      passengers: formData.passengers || '1'
+    })
+
+    router.push(`/search-results?${params.toString()}`)
   }
 
   return (
-    <div className="w-full max-w-6xl mx-auto mt-6">
+    <div className={`w-full mx-auto ${isSticky ? 'mt-0' : 'mt-6'}`}>
       <div className={`backdrop-blur-sm rounded-xl shadow-xl border p-2 h-16 ${
-        theme === 'dark' 
-          ? 'bg-gray-800/95 border-white/30' 
+        theme === 'dark'
+          ? 'bg-gray-800/95 border-white/30'
           : 'bg-white/95 border-white/50'
       }`}>
         <div className="flex flex-col lg:flex-row items-center gap-2 lg:gap-0 h-full">

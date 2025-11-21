@@ -1,13 +1,14 @@
 'use client'
 
 import { useTheme } from 'next-themes'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { ArrowLeft } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import MultiCityForm from '@/components/MultiCityForm'
 import Footer from '@/components/Footer'
+import { Skeleton } from '@/components/ui/skeleton'
 
-export default function MultiCityPage() {
+function MultiCityContent() {
   const { theme } = useTheme()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -72,5 +73,29 @@ export default function MultiCityPage() {
       {/* Footer */}
       <Footer />
     </div>
+  )
+}
+
+export default function MultiCityPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background">
+        <section className="pt-6 px-4 pb-12">
+          <div className="max-w-4xl mx-auto space-y-8">
+            <div className="flex items-center gap-4">
+              <Skeleton className="h-10 w-10 rounded-full" />
+              <Skeleton className="h-10 w-48" />
+            </div>
+            <div>
+              <Skeleton className="h-14 w-80 mb-3" />
+              <Skeleton className="h-5 w-96" />
+            </div>
+            <Skeleton className="h-96 w-full rounded-xl" />
+          </div>
+        </section>
+      </div>
+    }>
+      <MultiCityContent />
+    </Suspense>
   )
 }

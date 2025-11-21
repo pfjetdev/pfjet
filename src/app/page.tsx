@@ -9,8 +9,13 @@ import AircraftSection from "@/components/AircraftSection";
 import DestinationsSection from "@/components/DestinationsSection";
 import LatestNewsSection from "@/components/LatestNewsSection";
 import Footer from "@/components/Footer";
+import { generateAllEmptyLegs } from "@/lib/emptyLegsGenerator";
 
-export default function Home() {
+export default async function Home() {
+  // Fetch actual empty legs data - generate same dataset as /empty-legs page
+  // Then take first 15 to ensure consistency
+  const allEmptyLegs = await generateAllEmptyLegs(100);
+  const emptyLegs = allEmptyLegs.slice(0, 15);
   return (
     <div className="min-h-screen bg-background transition-colors duration-300">
       {/* Hero Section */}
@@ -21,7 +26,7 @@ export default function Home() {
         {/* Features Section */}
         <FeaturesSection />
         {/* Empty Legs Section */}
-        <EmptyLegsSection />
+        <EmptyLegsSection emptyLegs={emptyLegs} />
         {/* Packages Section */}
         <PackagesSection />
         {/* Events Section */}

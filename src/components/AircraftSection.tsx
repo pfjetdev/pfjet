@@ -2,22 +2,25 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { MoveRight } from "lucide-react";
 
 interface AircraftType {
   id: number;
   name: string;
+  slug: string;
   image: string;
 }
 
 const aircraftTypes: AircraftType[] = [
-  { id: 1, name: "Turboprops", image: "/aircraft/turboprops.png" },
-  { id: 2, name: "Very Light", image: "/aircraft/verylightjet.png" },
-  { id: 3, name: "Light", image: "/aircraft/light.png" },
-  { id: 4, name: "Midsize", image: "/aircraft/midsizejet.png" },
-  { id: 5, name: "Super-Mid", image: "/aircraft/supermidsizejet.png" },
-  { id: 6, name: "Heavy", image: "/aircraft/heavyjet.png" },
-  { id: 7, name: "Long Range Jet", image: "/aircraft/longrangejet.png" },
+  { id: 1, name: "Turboprops", slug: "turboprop", image: "/aircraft/turboprops.png" },
+  { id: 2, name: "Very Light", slug: "very-light", image: "/aircraft/verylightjet.png" },
+  { id: 3, name: "Light", slug: "light", image: "/aircraft/light.png" },
+  { id: 4, name: "Midsize", slug: "midsize", image: "/aircraft/midsizejet.png" },
+  { id: 5, name: "Super-Mid", slug: "super-mid", image: "/aircraft/supermidsizejet.png" },
+  { id: 6, name: "Heavy", slug: "heavy", image: "/aircraft/heavyjet.png" },
+  { id: 7, name: "Long Range Jet", slug: "ultra-long", image: "/aircraft/longrangejet.png" },
+  { id: 8, name: "VIP", slug: "vip", image: "/aircraft/vip.png" },
 ];
 
 export default function AircraftSection() {
@@ -38,18 +41,19 @@ export default function AircraftSection() {
           {/* Left Column - Aircraft Menu (40%) */}
           <div className="lg:w-2/5 space-y-3">
             {aircraftTypes.map((aircraft) => (
-              <div
+              <Link
                 key={aircraft.id}
+                href={`/aircraft?category=${aircraft.slug}`}
                 className={`
                   flex items-center justify-between p-2 rounded-lg border cursor-pointer h-[60px]
                   hover:scale-[1.02] transition-all duration-300
                   ${
                     selectedAircraft === aircraft.id
-                      ? 'ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700'
-                      : 'hover:bg-gray-50 dark:hover:bg-gray-800 border-gray-200 dark:border-gray-700'
+                      ? 'ring-2 ring-primary bg-primary/5 border-primary'
+                      : 'hover:bg-accent border-border'
                   }
                 `}
-                onClick={() => setSelectedAircraft(aircraft.id)}
+                onMouseEnter={() => setSelectedAircraft(aircraft.id)}
               >
                 <div className="flex items-center space-x-2">
                   {/* Aircraft Image */}
@@ -61,7 +65,7 @@ export default function AircraftSection() {
                       className="object-contain"
                     />
                   </div>
-                  
+
                   {/* Aircraft Name */}
                   <h3 className="text-sm font-semibold text-foreground">
                     {aircraft.name}
@@ -69,7 +73,7 @@ export default function AircraftSection() {
                 </div>
 
                 {/* Arrow Icon */}
-                <MoveRight 
+                <MoveRight
                   className={`
                     w-3 h-3 transition-all duration-300
                     ${
@@ -79,7 +83,7 @@ export default function AircraftSection() {
                     }
                   `}
                 />
-              </div>
+              </Link>
             ))}
           </div>
 

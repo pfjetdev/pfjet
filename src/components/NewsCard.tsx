@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { Card } from '@/components/ui/card';
 import Image from 'next/image';
 
@@ -7,16 +8,19 @@ interface NewsCardProps {
   date: string;
   readTime: string;
   image: string;
+  slug: string;
 }
 
 const NewsCard: React.FC<NewsCardProps> = ({
   title,
   date,
   readTime,
-  image
+  image,
+  slug
 }) => {
   return (
-    <Card className="w-full overflow-hidden p-0 border-0 shadow-none flex flex-col gap-[1px] cursor-pointer group">
+    <Link href={`/news/${slug}`} className="block">
+      <Card className="w-full overflow-hidden p-0 border-0 shadow-none flex flex-col gap-[1px] cursor-pointer group">
       {/* Content section */}
       <div className="bg-card rounded-t-[24px] p-6 flex flex-col justify-between h-64 transition-colors duration-300">
         {/* Title */}
@@ -48,6 +52,7 @@ const NewsCard: React.FC<NewsCardProps> = ({
         />
       </div>
     </Card>
+    </Link>
   );
 };
 

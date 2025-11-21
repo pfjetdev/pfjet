@@ -113,6 +113,18 @@ async function getCityPhoto(cityName: string, countryName: string): Promise<stri
 async function updateCountryPhoto(countryCode: string, countryName: string) {
   console.log(`\n  📍 Updating photos for ${countryName}...`);
 
+  // Проверяем, есть ли уже фото у страны
+  const { data: existingCountry } = await supabase
+    .from('countries')
+    .select('image')
+    .eq('code', countryCode)
+    .single();
+
+  if (existingCountry?.image) {
+    console.log(`    ⏭️  Country photo already exists, skipping...`);
+    return;
+  }
+
   // Получаем фото страны
   console.log(`    📷 Fetching country photo from Unsplash...`);
   const countryPhoto = await getCountryPhoto(countryName);
@@ -140,7 +152,7 @@ async function updateCityPhotos(countryCode: string, countryName: string) {
   // Получаем города этой страны
   const { data: cities, error } = await supabase
     .from('cities')
-    .select('name')
+    .select('name, image')
     .eq('country_code', countryCode);
 
   if (error) {
@@ -153,10 +165,18 @@ async function updateCityPhotos(countryCode: string, countryName: string) {
     return;
   }
 
-  console.log(`    📍 Found ${cities.length} cities`);
+  const citiesWithoutPhotos = cities.filter(city => !city.image);
+  const citiesWithPhotos = cities.length - citiesWithoutPhotos.length;
 
-  // Обновляем фото для каждого города
-  for (const city of cities) {
+  console.log(`    📍 Found ${cities.length} cities (${citiesWithPhotos} already have photos, ${citiesWithoutPhotos.length} need photos)`);
+
+  if (citiesWithoutPhotos.length === 0) {
+    console.log(`    ⏭️  All cities already have photos, skipping...`);
+    return;
+  }
+
+  // Обновляем фото только для городов без фото
+  for (const city of citiesWithoutPhotos) {
     console.log(`      📷 Fetching photo for ${city.name}...`);
     const cityPhoto = await getCityPhoto(city.name, countryName);
 
@@ -181,13 +201,13 @@ async function updateCityPhotos(countryCode: string, countryName: string) {
 
 // Главная функция
 async function main() {
-  console.log('🚀 Starting photo updates for South America...\n');
+  console.log('🚀 Starting photo updates for North America...\n');
 
-  // Получаем все страны South America
+  // Получаем все страны North America
   const { data: countries, error } = await supabase
     .from('countries')
-    .select('code, name')
-    .eq('continent', 'South America')
+    .select('code, name, image')
+    .eq('continent', 'North America')
     .order('name');
 
   if (error) {
@@ -196,19 +216,33 @@ async function main() {
   }
 
   if (!countries || countries.length === 0) {
-    console.log('⚠️  No countries found for South America');
+    console.log('⚠️  No countries found for North America');
     return;
   }
 
-  console.log(`📊 Found ${countries.length} countries in South America\n`);
+  const countriesWithPhotos = countries.filter(c => c.image).length;
+  const countriesWithoutPhotos = countries.length - countriesWithPhotos;
+
+  console.log(`📊 Found ${countries.length} countries in North America`);
+  console.log(`   ✅ ${countriesWithPhotos} already have photos`);
+  console.log(`   ⏳ ${countriesWithoutPhotos} need photos\n`);
+
+  let processedCountries = 0;
+  let skippedCountries = 0;
 
   // Обновляем фото для каждой страны и её городов
   for (const country of countries) {
+    if (country.image) {
+      skippedCountries++;
+    } else {
+      processedCountries++;
+    }
     await updateCountryPhoto(country.code, country.name);
     await updateCityPhotos(country.code, country.name);
   }
 
-  console.log('\n✅ All photos updated for South America!');
+  console.log('\n✅ Photo update complete!');
+  console.log(`📊 Summary: ${processedCountries} countries processed, ${skippedCountries} skipped (already had photos)`);
   console.log('💡 Check your Supabase database to see the new photos.');
 }
 

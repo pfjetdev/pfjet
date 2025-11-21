@@ -3,7 +3,6 @@
 import * as React from 'react';
 import { CalendarDays } from 'lucide-react';
 import { useTheme } from 'next-themes';
-import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import {
   Popover,
@@ -37,32 +36,39 @@ export function DateTimePicker({
       setOpen(true);
     }
   }, [autoFocus]);
+  // Parse date string correctly to avoid timezone issues
+  const parseDate = (dateStr: string): Date | undefined => {
+    if (!dateStr) return undefined;
+    const [year, month, day] = dateStr.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  };
+
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(
-    date ? new Date(date) : undefined
+    date ? parseDate(date) : undefined
   );
   const [month, setMonth] = React.useState<Date | undefined>(
-    date ? new Date(date) : new Date()
+    date ? parseDate(date) : new Date()
   );
 
   const handleDateSelect = (newDate: Date | undefined) => {
-    setSelectedDate(newDate);
     if (newDate) {
-      onDateChange(newDate.toISOString().split('T')[0]);
+      // Fix timezone issue by using local midnight
+      const localDate = new Date(newDate.getFullYear(), newDate.getMonth(), newDate.getDate());
+      setSelectedDate(localDate);
+
+      // Format date to string without timezone conversion
+      const year = localDate.getFullYear();
+      const month = String(localDate.getMonth() + 1).padStart(2, '0');
+      const day = String(localDate.getDate()).padStart(2, '0');
+      onDateChange(`${year}-${month}-${day}`);
       setOpen(false);
     }
   };
 
-  const handleTodayClick = () => {
-    const today = new Date();
-    setMonth(today);
-    setSelectedDate(today);
-    onDateChange(today.toISOString().split('T')[0]);
-    setOpen(false);
-  };
-
   const formatDate = (dateStr: string) => {
     if (!dateStr) return '';
-    const d = new Date(dateStr);
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const d = new Date(year, month - 1, day);
     return d.toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
@@ -96,23 +102,19 @@ export function DateTimePicker({
             </div>
           </PopoverTrigger>
           <PopoverContent className="w-auto overflow-hidden p-0" align="start">
-            <div className="p-3 border-b flex justify-between items-center">
-              <span className="text-sm font-medium">Select Date</span>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={handleTodayClick}
-                className="h-7 text-xs"
-              >
-                Today
-              </Button>
-            </div>
             <Calendar
               mode="single"
               month={month}
               onMonthChange={setMonth}
               selected={selectedDate}
               onSelect={handleDateSelect}
+              disabled={(date) => {
+                // Disable past dates
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                return date < today;
+              }}
+              showOutsideDays={false}
               fromDate={new Date()}
               className="p-3"
             />

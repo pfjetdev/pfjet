@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import Footer from "@/components/Footer";
@@ -17,7 +17,9 @@ import {
   Dialog,
   DialogContent,
   DialogClose,
+  DialogTitle,
 } from "@/components/ui/dialog";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import {
   Carousel,
   CarouselContent,
@@ -34,101 +36,9 @@ import {
   CheckCircle2,
   X,
   ZoomIn,
-  ChevronLeft,
-  ChevronRight,
 } from "lucide-react";
-
-// Aircraft data structure
-const aircraftCategories = {
-  turboprop: {
-    name: "Turboprop",
-    models: {
-      "king-air-260": {
-        name: "King Air 260",
-        description: "The King Air 260 is a twin-turboprop aircraft that combines efficiency with versatility. Perfect for short to medium-range flights, it offers exceptional reliability and comfort for up to 9 passengers.",
-        fullDescription: "The Beechcraft King Air 260 represents the pinnacle of turboprop aviation, offering a perfect blend of performance, efficiency, and comfort. With its advanced Proline Fusion avionics suite and powerful PT6A-52 engines, the King Air 260 delivers superior speed and range while maintaining exceptional fuel efficiency. The spacious cabin features executive seating, full refreshment center, and large windows providing stunning views.",
-        specifications: {
-          passengers: "Up to 9",
-          range: "1,720 nm",
-          speed: "310 mph",
-          baggage: "55 cu ft",
-          cabin_height: "4.8 ft",
-          cabin_width: "4.5 ft",
-        },
-        features: [
-          "Advanced Proline Fusion Avionics",
-          "Executive Seating Configuration",
-          "Full Refreshment Center",
-          "High-Speed WiFi Available",
-          "Climate Control System",
-          "LED Cabin Lighting"
-        ],
-        gallery: [
-          "/aircraft/turboprops.png",
-          "/aircraft/turboprops.png",
-          "/aircraft/turboprops.png",
-        ],
-      },
-      "piaggio-avanti": {
-        name: "Piaggio Avanti",
-        description: "The Piaggio Avanti is a unique Italian turboprop that offers jet-like speed with turboprop efficiency, featuring a distinctive three-surface design.",
-        fullDescription: "The Piaggio Avanti Evo is one of the fastest turboprop aircraft in the world, capable of flying at speeds typically reserved for jets while maintaining the fuel efficiency of a turboprop. Its distinctive three-surface design and pusher propellers provide an exceptionally quiet and smooth cabin experience.",
-        specifications: {
-          passengers: "Up to 9",
-          range: "1,470 nm",
-          speed: "402 mph",
-          baggage: "49 cu ft",
-          cabin_height: "5.7 ft",
-          cabin_width: "6.0 ft",
-        },
-        features: [
-          "Jet-Like Speed",
-          "Exceptionally Quiet Cabin",
-          "Stand-Up Cabin Height",
-          "Advanced Avionics Suite",
-          "Pusher Propeller Design",
-          "Excellent Fuel Efficiency"
-        ],
-        gallery: [
-          "/aircraft/turboprops.png",
-          "/aircraft/turboprops.png",
-          "/aircraft/turboprops.png",
-        ],
-      },
-    },
-  },
-  "very-light": {
-    name: "Very Light Jets",
-    models: {
-      "citation-mustang": {
-        name: "Citation Mustang",
-        description: "The Citation Mustang is Cessna's entry-level jet, offering excellent performance and value for short trips.",
-        fullDescription: "The Cessna Citation Mustang revolutionized the very light jet category by combining exceptional performance with owner-operator simplicity. Perfect for short business trips, the Mustang offers jet performance at turboprop costs.",
-        specifications: {
-          passengers: "4-5",
-          range: "1,150 nm",
-          speed: "340 mph",
-          baggage: "57 cu ft",
-          cabin_height: "4.5 ft",
-          cabin_width: "4.8 ft",
-        },
-        features: [
-          "Garmin G1000 Avionics",
-          "Single-Pilot Certified",
-          "Excellent Short-Field Performance",
-          "WiFi Connectivity",
-          "Climate Control",
-          "LED Lighting"
-        ],
-        gallery: [
-          "/aircraft/verylightjet.png",
-          "/aircraft/verylightjet.png",
-          "/aircraft/verylightjet.png",
-        ],
-      },
-    },
-  },
-};
+import { getAircraftBySlug, getAircraftByCategory, Aircraft } from "@/lib/supabase-client";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AircraftModelPage() {
   const params = useParams();
@@ -139,9 +49,135 @@ export default function AircraftModelPage() {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxImageIndex, setLightboxImageIndex] = useState(0);
+  const [aircraftData, setAircraftData] = useState<Aircraft | null>(null);
+  const [categoryModels, setCategoryModels] = useState<Aircraft[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const categoryData = aircraftCategories[category as keyof typeof aircraftCategories];
-  const aircraftData = categoryData?.models[model as keyof typeof categoryData.models];
+  useEffect(() => {
+    async function loadAircraft() {
+      setLoading(true);
+
+      // Load current aircraft
+      const aircraft = await getAircraftBySlug(category, model);
+      setAircraftData(aircraft);
+
+      // Load other models in this category
+      const models = await getAircraftByCategory(category);
+      setCategoryModels(models);
+
+      setLoading(false);
+    }
+
+    loadAircraft();
+  }, [category, model]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background transition-colors duration-300">
+        <main className="pt-6 px-4 pb-12">
+          <div className="max-w-7xl mx-auto space-y-6">
+            {/* Back Button Skeleton */}
+            <Skeleton className="h-10 w-32 rounded-md" />
+
+            {/* Header Skeleton */}
+            <div className="space-y-2">
+              <Skeleton className="h-6 w-24 rounded-full" />
+              <Skeleton className="h-12 w-80" />
+            </div>
+
+            {/* Main Content Skeleton */}
+            <div className="flex flex-col lg:flex-row gap-6">
+              {/* Left Column - 70% */}
+              <div className="lg:w-[70%] space-y-6">
+                {/* Gallery Skeleton - Bento Grid */}
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="grid grid-cols-4 gap-3 h-[500px]">
+                      {/* Large Image Skeleton */}
+                      <Skeleton className="col-span-2 row-span-2 rounded-lg" />
+                      {/* Small Images Skeleton */}
+                      {Array.from({ length: 4 }).map((_, i) => (
+                        <Skeleton key={i} className="rounded-lg" />
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Specifications Skeleton */}
+                <Card>
+                  <CardHeader>
+                    <Skeleton className="h-6 w-40" />
+                    <Skeleton className="h-4 w-64 mt-2" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      {Array.from({ length: 6 }).map((_, i) => (
+                        <div key={i} className="flex items-start space-x-3 p-3 rounded-lg bg-muted/50">
+                          <Skeleton className="w-5 h-5 rounded" />
+                          <div className="flex-1 space-y-2">
+                            <Skeleton className="h-3 w-16" />
+                            <Skeleton className="h-4 w-20" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Description & Features Skeleton */}
+                <Card>
+                  <CardHeader>
+                    <Skeleton className="h-6 w-48" />
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-3/4" />
+                    </div>
+                    <div>
+                      <Skeleton className="h-5 w-32 mb-3" />
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        {Array.from({ length: 6 }).map((_, i) => (
+                          <div key={i} className="flex items-center space-x-2">
+                            <Skeleton className="w-4 h-4 rounded-full flex-shrink-0" />
+                            <Skeleton className="h-4 flex-1" />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Right Column - 30% */}
+              <div className="lg:w-[30%]">
+                <Card className="sticky top-6">
+                  <CardHeader>
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="w-5 h-5 rounded" />
+                      <Skeleton className="h-6 w-48" />
+                    </div>
+                    <Skeleton className="h-4 w-40 mt-2" />
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Skeleton key={i} className="h-20 w-full rounded-lg" />
+                    ))}
+                    <div className="pt-4 border-t border-border">
+                      <Skeleton className="h-11 w-full rounded-md" />
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </div>
+        </main>
+
+        <Footer />
+      </div>
+    );
+  }
 
   if (!aircraftData) {
     return (
@@ -156,11 +192,6 @@ export default function AircraftModelPage() {
       </div>
     );
   }
-
-  const categoryModels = Object.entries(categoryData.models).map(([slug, data]) => ({
-    slug,
-    ...data,
-  }));
 
   return (
     <div className="min-h-screen bg-background transition-colors duration-300">
@@ -179,7 +210,7 @@ export default function AircraftModelPage() {
           {/* Header */}
           <div className="space-y-2">
             <Badge variant="outline" className="mb-2">
-              {categoryData.name}
+              {aircraftData.category}
             </Badge>
             <h1
               className="text-4xl md:text-5xl font-medium text-foreground tracking-[2.4px]"
@@ -288,7 +319,7 @@ export default function AircraftModelPage() {
                       <div>
                         <p className="text-xs text-muted-foreground">Passengers</p>
                         <p className="text-sm font-semibold text-foreground">
-                          {aircraftData.specifications.passengers}
+                          {aircraftData.passengers}
                         </p>
                       </div>
                     </div>
@@ -297,7 +328,7 @@ export default function AircraftModelPage() {
                       <div>
                         <p className="text-xs text-muted-foreground">Range</p>
                         <p className="text-sm font-semibold text-foreground">
-                          {aircraftData.specifications.range}
+                          {aircraftData.range}
                         </p>
                       </div>
                     </div>
@@ -306,7 +337,7 @@ export default function AircraftModelPage() {
                       <div>
                         <p className="text-xs text-muted-foreground">Speed</p>
                         <p className="text-sm font-semibold text-foreground">
-                          {aircraftData.specifications.speed}
+                          {aircraftData.speed}
                         </p>
                       </div>
                     </div>
@@ -315,7 +346,7 @@ export default function AircraftModelPage() {
                       <div>
                         <p className="text-xs text-muted-foreground">Baggage</p>
                         <p className="text-sm font-semibold text-foreground">
-                          {aircraftData.specifications.baggage}
+                          {aircraftData.baggage}
                         </p>
                       </div>
                     </div>
@@ -326,7 +357,7 @@ export default function AircraftModelPage() {
                       <div>
                         <p className="text-xs text-muted-foreground">Cabin Height</p>
                         <p className="text-sm font-semibold text-foreground">
-                          {aircraftData.specifications.cabin_height}
+                          {aircraftData.cabin_height}
                         </p>
                       </div>
                     </div>
@@ -337,7 +368,7 @@ export default function AircraftModelPage() {
                       <div>
                         <p className="text-xs text-muted-foreground">Cabin Width</p>
                         <p className="text-sm font-semibold text-foreground">
-                          {aircraftData.specifications.cabin_width}
+                          {aircraftData.cabin_width}
                         </p>
                       </div>
                     </div>
@@ -352,7 +383,7 @@ export default function AircraftModelPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <p className="text-muted-foreground leading-relaxed">
-                    {aircraftData.fullDescription}
+                    {aircraftData.full_description}
                   </p>
                   <div>
                     <h3 className="font-semibold text-foreground mb-3">Key Features</h3>
@@ -375,7 +406,7 @@ export default function AircraftModelPage() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Plane className="w-5 h-5 text-primary" />
-                    Available {categoryData.name} Models
+                    Available {aircraftData.category} Models
                   </CardTitle>
                   <CardDescription>
                     Explore other aircraft in this category
@@ -401,7 +432,7 @@ export default function AircraftModelPage() {
                           ? "text-primary-foreground/80"
                           : "text-muted-foreground"
                       }`}>
-                        {aircraft.specifications.passengers} • {aircraft.specifications.range}
+                        {aircraft.passengers} • {aircraft.range}
                       </p>
                     </button>
                   ))}
@@ -424,6 +455,9 @@ export default function AircraftModelPage() {
       {/* Fullscreen Lightbox Dialog */}
       <Dialog open={isLightboxOpen} onOpenChange={setIsLightboxOpen}>
         <DialogContent className="max-w-[95vw] w-full h-[95vh] p-0 bg-black/95 border-0">
+          <VisuallyHidden>
+            <DialogTitle>{aircraftData.name} Gallery</DialogTitle>
+          </VisuallyHidden>
           <div className="relative w-full h-full flex flex-col">
             {/* Close Button */}
             <DialogClose className="absolute top-4 right-4 z-50 rounded-full bg-white/10 hover:bg-white/20 p-2 transition-all duration-300 backdrop-blur-sm">

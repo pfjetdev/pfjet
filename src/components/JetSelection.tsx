@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import JetCard from './JetCard';
 import Image from 'next/image';
+import { Plane } from 'lucide-react';
 
 const jetCategories = [
   { id: 'turboprops', name: 'Turboprops', image: '/aircraft/turboprops.png' },

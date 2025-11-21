@@ -1,10 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import Footer from "@/components/Footer";
 import { Plane } from "lucide-react";
+import { getAircraftByCategories, Aircraft } from "@/lib/supabase-client";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface AircraftModel {
   name: string;
@@ -28,167 +31,245 @@ interface AircraftCategory {
   models: AircraftModel[];
 }
 
-const aircraftData: AircraftCategory[] = [
-  {
-    id: "turboprop",
-    name: "Turboprop",
-    image: "/aircraft/turboprops.png",
-    description:
-      "Turboprop aircraft combine efficiency with versatility, ideal for short to medium-range flights. These aircraft are perfect for accessing smaller airports and remote locations while maintaining comfort and reliability. With lower operating costs and excellent fuel efficiency, turboprops offer an economical solution for regional travel.",
-    specifications: {
-      passengers: "6-9",
-      range: "1,000-1,500 nm",
-      speed: "300-350 mph",
-      baggage: "50-70 cu ft",
-    },
-    models: [
-      { name: "King Air 260", slug: "king-air-260" },
-      { name: "Piaggio Avanti", slug: "piaggio-avanti" },
-      { name: "Piaggio Avanti II", slug: "piaggio-avanti-ii" },
-      { name: "Pilatus PC-12/47E (NG)", slug: "pilatus-pc-12" },
-    ],
-  },
-  {
-    id: "very-light",
-    name: "Very Light",
-    image: "/aircraft/verylightjet.png",
-    description:
-      "Very Light Jets represent the entry point into private aviation, offering excellent value for shorter trips. These compact aircraft are perfect for business executives and small groups seeking the convenience and time-saving benefits of private air travel without the higher costs of larger jets.",
-    specifications: {
-      passengers: "4-6",
-      range: "1,000-1,200 nm",
-      speed: "360-400 mph",
-      baggage: "40-50 cu ft",
-    },
-    models: [
-      { name: "Citation Mustang", slug: "citation-mustang" },
-      { name: "Phenom 100", slug: "phenom-100" },
-      { name: "Eclipse 500", slug: "eclipse-500" },
-      { name: "HondaJet", slug: "hondajet" },
-    ],
-  },
-  {
-    id: "light",
-    name: "Light",
-    image: "/aircraft/light.png",
-    description:
-      "Light jets offer the perfect balance of performance, comfort, and economy. Ideal for coast-to-coast travel, these aircraft feature stand-up cabins, enclosed lavatories, and ample baggage space. They're the most popular choice for business travelers seeking efficiency and comfort.",
-    specifications: {
-      passengers: "6-8",
-      range: "1,500-2,000 nm",
-      speed: "400-480 mph",
-      baggage: "60-80 cu ft",
-    },
-    models: [
-      { name: "Citation CJ3+", slug: "citation-cj3" },
-      { name: "Learjet 45XR", slug: "learjet-45xr" },
-      { name: "Phenom 300", slug: "phenom-300" },
-      { name: "Citation XLS+", slug: "citation-xls-plus" },
-    ],
-  },
-  {
-    id: "midsize",
-    name: "Midsize",
-    image: "/aircraft/midsizejet.png",
-    description:
-      "Midsize jets provide transcontinental range with spacious cabins and enhanced amenities. These aircraft offer the perfect combination of comfort and performance, featuring full galley services, larger lavatories, and the ability to reach most destinations non-stop from major business centers.",
-    specifications: {
-      passengers: "7-9",
-      range: "2,000-3,000 nm",
-      speed: "480-520 mph",
-      baggage: "80-100 cu ft",
-    },
-    models: [
-      { name: "Citation Latitude", slug: "citation-latitude" },
-      { name: "Hawker 850XP", slug: "hawker-850xp" },
-      { name: "Learjet 60XR", slug: "learjet-60xr" },
-      { name: "Citation XLS", slug: "citation-xls" },
-    ],
-  },
-  {
-    id: "super-mid",
-    name: "Super-Mid",
-    image: "/aircraft/supermidsizejet.png",
-    description:
-      "Super-Midsize jets deliver exceptional range and cabin space, rivaling larger heavy jets at a lower operating cost. With stand-up cabins, full galley, and the ability to fly coast-to-coast against headwinds, these aircraft are ideal for demanding business travel requirements.",
-    specifications: {
-      passengers: "8-10",
-      range: "3,000-4,000 nm",
-      speed: "520-590 mph",
-      baggage: "100-120 cu ft",
-    },
-    models: [
-      { name: "Citation X", slug: "citation-x" },
-      { name: "Challenger 350", slug: "challenger-350" },
-      { name: "Gulfstream G280", slug: "gulfstream-g280" },
-      { name: "Citation Sovereign", slug: "citation-sovereign" },
-    ],
-  },
-  {
-    id: "heavy",
-    name: "Heavy",
-    image: "/aircraft/heavyjet.png",
-    description:
-      "Heavy jets represent the pinnacle of private aviation for long-range travel. With spacious cabins that can be configured for work, dining, and rest, these aircraft offer transcontinental and intercontinental range with the highest levels of comfort and luxury.",
-    specifications: {
-      passengers: "10-16",
-      range: "4,000-5,000 nm",
-      speed: "520-590 mph",
-      baggage: "140-195 cu ft",
-    },
-    models: [
-      { name: "Challenger 605", slug: "challenger-605" },
-      { name: "Gulfstream G450", slug: "gulfstream-g450" },
-      { name: "Global 5000", slug: "global-5000" },
-      { name: "Falcon 2000LX", slug: "falcon-2000lx" },
-    ],
-  },
-  {
-    id: "ultra-long",
-    name: "Ultra-Long",
-    image: "/aircraft/longrangejet.png",
-    description:
-      "Ultra-Long Range jets are designed for global travel, capable of flying non-stop between virtually any two cities worldwide. These aircraft feature the most advanced technology, luxurious cabins with multiple living areas, and amenities comparable to five-star hotels.",
-    specifications: {
-      passengers: "12-19",
-      range: "6,000-7,500 nm",
-      speed: "590-690 mph",
-      baggage: "195+ cu ft",
-    },
-    models: [
-      { name: "Gulfstream G650", slug: "gulfstream-g650" },
-      { name: "Global 7500", slug: "global-7500" },
-      { name: "Falcon 8X", slug: "falcon-8x" },
-      { name: "Global 6000", slug: "global-6000" },
-    ],
-  },
-  {
-    id: "vip-airliner",
-    name: "VIP Airliner",
-    image: "/aircraft/heavyjet.png",
-    description:
-      "VIP Airliners are commercial aircraft converted for private use, offering the ultimate in space, luxury, and long-range capability. With multiple staterooms, conference areas, and custom interiors, these aircraft redefine luxury air travel for heads of state, corporations, and ultra-high-net-worth individuals.",
-    specifications: {
-      passengers: "16-50+",
-      range: "6,000-8,000+ nm",
-      speed: "530-590 mph",
-      baggage: "300+ cu ft",
-    },
-    models: [
-      { name: "Boeing Business Jet", slug: "boeing-business-jet" },
-      { name: "Airbus ACJ320", slug: "airbus-acj320" },
-      { name: "Airbus ACJ350", slug: "airbus-acj350" },
-      { name: "Boeing 787 Dreamliner", slug: "boeing-787-dreamliner" },
-    ],
-  },
-];
+function AircraftContent() {
+  const searchParams = useSearchParams();
+  const categoryParam = searchParams.get('category');
 
-export default function AircraftPage() {
-  const [selectedCategory, setSelectedCategory] = useState("turboprop");
+  const [selectedCategory, setSelectedCategory] = useState(categoryParam || "turboprop");
+  const [aircraftData, setAircraftData] = useState<AircraftCategory[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadAircraft() {
+      setLoading(true);
+      const data = await getAircraftByCategories();
+
+      // Group aircraft by category
+      const categories = data.reduce((acc: Record<string, Aircraft[]>, aircraft: Aircraft) => {
+        if (!acc[aircraft.category_slug]) {
+          acc[aircraft.category_slug] = [];
+        }
+        acc[aircraft.category_slug].push(aircraft);
+        return acc;
+      }, {});
+
+      // Transform to AircraftCategory format
+      const transformedData: AircraftCategory[] = Object.entries(categories).map(
+        ([categorySlug, aircraftList]) => {
+          const firstAircraft = aircraftList[0];
+
+          // Calculate average specifications for the category
+          const avgPassengers = calculateRange(
+            aircraftList.map((a) => a.passengers)
+          );
+          const avgRange = calculateRange(aircraftList.map((a) => a.range));
+          const avgSpeed = calculateRange(aircraftList.map((a) => a.speed));
+          const avgBaggage = calculateRange(
+            aircraftList.map((a) => a.baggage)
+          );
+
+          // Generate category description from first aircraft
+          const description =
+            firstAircraft.category === "Turboprop"
+              ? "Turboprop aircraft combine efficiency with versatility, ideal for short to medium-range flights. Perfect for accessing smaller airports while maintaining comfort and reliability."
+              : firstAircraft.category === "Very Light"
+              ? "Very Light Jets represent the entry point into private aviation, offering excellent value for shorter trips. Perfect for business executives and small groups."
+              : firstAircraft.category === "Light"
+              ? "Light jets offer the perfect balance of performance, comfort, and economy. Ideal for coast-to-coast travel with stand-up cabins and ample space."
+              : firstAircraft.category === "Midsize"
+              ? "Midsize jets provide transcontinental range with spacious cabins and enhanced amenities. Perfect combination of comfort and performance."
+              : firstAircraft.category === "Super-mid"
+              ? "Super-Midsize jets deliver exceptional range and cabin space, rivaling larger jets at lower operating costs. Ideal for demanding business travel."
+              : firstAircraft.category === "Heavy"
+              ? "Heavy jets represent the pinnacle of private aviation for long-range travel. Spacious cabins with the highest levels of comfort and luxury."
+              : firstAircraft.category === "Ultra Long"
+              ? "Ultra-Long Range jets are designed for global travel, capable of flying non-stop between virtually any two cities worldwide."
+              : "VIP Airliners offer the ultimate in space, luxury, and long-range capability. Multiple staterooms and custom interiors redefine luxury air travel.";
+
+          return {
+            id: categorySlug,
+            name: firstAircraft.category,
+            image: firstAircraft.image,
+            description,
+            specifications: {
+              passengers: avgPassengers,
+              range: avgRange,
+              speed: avgSpeed,
+              baggage: avgBaggage,
+            },
+            models: aircraftList.map((a) => ({
+              name: a.name,
+              slug: a.slug,
+              passengers: a.passengers,
+              range: a.range,
+              speed: a.speed,
+            })),
+          };
+        }
+      );
+
+      // Define desired category order
+      const categoryOrder = [
+        "Turboprop",
+        "Very Light",
+        "Light",
+        "Midsize",
+        "Super-mid",
+        "Heavy",
+        "Ultra Long",
+        "VIP"
+      ];
+
+      // Sort categories according to the desired order
+      const sortedData = transformedData.sort((a, b) => {
+        const indexA = categoryOrder.indexOf(a.name);
+        const indexB = categoryOrder.indexOf(b.name);
+
+        // If category not found in order, put it at the end
+        if (indexA === -1) return 1;
+        if (indexB === -1) return -1;
+
+        return indexA - indexB;
+      });
+
+      setAircraftData(sortedData);
+      setLoading(false);
+    }
+
+    loadAircraft();
+  }, []);
+
+  // Update selected category when URL parameter changes
+  useEffect(() => {
+    if (categoryParam && aircraftData.length > 0) {
+      const categoryExists = aircraftData.find(c => c.id === categoryParam);
+      if (categoryExists) {
+        setSelectedCategory(categoryParam);
+      }
+    }
+  }, [categoryParam, aircraftData]);
+
+  // Helper function to calculate range from specifications
+  function calculateRange(specs: string[]): string {
+    // Extract numbers from specifications like "Up to 9", "4-5", "1,720 nm", etc.
+    const numbers = specs
+      .map((spec) => {
+        const matches = spec.match(/[\d,]+/g);
+        if (!matches) return [];
+        return matches.map((m) => parseFloat(m.replace(/,/g, "")));
+      })
+      .flat();
+
+    if (numbers.length === 0) return "N/A";
+
+    const min = Math.min(...numbers);
+    const max = Math.max(...numbers);
+
+    // Format based on the original format
+    if (specs[0].includes("nm")) {
+      return min === max
+        ? `${Math.round(min).toLocaleString()} nm`
+        : `${Math.round(min).toLocaleString()}-${Math.round(
+            max
+          ).toLocaleString()} nm`;
+    } else if (specs[0].includes("mph")) {
+      return min === max
+        ? `${Math.round(min)} mph`
+        : `${Math.round(min)}-${Math.round(max)} mph`;
+    } else if (specs[0].includes("cu ft")) {
+      return min === max
+        ? `${Math.round(min)} cu ft`
+        : `${Math.round(min)}-${Math.round(max)} cu ft`;
+    } else {
+      return min === max ? `${Math.round(min)}` : `${Math.round(min)}-${Math.round(max)}`;
+    }
+  }
 
   const currentAircraft = aircraftData.find(
     (aircraft) => aircraft.id === selectedCategory
   );
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background transition-colors duration-300">
+        <main className="pt-6 px-4 pb-12">
+          <div className="max-w-7xl mx-auto space-y-8">
+            {/* Title Skeleton */}
+            <Skeleton className="h-12 w-64" />
+
+            {/* Category Grid Skeleton */}
+            <div className="space-y-8">
+              <div className="grid grid-cols-4 md:grid-cols-8 gap-1.5">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="flex flex-col items-center justify-center p-1.5 rounded-md border border-border bg-card/50"
+                  >
+                    <Skeleton className="w-full h-8 mb-1 rounded-sm" />
+                    <Skeleton className="h-3 w-12" />
+                  </div>
+                ))}
+              </div>
+
+              {/* Content Skeleton */}
+              <div className="flex flex-col lg:flex-row gap-8">
+                {/* Left Column - Image and Description */}
+                <div className="lg:w-[70%] space-y-6">
+                  {/* Aircraft Image Skeleton */}
+                  <Skeleton className="w-full h-[400px] rounded-xl" />
+
+                  {/* Description Skeleton */}
+                  <div className="space-y-4">
+                    <Skeleton className="h-9 w-48" />
+                    <div className="space-y-2">
+                      <Skeleton className="h-5 w-full" />
+                      <Skeleton className="h-5 w-full" />
+                      <Skeleton className="h-5 w-3/4" />
+                    </div>
+
+                    {/* Specifications Grid Skeleton */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4">
+                      {Array.from({ length: 4 }).map((_, i) => (
+                        <div
+                          key={i}
+                          className="bg-card border border-border rounded-lg p-4"
+                        >
+                          <Skeleton className="h-4 w-20 mb-2" />
+                          <Skeleton className="h-6 w-16" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Column - Models List Skeleton */}
+                <div className="lg:w-[30%]">
+                  <div className="bg-card border border-border rounded-xl p-6">
+                    <div className="flex items-center gap-2 mb-6">
+                      <Skeleton className="w-5 h-5 rounded" />
+                      <Skeleton className="h-6 w-40" />
+                    </div>
+                    <div className="space-y-3">
+                      {Array.from({ length: 6 }).map((_, i) => (
+                        <Skeleton key={i} className="h-12 w-full rounded-lg" />
+                      ))}
+                    </div>
+
+                    {/* CTA Skeleton */}
+                    <div className="mt-6 pt-6 border-t border-border">
+                      <Skeleton className="h-12 w-full rounded-lg" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background transition-colors duration-300">
@@ -274,114 +355,112 @@ export default function AircraftPage() {
             {/* Content with smooth transition */}
             {currentAircraft && (
               <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                {currentAircraft && (
-                  <div className="flex flex-col lg:flex-row gap-8">
-                    {/* Left Column - Image and Description (70%) */}
-                    <div className="lg:w-[70%] space-y-6">
-                      {/* Aircraft Image */}
-                      <div className="relative w-full h-[400px] rounded-xl overflow-hidden bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/30">
-                        <Image
-                          src={currentAircraft.image}
-                          alt={currentAircraft.name}
-                          fill
-                          className="object-contain p-8"
-                          priority
-                        />
-                      </div>
-
-                      {/* Description */}
-                      <div className="space-y-4">
-                        <h2 className="text-3xl font-semibold text-foreground">
-                          {currentAircraft.name} Jets
-                        </h2>
-                        <p className="text-muted-foreground leading-relaxed text-lg">
-                          {currentAircraft.description}
-                        </p>
-
-                        {/* Specifications Grid */}
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4">
-                          <div className="bg-card border border-border rounded-lg p-4 hover:shadow-md transition-shadow">
-                            <div className="text-sm text-muted-foreground mb-1">
-                              Passengers
-                            </div>
-                            <div className="text-xl font-semibold text-foreground">
-                              {currentAircraft.specifications.passengers}
-                            </div>
-                          </div>
-                          <div className="bg-card border border-border rounded-lg p-4 hover:shadow-md transition-shadow">
-                            <div className="text-sm text-muted-foreground mb-1">
-                              Range
-                            </div>
-                            <div className="text-xl font-semibold text-foreground">
-                              {currentAircraft.specifications.range}
-                            </div>
-                          </div>
-                          <div className="bg-card border border-border rounded-lg p-4 hover:shadow-md transition-shadow">
-                            <div className="text-sm text-muted-foreground mb-1">
-                              Speed
-                            </div>
-                            <div className="text-xl font-semibold text-foreground">
-                              {currentAircraft.specifications.speed}
-                            </div>
-                          </div>
-                          <div className="bg-card border border-border rounded-lg p-4 hover:shadow-md transition-shadow">
-                            <div className="text-sm text-muted-foreground mb-1">
-                              Baggage
-                            </div>
-                            <div className="text-xl font-semibold text-foreground">
-                              {currentAircraft.specifications.baggage}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                <div className="flex flex-col lg:flex-row gap-8">
+                  {/* Left Column - Image and Description (70%) */}
+                  <div className="lg:w-[70%] space-y-6">
+                    {/* Aircraft Image */}
+                    <div className="relative w-full h-[400px] rounded-xl overflow-hidden bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/30">
+                      <Image
+                        src={currentAircraft.image}
+                        alt={currentAircraft.name}
+                        fill
+                        className="object-contain p-8"
+                        priority
+                      />
                     </div>
 
-                    {/* Right Column - Models List (30%) */}
-                    <div className="lg:w-[30%]">
-                      <div className="bg-card border border-border rounded-xl p-6 sticky top-6">
-                        <div className="flex items-center gap-2 mb-6">
-                          <Plane className="w-5 h-5 text-primary" />
-                          <h3 className="text-xl font-semibold text-foreground">
-                            Available Models
-                          </h3>
-                        </div>
-                        <div className="space-y-3">
-                          {currentAircraft.models.map((model, index) => (
-                            <Link
-                              key={index}
-                              href={`/aircraft/${currentAircraft.id}/${model.slug}`}
-                              className="group flex items-center justify-between p-3 rounded-lg border border-border hover:border-primary hover:bg-primary/5 transition-all cursor-pointer"
-                            >
-                              <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
-                                {model.name}
-                              </span>
-                              <svg
-                                className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M9 5l7 7-7 7"
-                                />
-                              </svg>
-                            </Link>
-                          ))}
-                        </div>
+                    {/* Description */}
+                    <div className="space-y-4">
+                      <h2 className="text-3xl font-semibold text-foreground">
+                        {currentAircraft.name} Jets
+                      </h2>
+                      <p className="text-muted-foreground leading-relaxed text-lg">
+                        {currentAircraft.description}
+                      </p>
 
-                        {/* Call to Action */}
-                        <div className="mt-6 pt-6 border-t border-border">
-                          <button className="w-full bg-primary text-primary-foreground py-3 px-4 rounded-lg font-medium hover:opacity-90 transition-opacity">
-                            Request a Quote
-                          </button>
+                      {/* Specifications Grid */}
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4">
+                        <div className="bg-card border border-border rounded-lg p-4 hover:shadow-md transition-shadow">
+                          <div className="text-sm text-muted-foreground mb-1">
+                            Passengers
+                          </div>
+                          <div className="text-xl font-semibold text-foreground">
+                            {currentAircraft.specifications.passengers}
+                          </div>
+                        </div>
+                        <div className="bg-card border border-border rounded-lg p-4 hover:shadow-md transition-shadow">
+                          <div className="text-sm text-muted-foreground mb-1">
+                            Range
+                          </div>
+                          <div className="text-xl font-semibold text-foreground">
+                            {currentAircraft.specifications.range}
+                          </div>
+                        </div>
+                        <div className="bg-card border border-border rounded-lg p-4 hover:shadow-md transition-shadow">
+                          <div className="text-sm text-muted-foreground mb-1">
+                            Speed
+                          </div>
+                          <div className="text-xl font-semibold text-foreground">
+                            {currentAircraft.specifications.speed}
+                          </div>
+                        </div>
+                        <div className="bg-card border border-border rounded-lg p-4 hover:shadow-md transition-shadow">
+                          <div className="text-sm text-muted-foreground mb-1">
+                            Baggage
+                          </div>
+                          <div className="text-xl font-semibold text-foreground">
+                            {currentAircraft.specifications.baggage}
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                )}
+
+                  {/* Right Column - Models List (30%) */}
+                  <div className="lg:w-[30%]">
+                    <div className="bg-card border border-border rounded-xl p-6 sticky top-6">
+                      <div className="flex items-center gap-2 mb-6">
+                        <Plane className="w-5 h-5 text-primary" />
+                        <h3 className="text-xl font-semibold text-foreground">
+                          Available Models
+                        </h3>
+                      </div>
+                      <div className="space-y-3 max-h-[500px] overflow-y-auto">
+                        {currentAircraft.models.map((model, index) => (
+                          <Link
+                            key={index}
+                            href={`/aircraft/${currentAircraft.id}/${model.slug}`}
+                            className="group flex items-center justify-between p-3 rounded-lg border border-border hover:border-primary hover:bg-primary/5 transition-all cursor-pointer"
+                          >
+                            <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
+                              {model.name}
+                            </span>
+                            <svg
+                              className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M9 5l7 7-7 7"
+                              />
+                            </svg>
+                          </Link>
+                        ))}
+                      </div>
+
+                      {/* Call to Action */}
+                      <div className="mt-6 pt-6 border-t border-border">
+                        <button className="w-full bg-primary text-primary-foreground py-3 px-4 rounded-lg font-medium hover:opacity-90 transition-opacity">
+                          Request a Quote
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
           </div>
@@ -391,5 +470,32 @@ export default function AircraftPage() {
       {/* Footer */}
       <Footer />
     </div>
+  );
+}
+
+export default function AircraftPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background">
+        <main className="pt-6 px-4 pb-12">
+          <div className="max-w-7xl mx-auto space-y-8">
+            <div>
+              <Skeleton className="h-14 w-80 mb-2" />
+              <Skeleton className="h-5 w-96" />
+            </div>
+            <div className="space-y-8">
+              <div className="grid grid-cols-4 md:grid-cols-8 gap-1.5">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <Skeleton key={i} className="h-16 w-full rounded-md" />
+                ))}
+              </div>
+              <Skeleton className="h-96 w-full rounded-xl" />
+            </div>
+          </div>
+        </main>
+      </div>
+    }>
+      <AircraftContent />
+    </Suspense>
   );
 }

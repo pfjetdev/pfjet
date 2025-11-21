@@ -1,0 +1,804 @@
+[
+  {
+    "id": 1,
+    "from": "Teterboro",
+    "to": "Nantucket",
+    "distanceNM": "190",
+    "duration": "48–55 мин",
+    "aircraft": "Phenom 300 / CJ4"
+  },
+  {
+    "id": 2,
+    "from": "Teterboro",
+    "to": "Palm Beach",
+    "distanceNM": "160",
+    "duration": "45–52 мин",
+    "aircraft": "Phenom 300 / CJ4"
+  },
+  {
+    "id": 3,
+    "from": "Teterboro",
+    "to": "Washington DCA/IAD",
+    "distanceNM": "190",
+    "duration": "50–58 мин",
+    "aircraft": "Phenom 300 / CJ4"
+  },
+  {
+    "id": 4,
+    "from": "Teterboro",
+    "to": "Boston",
+    "distanceNM": "165",
+    "duration": "45–55 мин",
+    "aircraft": "Phenom 300 / Citation M2"
+  },
+  {
+    "id": 5,
+    "from": "Teterboro",
+    "to": "Martha’s Vineyard",
+    "distanceNM": "165",
+    "duration": "48–55 мин",
+    "aircraft": "Phenom 300"
+  },
+  {
+    "id": 6,
+    "from": "Van Nuys",
+    "to": "Las Vegas",
+    "distanceNM": "200",
+    "duration": "48–58 мин",
+    "aircraft": "Phenom 300 / CJ4"
+  },
+  {
+    "id": 7,
+    "from": "Van Nuys",
+    "to": "Aspen",
+    "distanceNM": "630",
+    "duration": "1 ч 35–1 ч 45",
+    "aircraft": "Challenger 300 / Praetor 600"
+  },
+  {
+    "id": 8,
+    "from": "Van Nuys",
+    "to": "San Francisco (SQL)",
+    "distanceNM": "290",
+    "duration": "1 ч 05–1 ч 15",
+    "aircraft": "Phenom 300 / CJ4"
+  },
+  {
+    "id": 9,
+    "from": "Van Nuys",
+    "to": "Santa Barbara",
+    "distanceNM": "75",
+    "duration": "28–35 мин",
+    "aircraft": "HondaJet / Citation M2"
+  },
+  {
+    "id": 10,
+    "from": "Los Angeles (SMO)",
+    "to": "Las Vegas",
+    "distanceNM": "205",
+    "duration": "52–60 мин",
+    "aircraft": "Phenom 300"
+  },
+  {
+    "id": 11,
+    "from": "San Francisco",
+    "to": "Los Angeles (SMO)",
+    "distanceNM": "295",
+    "duration": "1 ч 05–1 ч 15",
+    "aircraft": "Phenom 300 / CJ4"
+  },
+  {
+    "id": 12,
+    "from": "Miami",
+    "to": "Nassau",
+    "distanceNM": "160",
+    "duration": "45–52 мин",
+    "aircraft": "Phenom 300 / CJ4"
+  },
+  {
+    "id": 13,
+    "from": "Miami",
+    "to": "Key West",
+    "distanceNM": "110",
+    "duration": "38–45 мин",
+    "aircraft": "Citation M2 / Phenom 300"
+  },
+  {
+    "id": 14,
+    "from": "Miami",
+    "to": "Palm Beach",
+    "distanceNM": "60",
+    "duration": "25–32 мин",
+    "aircraft": "HondaJet / Citation Mustang"
+  },
+  {
+    "id": 15,
+    "from": "Miami",
+    "to": "Orlando",
+    "distanceNM": "180",
+    "duration": "48–55 мин",
+    "aircraft": "Phenom 300"
+  },
+  {
+    "id": 16,
+    "from": "London Farnborough",
+    "to": "Paris Le Bourget",
+    "distanceNM": "185",
+    "duration": "50–60 мин",
+    "aircraft": "Phenom 300 / CJ4"
+  },
+  {
+    "id": 17,
+    "from": "London Farnborough",
+    "to": "Geneva",
+    "distanceNM": "405",
+    "duration": "1 ч 15–1 ч 25",
+    "aircraft": "Citation Longitude / Challenger 350"
+  },
+  {
+    "id": 18,
+    "from": "London Farnborough",
+    "to": "Nice",
+    "distanceNM": "560",
+    "duration": "1 ч 40–1 ч 50",
+    "aircraft": "Challenger 300 / Praetor 600"
+  },
+  {
+    "id": 19,
+    "from": "Geneva",
+    "to": "Milan Linate",
+    "distanceNM": "140",
+    "duration": "40–48 мин",
+    "aircraft": "Phenom 300 / PC-24"
+  },
+  {
+    "id": 20,
+    "from": "Geneva",
+    "to": "Courchevel",
+    "distanceNM": "55",
+    "duration": "25–30 мин",
+    "aircraft": "Pilatus PC-24 / PC-12"
+  },
+  {
+    "id": 21,
+    "from": "Paris Le Bourget",
+    "to": "Cannes",
+    "distanceNM": "375",
+    "duration": "1 ч 10–1 ч 20",
+    "aircraft": "Phenom 300 / CJ4"
+  },
+  {
+    "id": 22,
+    "from": "Nice",
+    "to": "Ibiza",
+    "distanceNM": "420",
+    "duration": "1 ч 20–1 ч 30",
+    "aircraft": "Challenger 350 / Praetor 600"
+  },
+  {
+    "id": 23,
+    "from": "Nice",
+    "to": "Olbia (Sardinia)",
+    "distanceNM": "250",
+    "duration": "58–65 мин",
+    "aircraft": "Phenom 300"
+  },
+  {
+    "id": 24,
+    "from": "Ibiza",
+    "to": "Palma de Mallorca",
+    "distanceNM": "70",
+    "duration": "30–38 мин",
+    "aircraft": "Citation M2 / HondaJet"
+  },
+  {
+    "id": 25,
+    "from": "Mykonos",
+    "to": "Santorini",
+    "distanceNM": "65",
+    "duration": "28–35 мин",
+    "aircraft": "Citation M2 / Phenom 300"
+  },
+  {
+    "id": 26,
+    "from": "Mykonos",
+    "to": "Athens",
+    "distanceNM": "75",
+    "duration": "32–40 мин",
+    "aircraft": "HondaJet / Phenom 300"
+  },
+  {
+    "id": 27,
+    "from": "Dubai",
+    "to": "Doha",
+    "distanceNM": "205",
+    "duration": "50–60 мин",
+    "aircraft": "Phenom 300 / CJ4"
+  },
+  {
+    "id": 28,
+    "from": "Doha",
+    "to": "Sharjah / Dubai",
+    "distanceNM": "197",
+    "duration": "55–65 мин",
+    "aircraft": "Phenom 300"
+  },
+  {
+    "id": 29,
+    "from": "Riyadh",
+    "to": "Dubai",
+    "distanceNM": "470",
+    "duration": "1 ч 15–1 ч 25",
+    "aircraft": "Challenger 350 / Citation Longitude"
+  },
+  {
+    "id": 30,
+    "from": "Abu Dhabi",
+    "to": "Muscat",
+    "distanceNM": "205",
+    "duration": "55–65 мин",
+    "aircraft": "Phenom 300"
+  },
+  {
+    "id": 31,
+    "from": "Singapore Seletar",
+    "to": "Kuala Lumpur",
+    "distanceNM": "165",
+    "duration": "48–58 мин",
+    "aircraft": "Phenom 300 / CJ4"
+  },
+  {
+    "id": 32,
+    "from": "Singapore",
+    "to": "Phuket",
+    "distanceNM": "530",
+    "duration": "1 ч 35–1 ч 45",
+    "aircraft": "Challenger 300 / Praetor 600"
+  },
+  {
+    "id": 33,
+    "from": "Singapore",
+    "to": "Phnom Penh",
+    "distanceNM": "610",
+    "duration": "1 ч 40–1 ч 50",
+    "aircraft": "Phenom 300 / CJ4"
+  },
+  {
+    "id": 34,
+    "from": "Hong Kong",
+    "to": "Macau",
+    "distanceNM": "35",
+    "duration": "20–25 мин",
+    "aircraft": "HondaJet / King Air 360"
+  },
+  {
+    "id": 35,
+    "from": "Bangkok",
+    "to": "Phuket",
+    "distanceNM": "360",
+    "duration": "1 ч 10–1 ч 20",
+    "aircraft": "Phenom 300"
+  },
+  {
+    "id": 36,
+    "from": "Moscow Vnukovo",
+    "to": "St. Petersburg",
+    "distanceNM": "340",
+    "duration": "1 ч 05–1 ч 15",
+    "aircraft": "Phenom 300 / CJ4"
+  },
+  {
+    "id": 37,
+    "from": "Zurich",
+    "to": "Munich",
+    "distanceNM": "170",
+    "duration": "45–55 мин",
+    "aircraft": "Phenom 300"
+  },
+  {
+    "id": 38,
+    "from": "Zurich",
+    "to": "Friedrichshafen",
+    "distanceNM": "45",
+    "duration": "20–25 мин",
+    "aircraft": "PC-24 / PC-12"
+  },
+  {
+    "id": 39,
+    "from": "Zurich",
+    "to": "Neheim-Hüsten (EDLA)",
+    "distanceNM": "230",
+    "duration": "55–65 мин",
+    "aircraft": "Phenom 300 / CJ4"
+  },
+  {
+    "id": 40,
+    "from": "Frankfurt",
+    "to": "London Farnborough",
+    "distanceNM": "350",
+    "duration": "1 ч 10–1 ч 20",
+    "aircraft": "Citation Longitude"
+  },
+  {
+    "id": 41,
+    "from": "Berlin",
+    "to": "Sylt",
+    "distanceNM": "200",
+    "duration": "55–65 мин",
+    "aircraft": "Phenom 300"
+  },
+  {
+    "id": 42,
+    "from": "Stockholm",
+    "to": "Visby",
+    "distanceNM": "105",
+    "duration": "38–45 мин",
+    "aircraft": "Citation M2"
+  },
+  {
+    "id": 43,
+    "from": "Oslo",
+    "to": "Stavanger",
+    "distanceNM": "190",
+    "duration": "50–60 мин",
+    "aircraft": "Phenom 300"
+  },
+  {
+    "id": 44,
+    "from": "Milan Linate",
+    "to": "Rome Ciampino",
+    "distanceNM": "260",
+    "duration": "60–70 мин",
+    "aircraft": "Phenom 300"
+  },
+  {
+    "id": 45,
+    "from": "Milan Linate",
+    "to": "Venice",
+    "distanceNM": "130",
+    "duration": "40–48 мин",
+    "aircraft": "Citation CJ4"
+  },
+  {
+    "id": 46,
+    "from": "Madrid",
+    "to": "Ibiza",
+    "distanceNM": "300",
+    "duration": "1 ч 05–1 ч 15",
+    "aircraft": "Phenom 300"
+  },
+  {
+    "id": 47,
+    "from": "Barcelona",
+    "to": "Ibiza",
+    "distanceNM": "150",
+    "duration": "48–55 мин",
+    "aircraft": "Phenom 300"
+  },
+  {
+    "id": 48,
+    "from": "Lisbon",
+    "to": "Faro",
+    "distanceNM": "120",
+    "duration": "40–48 мин",
+    "aircraft": "Citation M2"
+  },
+  {
+    "id": 49,
+    "from": "Tel Aviv",
+    "to": "Cyprus (Larnaca)",
+    "distanceNM": "185",
+    "duration": "50–60 мин",
+    "aircraft": "Phenom 300"
+  },
+  {
+    "id": 50,
+    "from": "Istanbul",
+    "to": "Bodrum",
+    "distanceNM": "250",
+    "duration": "60–70 мин",
+    "aircraft": "Phenom 300"
+  },
+  {
+    "id": 51,
+    "from": "Aspen",
+    "to": "Denver Centennial",
+    "distanceNM": "105",
+    "duration": "35–45 мин",
+    "aircraft": "Phenom 300"
+  },
+  {
+    "id": 52,
+    "from": "Jackson Hole",
+    "to": "Salt Lake City",
+    "distanceNM": "180",
+    "duration": "50–60 мин",
+    "aircraft": "Phenom 300"
+  },
+  {
+    "id": 53,
+    "from": "Telluride",
+    "to": "Denver",
+    "distanceNM": "200",
+    "duration": "55–65 мин",
+    "aircraft": "PC-24 / Phenom 300"
+  },
+  {
+    "id": 54,
+    "from": "Sun Valley",
+    "to": "Boise",
+    "distanceNM": "100",
+    "duration": "35–42 мин",
+    "aircraft": "PC-24"
+  },
+  {
+    "id": 55,
+    "from": "Las Vegas",
+    "to": "Phoenix Scottsdale",
+    "distanceNM": "225",
+    "duration": "55–65 мин",
+    "aircraft": "Phenom 300"
+  },
+  {
+    "id": 56,
+    "from": "Dallas Love",
+    "to": "Houston Hobby",
+    "distanceNM": "210",
+    "duration": "55–65 мин",
+    "aircraft": "Phenom 300"
+  },
+  {
+    "id": 57,
+    "from": "Austin",
+    "to": "Houston",
+    "distanceNM": "130",
+    "duration": "40–48 мин",
+    "aircraft": "Citation M2"
+  },
+  {
+    "id": 58,
+    "from": "Chicago Midway",
+    "to": "Milwaukee",
+    "distanceNM": "70",
+    "duration": "28–35 мин",
+    "aircraft": "HondaJet"
+  },
+  {
+    "id": 59,
+    "from": "Toronto",
+    "to": "Montreal",
+    "distanceNM": "275",
+    "duration": "60–70 мин",
+    "aircraft": "Phenom 300"
+  },
+  {
+    "id": 60,
+    "from": "Vancouver",
+    "to": "Seattle Boeing Field",
+    "distanceNM": "110",
+    "duration": "38–45 мин",
+    "aircraft": "Phenom 300"
+  },
+  {
+    "id": 61,
+    "from": "Los Cabos",
+    "to": "Puerto Vallarta",
+    "distanceNM": "220",
+    "duration": "55–65 мин",
+    "aircraft": "Phenom 300"
+  },
+  {
+    "id": 62,
+    "from": "Cancún",
+    "to": "Cozumel",
+    "distanceNM": "45",
+    "duration": "22–28 мин",
+    "aircraft": "King Air 360"
+  },
+  {
+    "id": 63,
+    "from": "São Paulo",
+    "to": "Rio de Janeiro",
+    "distanceNM": "195",
+    "duration": "55–65 мин",
+    "aircraft": "Phenom 300"
+  },
+  {
+    "id": 64,
+    "from": "Buenos Aires",
+    "to": "Punta del Este",
+    "distanceNM": "110",
+    "duration": "38–45 мин",
+    "aircraft": "Phenom 300"
+  },
+  {
+    "id": 65,
+    "from": "Sydney",
+    "to": "Melbourne",
+    "distanceNM": "385",
+    "duration": "1 ч 15–1 ч 25",
+    "aircraft": "Challenger 350"
+  },
+  {
+    "id": 66,
+    "from": "Melbourne",
+    "to": "Gold Coast",
+    "distanceNM": "720",
+    "duration": "1 ч 50–1 ч 58",
+    "aircraft": "Challenger 300 / Praetor 600"
+  },
+  {
+    "id": 67,
+    "from": "Johannesburg",
+    "to": "Cape Town",
+    "distanceNM": "680",
+    "duration": "1 ч 50–2 ч 00",
+    "aircraft": "Global 6000 / G650 (самый частый)"
+  },
+  {
+    "id": 68,
+    "from": "Nairobi",
+    "to": "Maasai Mara",
+    "distanceNM": "130",
+    "duration": "45–55 мин",
+    "aircraft": "Pilatus PC-12 / King Air"
+  },
+  {
+    "id": 69,
+    "from": "Cape Town",
+    "to": "Plettenberg Bay",
+    "distanceNM": "250",
+    "duration": "60–70 мин",
+    "aircraft": "PC-24"
+  },
+  {
+    "id": 70,
+    "from": "Mumbai",
+    "to": "Goa",
+    "distanceNM": "230",
+    "duration": "60–70 мин",
+    "aircraft": "Phenom 300"
+  },
+  {
+    "id": 71,
+    "from": "Delhi",
+    "to": "Jaipur",
+    "distanceNM": "130",
+    "duration": "45–55 мин",
+    "aircraft": "HondaJet / Phenom 300"
+  },
+  {
+    "id": 72,
+    "from": "Bangkok",
+    "to": "Koh Samui",
+    "distanceNM": "250",
+    "duration": "60–70 мин",
+    "aircraft": "Phenom 300"
+  },
+  {
+    "id": 73,
+    "from": "Phuket",
+    "to": "Koh Samui",
+    "distanceNM": "160",
+    "duration": "55–65 мин",
+    "aircraft": "Phenom 300"
+  },
+  {
+    "id": 74,
+    "from": "Bali",
+    "to": "Lombok",
+    "distanceNM": "70",
+    "duration": "30–38 мин",
+    "aircraft": "PC-12"
+  },
+  {
+    "id": 75,
+    "from": "Tokyo",
+    "to": "Osaka",
+    "distanceNM": "220",
+    "duration": "60–70 мин",
+    "aircraft": "HondaJet / Phenom 300"
+  },
+  {
+    "id": 76,
+    "from": "Seoul",
+    "to": "Jeju",
+    "distanceNM": "245",
+    "duration": "60–70 мин",
+    "aircraft": "Phenom 300"
+  },
+  {
+    "id": 77,
+    "from": "Shanghai",
+    "to": "Hangzhou",
+    "distanceNM": "90",
+    "duration": "35–42 мин",
+    "aircraft": "Citation M2"
+  },
+  {
+    "id": 78,
+    "from": "Beijing",
+    "to": "Qingdao",
+    "distanceNM": "300",
+    "duration": "70–80 мин",
+    "aircraft": "Phenom 300"
+  },
+  {
+    "id": 79,
+    "from": "Nice",
+    "to": "Corsica (Figari)",
+    "distanceNM": "160",
+    "duration": "48–55 мин",
+    "aircraft": "Phenom 300"
+  },
+  {
+    "id": 80,
+    "from": "Monaco",
+    "to": "Courchevel",
+    "distanceNM": "170",
+    "duration": "50–60 мин",
+    "aircraft": "PC-24"
+  },
+  {
+    "id": 81,
+    "from": "Farnborough",
+    "to": "Edinburgh",
+    "distanceNM": "290",
+    "duration": "1 ч 05–1 ч 15",
+    "aircraft": "Phenom 300"
+  },
+  {
+    "id": 82,
+    "from": "Paris",
+    "to": "Bordeaux",
+    "distanceNM": "270",
+    "duration": "65–75 мин",
+    "aircraft": "Phenom 300"
+  },
+  {
+    "id": 83,
+    "from": "Geneva",
+    "to": "Sion",
+    "distanceNM": "55",
+    "duration": "25–30 мин",
+    "aircraft": "PC-24"
+  },
+  {
+    "id": 84,
+    "from": "Zurich",
+    "to": "St. Moritz (Samedan)",
+    "distanceNM": "100",
+    "duration": "35–45 мин",
+    "aircraft": "PC-24 / PC-12"
+  },
+  {
+    "id": 85,
+    "from": "Milan",
+    "to": "Bolzano",
+    "distanceNM": "120",
+    "duration": "40–48 мин",
+    "aircraft": "PC-24"
+  },
+  {
+    "id": 86,
+    "from": "London",
+    "to": "Guernsey",
+    "distanceNM": "160",
+    "duration": "48–55 мин",
+    "aircraft": "King Air 260"
+  },
+  {
+    "id": 87,
+    "from": "Dublin",
+    "to": "London Farnborough",
+    "distanceNM": "240",
+    "duration": "60–70 мин",
+    "aircraft": "Phenom 300"
+  },
+  {
+    "id": 88,
+    "from": "Amsterdam",
+    "to": "Antwerp",
+    "distanceNM": "65",
+    "duration": "28–35 мин",
+    "aircraft": "Citation M2"
+  },
+  {
+    "id": 89,
+    "from": "Brussels",
+    "to": "Luxembourg",
+    "distanceNM": "105",
+    "duration": "38–45 мин",
+    "aircraft": "Phenom 300"
+  },
+  {
+    "id": 90,
+    "from": "Vienna",
+    "to": "Bratislava",
+    "distanceNM": "30",
+    "duration": "18–22 мин",
+    "aircraft": "HondaJet"
+  },
+  {
+    "id": 91,
+    "from": "Prague",
+    "to": "Karlovy Vary",
+    "distanceNM": "60",
+    "duration": "25–32 мин",
+    "aircraft": "Citation M2"
+  },
+  {
+    "id": 92,
+    "from": "Athens",
+    "to": "Thessaloniki",
+    "distanceNM": "160",
+    "duration": "48–55 мин",
+    "aircraft": "Phenom 300"
+  },
+  {
+    "id": 93,
+    "from": "Cyprus",
+    "to": "Beirut",
+    "distanceNM": "110",
+    "duration": "38–45 мин",
+    "aircraft": "Phenom 300"
+  },
+  {
+    "id": 94,
+    "from": "Bahrain",
+    "to": "Dammam",
+    "distanceNM": "50",
+    "duration": "22–28 мин",
+    "aircraft": "Citation M2"
+  },
+  {
+    "id": 95,
+    "from": "Kuwait",
+    "to": "Dubai",
+    "distanceNM": "460",
+    "duration": "1 ч 15–1 ч 25",
+    "aircraft": "Challenger 350"
+  },
+  {
+    "id": 96,
+    "from": "Jeddah",
+    "to": "Riyadh",
+    "distanceNM": "460",
+    "duration": "1 ч 20–1 ч 30",
+    "aircraft": "Challenger 300"
+  },
+  {
+    "id": 97,
+    "from": "Almaty",
+    "to": "Astana",
+    "distanceNM": "520",
+    "duration": "1 ч 35–1 ч 45",
+    "aircraft": "Challenger 350"
+  },
+  {
+    "id": 98,
+    "from": "Tbilisi",
+    "to": "Batumi",
+    "distanceNM": "190",
+    "duration": "55–65 мин",
+    "aircraft": "Phenom 300"
+  },
+  {
+    "id": 99,
+    "from": "Baku",
+    "to": "Ganja",
+    "distanceNM": "170",
+    "duration": "50–60 мин",
+    "aircraft": "Phenom 300"
+  },
+  {
+    "id": 100,
+    "from": "Reykjavik",
+    "to": "Akureyri",
+    "distanceNM": "130",
+    "duration": "45–55 мин",
+    "aircraft": "King Air 360 / PC-12"
+  }
+]
+
+Total: 100 routes
