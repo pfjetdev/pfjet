@@ -29,8 +29,11 @@ export default function EmptyLegsClient({ initialEmptyLegs }: EmptyLegsClientPro
     to?: string
     dateFrom?: string
     dateTo?: string
+    minPrice?: number
     maxPrice?: number
     category?: string
+    categories?: string[]
+    minSeats?: number
   }>({})
 
   // Calculate min and max prices from available empty legs

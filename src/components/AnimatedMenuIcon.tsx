@@ -7,7 +7,7 @@ interface AnimatedMenuIconProps {
 export const AnimatedMenuIcon = ({ isOpen }: AnimatedMenuIconProps) => {
   const transition = {
     duration: 0.4,
-    ease: [0.65, 0, 0.35, 1], // Custom cubic-bezier for smooth motion
+    ease: [0.65, 0, 0.35, 1] as [number, number, number, number], // Custom cubic-bezier for smooth motion
   }
 
   return (
