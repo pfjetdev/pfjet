@@ -2,8 +2,16 @@
 
 import { useState, useMemo } from 'react';
 import Image from 'next/image';
-import { Plane, Users, Gauge, Briefcase, ArrowLeft } from 'lucide-react';
+import { Plane, Users, Gauge, Briefcase, ArrowLeft, ArrowUpRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerClose,
+} from '@/components/ui/drawer';
 import CreateOrderForm from '@/components/CreateOrderForm';
 import { DateTimePicker } from '@/components/DateTimePicker';
 import { PassengerPicker } from '@/components/PassengerPicker';
@@ -190,6 +198,7 @@ export default function JetDetailClient({
   const [date, setDate] = useState(initialDate);
   const [time, setTime] = useState(initialTime);
   const [passengers, setPassengers] = useState(initialPassengers);
+  const [orderDrawerOpen, setOrderDrawerOpen] = useState(false);
 
   // Get airport information
   const fromAirport = getAirportInfo(from);
@@ -239,37 +248,37 @@ export default function JetDetailClient({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 pb-24 lg:pb-0">
       {/* Back Button */}
       <button
         onClick={handleBack}
         className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors group"
       >
-        <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+        <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 group-hover:-translate-x-1 transition-transform" />
         <span className="text-sm font-medium">Back to results</span>
       </button>
 
       {/* Aircraft Name Title */}
       <div>
         <h1
-          className="text-5xl font-medium text-foreground tracking-[2.4px]"
+          className="text-2xl sm:text-3xl lg:text-5xl font-medium text-foreground tracking-[1.2px] sm:tracking-[2.4px]"
           style={{ fontFamily: 'Clash Display, sans-serif' }}
         >
           {aircraft.name}
         </h1>
         <p
-          className="text-lg text-muted-foreground mt-2"
+          className="text-base sm:text-lg text-muted-foreground mt-1 sm:mt-2"
           style={{ fontFamily: 'Montserrat, sans-serif' }}
         >
           {aircraft.category}
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Left Column - Main Content */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-4 sm:space-y-6">
           {/* Aircraft Image and Specifications */}
-          <div className="bg-white dark:bg-card rounded-[24px] overflow-hidden border border-border">
+          <div className="bg-white dark:bg-card rounded-2xl sm:rounded-[24px] overflow-hidden border border-border">
             <div className="grid grid-cols-1 lg:grid-cols-10 gap-0">
               {/* Aircraft Photo - 70% */}
               <div className="lg:col-span-7 relative aspect-[16/10] lg:aspect-auto lg:min-h-[400px] bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900">
@@ -277,87 +286,90 @@ export default function JetDetailClient({
                   src={aircraft.image || '/placeholder-jet.jpg'}
                   alt={aircraft.name}
                   fill
-                  className="object-contain p-8"
+                  className="object-contain p-4 sm:p-8"
                   sizes="(max-width: 1024px) 100vw, 70vw"
                   priority
                 />
               </div>
 
               {/* Aircraft Specifications - 30% */}
-              <div className="lg:col-span-3 flex flex-col justify-center gap-4 p-6 lg:p-8 border-t lg:border-t-0 lg:border-l border-border/50">
-                <div className="flex items-center gap-3 group hover:translate-x-1 transition-transform">
-                  <Users className="w-5 h-5 text-primary flex-shrink-0" />
-                  <span className="text-sm font-medium text-foreground">
-                    {aircraft.passengers}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-3 group hover:translate-x-1 transition-transform">
-                  <Plane className="w-5 h-5 text-primary flex-shrink-0" />
-                  <span className="text-sm font-medium text-foreground">
-                    {aircraft.range}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-3 group hover:translate-x-1 transition-transform">
-                  <Gauge className="w-5 h-5 text-primary flex-shrink-0" />
-                  <span className="text-sm font-medium text-foreground">
-                    {aircraft.speed}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-3 group hover:translate-x-1 transition-transform">
-                  <Briefcase className="w-5 h-5 text-primary flex-shrink-0" />
-                  <span className="text-sm font-medium text-foreground">
-                    {aircraft.baggage}
-                  </span>
-                </div>
-
-                <div className="h-px bg-border/50 my-2"></div>
-
-                <div className="flex items-center gap-3 group hover:translate-x-1 transition-transform">
-                  <div className="w-5 h-5 text-primary flex-shrink-0 flex items-center justify-center text-xs font-bold border border-primary rounded">
-                    H
+              <div className="lg:col-span-3 p-4 sm:p-6 lg:p-8 border-t lg:border-t-0 lg:border-l border-border/50">
+                {/* Mobile: 2 columns, Desktop: 1 column */}
+                <div className="grid grid-cols-2 lg:flex lg:flex-col lg:justify-center gap-3 sm:gap-4">
+                  <div className="flex items-center gap-3 group hover:translate-x-1 transition-transform">
+                    <Users className="w-5 h-5 text-primary flex-shrink-0" />
+                    <span className="text-sm font-medium text-foreground">
+                      {aircraft.passengers}
+                    </span>
                   </div>
-                  <span className="text-sm font-medium text-foreground">
-                    {aircraft.cabin_height}
-                  </span>
-                </div>
 
-                <div className="flex items-center gap-3 group hover:translate-x-1 transition-transform">
-                  <div className="w-5 h-5 text-primary flex-shrink-0 flex items-center justify-center text-xs font-bold border border-primary rounded">
-                    W
+                  <div className="flex items-center gap-3 group hover:translate-x-1 transition-transform">
+                    <Plane className="w-5 h-5 text-primary flex-shrink-0" />
+                    <span className="text-sm font-medium text-foreground">
+                      {aircraft.range}
+                    </span>
                   </div>
-                  <span className="text-sm font-medium text-foreground">
-                    {aircraft.cabin_width}
-                  </span>
+
+                  <div className="flex items-center gap-3 group hover:translate-x-1 transition-transform">
+                    <Gauge className="w-5 h-5 text-primary flex-shrink-0" />
+                    <span className="text-sm font-medium text-foreground">
+                      {aircraft.speed}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-3 group hover:translate-x-1 transition-transform">
+                    <Briefcase className="w-5 h-5 text-primary flex-shrink-0" />
+                    <span className="text-sm font-medium text-foreground">
+                      {aircraft.baggage}
+                    </span>
+                  </div>
+
+                  <div className="col-span-2 lg:col-span-1 h-px bg-border/50 my-2"></div>
+
+                  <div className="flex items-center gap-3 group hover:translate-x-1 transition-transform">
+                    <div className="w-5 h-5 text-primary flex-shrink-0 flex items-center justify-center text-xs font-bold border border-primary rounded">
+                      H
+                    </div>
+                    <span className="text-sm font-medium text-foreground">
+                      {aircraft.cabin_height}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-3 group hover:translate-x-1 transition-transform">
+                    <div className="w-5 h-5 text-primary flex-shrink-0 flex items-center justify-center text-xs font-bold border border-primary rounded">
+                      W
+                    </div>
+                    <span className="text-sm font-medium text-foreground">
+                      {aircraft.cabin_width}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
       {/* Destination Block */}
-      <div className="bg-white dark:bg-card rounded-[24px] overflow-hidden p-8 border border-border">
-        <div className="space-y-8">
+      <div className="bg-white dark:bg-card rounded-2xl sm:rounded-[24px] overflow-hidden p-4 sm:p-6 lg:p-8 border border-border">
+        <div className="space-y-4 sm:space-y-6 lg:space-y-8">
           <h2
-            className="text-2xl font-semibold text-foreground"
+            className="text-xl sm:text-2xl font-semibold text-foreground"
             style={{ fontFamily: 'Clash Display, sans-serif' }}
           >
             Destination
           </h2>
 
           {/* Flight Route */}
-          <div className="flex items-center justify-between gap-8">
+          <div className="flex items-center justify-between gap-3 sm:gap-6 lg:gap-8">
             {/* From */}
             <div className="flex flex-col">
               <p
-                className="font-bold text-foreground text-5xl tracking-wider uppercase mb-2"
+                className="font-bold text-foreground text-3xl sm:text-4xl lg:text-5xl tracking-wider uppercase mb-1 sm:mb-2"
                 style={{ fontFamily: 'Montserrat, sans-serif' }}
               >
                 {fromAirport.code}
               </p>
               <p
-                className="font-semibold text-foreground text-xs tracking-wide uppercase"
+                className="font-semibold text-foreground text-[10px] sm:text-xs tracking-wide uppercase"
                 style={{ fontFamily: 'Montserrat, sans-serif' }}
               >
                 {fromAirport.city}
@@ -365,22 +377,22 @@ export default function JetDetailClient({
             </div>
 
             {/* Plane Icon with dashed line */}
-            <div className="flex-1 flex items-center justify-center gap-4 relative">
+            <div className="flex-1 flex items-center justify-center gap-2 sm:gap-4 relative">
               <div className="flex-1 border-t-2 border-dashed border-gray-300"></div>
-              <Plane className="w-6 h-6 text-foreground rotate-90" strokeWidth={2} />
+              <Plane className="w-5 h-5 sm:w-6 sm:h-6 text-foreground rotate-90" strokeWidth={2} />
               <div className="flex-1 border-t-2 border-dashed border-gray-300"></div>
             </div>
 
             {/* To */}
             <div className="flex flex-col items-end">
               <p
-                className="font-bold text-foreground text-5xl tracking-wider uppercase mb-2"
+                className="font-bold text-foreground text-3xl sm:text-4xl lg:text-5xl tracking-wider uppercase mb-1 sm:mb-2"
                 style={{ fontFamily: 'Montserrat, sans-serif' }}
               >
                 {toAirport.code}
               </p>
               <p
-                className="font-semibold text-foreground text-xs tracking-wide uppercase"
+                className="font-semibold text-foreground text-[10px] sm:text-xs tracking-wide uppercase"
                 style={{ fontFamily: 'Montserrat, sans-serif' }}
               >
                 {toAirport.city}
@@ -389,42 +401,42 @@ export default function JetDetailClient({
           </div>
 
           {/* Flight Times */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2 sm:gap-4">
             {/* Departure Time */}
-            <div>
-              <p className="text-2xl font-bold text-foreground">
+            <div className="flex-1">
+              <p className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">
                 {formatTimeAMPM(time)}
               </p>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 {dayOfWeek}, {dayOfMonth} {monthName}
               </p>
             </div>
 
             {/* Flight Duration */}
-            <div className="text-center">
-              <p className="text-sm text-muted-foreground mb-1">
-                Flight Duration
+            <div className="text-center flex-shrink-0">
+              <p className="text-xs sm:text-sm text-muted-foreground mb-1">
+                Duration
               </p>
-              <p className="text-base font-semibold text-foreground">
+              <p className="text-sm sm:text-base font-semibold text-foreground">
                 {flightDuration}
               </p>
             </div>
 
             {/* Arrival Time */}
-            <div className="text-right">
-              <p className="text-2xl font-bold text-foreground">
+            <div className="text-right flex-1">
+              <p className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">
                 {formatTimeAMPM(arrivalTime)}
               </p>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 {dayOfWeek}, {dayOfMonth} {monthName}
               </p>
             </div>
           </div>
 
           {/* Editable Fields */}
-          <div className="flex flex-wrap items-center gap-3 mt-6 bg-white dark:bg-card rounded-xl p-4 border border-border">
+          <div className="flex flex-col gap-3 mt-4 sm:mt-6 bg-white dark:bg-card rounded-xl p-4 border border-border">
             {/* Date and Time Picker */}
-            <div className="flex-1 min-w-[200px]">
+            <div>
               <DateTimePicker
                 date={date}
                 time={time}
@@ -434,20 +446,16 @@ export default function JetDetailClient({
             </div>
 
             {/* Divider */}
-            <div className="h-8 w-px bg-border hidden sm:block"></div>
+            <div className="h-px bg-border"></div>
 
             {/* Passengers */}
-            <div className="flex-shrink-0">
+            <div className="flex items-center justify-between">
               <PassengerPicker
                 value={passengers.toString()}
                 onChange={handlePassengerChange}
                 maxPassengers={maxPassengers}
               />
-            </div>
-
-            {/* Info text */}
-            <div className="w-full sm:w-auto sm:ml-auto">
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground ml-4">
                 Max {maxPassengers} passengers
               </p>
             </div>
@@ -456,14 +464,62 @@ export default function JetDetailClient({
       </div>
       </div>
 
-      {/* Right Column - Order Form */}
-      <div className="lg:col-span-1">
+      {/* Right Column - Order Form - Desktop Only */}
+      <div className="hidden lg:block lg:col-span-1">
         <CreateOrderForm
           jetName={aircraft.name}
           price={`$ ${estimatedPrice.toLocaleString()}`}
         />
       </div>
       </div>
+
+      {/* Mobile Bottom Bar */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-background border-t border-border z-40 safe-area-bottom">
+        <div className="px-4 py-3 flex items-center justify-between gap-4">
+          <div>
+            <p className="text-xs text-muted-foreground" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+              Estimated Total
+            </p>
+            <p
+              className="text-2xl font-bold text-foreground"
+              style={{ fontFamily: 'Clash Display, sans-serif' }}
+            >
+              ${estimatedPrice.toLocaleString()}
+            </p>
+          </div>
+          <Button
+            onClick={() => setOrderDrawerOpen(true)}
+            size="lg"
+            className="h-12 px-6 text-white font-medium gap-2"
+            style={{ backgroundColor: 'var(--brand-red)', fontFamily: 'Montserrat, sans-serif' }}
+          >
+            <span>Book Now</span>
+            <ArrowUpRight className="w-4 h-4" />
+          </Button>
+        </div>
+      </div>
+
+      {/* Mobile Order Drawer */}
+      <Drawer open={orderDrawerOpen} onOpenChange={setOrderDrawerOpen}>
+        <DrawerContent className="h-[90vh]">
+          <DrawerHeader className="border-b px-4 py-4">
+            <DrawerTitle
+              className="text-xl font-medium text-foreground"
+              style={{ fontFamily: 'Clash Display, sans-serif' }}
+            >
+              Create Order
+            </DrawerTitle>
+          </DrawerHeader>
+
+          <div className="flex-1 overflow-y-auto px-4 py-6" data-vaul-no-drag>
+            <CreateOrderForm
+              jetName={aircraft.name}
+              price={`$ ${estimatedPrice.toLocaleString()}`}
+              hideTitle={true}
+            />
+          </div>
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 }

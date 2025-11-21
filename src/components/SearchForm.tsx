@@ -81,7 +81,7 @@ const SearchForm = ({ formData, onFormChange, focusTrigger, fieldToFocus, isStic
         <div className="flex flex-col lg:flex-row items-center gap-2 lg:gap-0 h-full">
           
           {/* From Field - Large */}
-          <div className="flex-1 lg:flex-[2] relative h-full">
+          <div className="flex-1 lg:flex-[2] relative h-full px-2">
             <AirportCombobox
               value={formData.from}
               onValueChange={(value) => handleInputChange('from', value)}
@@ -103,7 +103,7 @@ const SearchForm = ({ formData, onFormChange, focusTrigger, fieldToFocus, isStic
           <div className={`hidden lg:block w-px h-8 ${theme === 'dark' ? 'bg-gray-600' : 'bg-gray-200'}`}></div>
 
           {/* Going To Field - Large */}
-          <div className="flex-1 lg:flex-[2] relative h-full">
+          <div className="flex-1 lg:flex-[2] relative h-full px-2">
             <AirportCombobox
               value={formData.to}
               onValueChange={(value) => handleInputChange('to', value)}

@@ -67,7 +67,7 @@ export default async function JetDetailPage({ params, searchParams }: PageProps)
 
   return (
     <div className="min-h-screen bg-background transition-colors duration-300">
-      <main className="pt-6 px-4 pb-12">
+      <main className="pt-4 sm:pt-6 px-4 pb-12 lg:pb-12">
         <div className="max-w-7xl mx-auto">
           <JetDetailClient
             aircraft={aircraft}

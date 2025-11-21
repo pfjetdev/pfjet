@@ -116,6 +116,7 @@ export function DateTimePicker({
               }}
               showOutsideDays={false}
               fromDate={new Date()}
+              fromMonth={new Date()}
               className="p-3"
             />
           </PopoverContent>

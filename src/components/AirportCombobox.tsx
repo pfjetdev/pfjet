@@ -101,12 +101,7 @@ export function AirportCombobox({
   // If disabled, render a static display without popover functionality
   if (disabled) {
     return (
-      <div
-        className={cn(
-          'flex items-center space-x-2 h-full px-2 cursor-not-allowed opacity-60',
-          className
-        )}
-      >
+      <div className="flex items-center space-x-2 h-full cursor-not-allowed opacity-60">
         {icon && <div className="flex-shrink-0">{icon}</div>}
         <input
           type="text"
@@ -114,7 +109,10 @@ export function AirportCombobox({
           value={value}
           readOnly
           disabled
-          className="w-full border-0 bg-transparent text-sm font-medium focus:outline-none cursor-not-allowed"
+          className={cn(
+            "w-full border-0 bg-transparent focus:outline-none cursor-not-allowed",
+            className
+          )}
         />
       </div>
     );
@@ -124,10 +122,7 @@ export function AirportCombobox({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <div
-          className={cn(
-            'flex items-center space-x-2 h-full px-2 cursor-pointer',
-            className
-          )}
+          className="flex items-center space-x-2 h-full cursor-pointer"
           onClick={() => setOpen(true)}
         >
           {icon && <div className="flex-shrink-0">{icon}</div>}
@@ -136,7 +131,10 @@ export function AirportCombobox({
             placeholder={placeholder}
             value={value}
             readOnly
-            className="w-full border-0 bg-transparent text-sm font-medium focus:outline-none cursor-pointer"
+            className={cn(
+              "w-full border-0 bg-transparent focus:outline-none cursor-pointer",
+              className
+            )}
           />
         </div>
       </PopoverTrigger>

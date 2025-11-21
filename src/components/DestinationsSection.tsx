@@ -116,17 +116,35 @@ export default function DestinationsSection() {
 
   if (loading) {
     return (
-      <section className="py-16 px-4 bg-background">
+      <section className="py-8 md:py-16 px-4 bg-background">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-12">
-            <h2 className="text-6xl font-medium text-foreground" style={{ fontFamily: 'Clash Display, sans-serif' }}>
+          <div className="flex items-center justify-between mb-4 md:mb-12">
+            <h2 className="text-3xl md:text-6xl font-medium text-foreground" style={{ fontFamily: 'Clash Display, sans-serif' }}>
               {selectedContinent}
             </h2>
           </div>
-          <div className="flex flex-wrap gap-3 mb-8">
+          {/* Desktop loading */}
+          <div className="hidden md:flex flex-wrap gap-3 mb-8">
             {Array.from({ length: 20 }).map((_, i) => (
               <div key={i} className="w-16 h-10 bg-muted animate-pulse rounded" />
             ))}
+          </div>
+          {/* Mobile loading - two rows */}
+          <div className="md:hidden space-y-3 mb-4">
+            <div className="overflow-x-auto scrollbar-hide -mx-4 px-4">
+              <div className="flex gap-3 pb-2">
+                {Array.from({ length: 10 }).map((_, i) => (
+                  <div key={i} className="w-12 h-12 bg-muted animate-pulse rounded flex-shrink-0" />
+                ))}
+              </div>
+            </div>
+            <div className="overflow-x-auto scrollbar-hide -mx-4 px-4">
+              <div className="flex gap-3 pb-2">
+                {Array.from({ length: 10 }).map((_, i) => (
+                  <div key={i} className="w-12 h-12 bg-muted animate-pulse rounded flex-shrink-0" />
+                ))}
+              </div>
+            </div>
           </div>
           <div className="flex gap-4">
             {Array.from({ length: 5 }).map((_, i) => (
@@ -138,11 +156,16 @@ export default function DestinationsSection() {
     );
   }
 
+  // Split countries into two rows for mobile
+  const midPoint = Math.ceil(countries.length / 2);
+  const firstRowCountries = countries.slice(0, midPoint);
+  const secondRowCountries = countries.slice(midPoint);
+
   return (
-    <section className="py-16 px-4 bg-background">
+    <section className="py-8 md:py-16 px-4 bg-background">
       <div className="max-w-7xl mx-auto">
         {/* Header with Continent Selector and View all button */}
-        <div className="flex items-center justify-between mb-12">
+        <div className="flex items-center justify-between mb-4 md:mb-12">
           <Select
             value={selectedContinent}
             onValueChange={(value) => setSelectedContinent(value)}
@@ -151,9 +174,9 @@ export default function DestinationsSection() {
               className="!border-0 !p-0 !h-auto !w-auto !shadow-none !bg-transparent !outline-none focus-visible:!ring-0 focus-visible:!ring-offset-0 focus:!ring-0 focus:!ring-offset-0 hover:opacity-80 transition-opacity [&>svg]:hidden data-[state=open]:!bg-transparent data-[state=closed]:!bg-transparent"
               style={{ border: 'none', boxShadow: 'none', background: 'transparent' }}
             >
-              <h2 className="text-6xl font-medium text-foreground flex items-center gap-3 cursor-pointer" style={{ fontFamily: 'Clash Display, sans-serif' }}>
+              <h2 className="text-3xl md:text-6xl font-medium text-foreground flex items-center gap-2 md:gap-3 cursor-pointer" style={{ fontFamily: 'Clash Display, sans-serif' }}>
                 {selectedContinent}
-                <ChevronDown className="w-8 h-8 opacity-70" />
+                <ChevronDown className="w-6 h-6 md:w-8 md:h-8 opacity-70" />
               </h2>
             </SelectTrigger>
             <SelectContent className="min-w-[200px]">
@@ -172,27 +195,65 @@ export default function DestinationsSection() {
           {/* View all button */}
           <button
             onClick={handleViewAll}
-            className="flex items-center gap-2 px-6 py-3 border-2 border-foreground text-foreground hover:bg-foreground hover:text-background transition-all duration-300 rounded-lg group"
+            className="flex items-center gap-1 md:gap-2 px-3 md:px-6 py-2 md:py-3 border border-foreground md:border-2 text-foreground hover:bg-foreground hover:text-background transition-all duration-300 rounded-lg group"
           >
-            <span className="font-semibold text-lg" style={{ fontFamily: 'Clash Display, sans-serif' }}>
+            <span className="font-semibold text-sm md:text-lg" style={{ fontFamily: 'Clash Display, sans-serif' }}>
               View all
             </span>
-            <MoveRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            <MoveRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform" />
           </button>
         </div>
 
-        {/* Country Flags Grid */}
-        <div className="flex flex-wrap gap-3 mb-8">
-          {countries.map((country) => (
-            <Link
-              key={country.code}
-              href={`/countries/${country.code}`}
-              className="text-4xl hover:scale-110 transition-transform cursor-pointer"
-              title={country.name}
-            >
-              {country.flag}
-            </Link>
-          ))}
+        {/* Country Flags - Desktop: flex-wrap, Mobile: two horizontal scrolling rows */}
+        <div className="mb-4 md:mb-8">
+          {/* Desktop version - flex wrap */}
+          <div className="hidden md:flex flex-wrap gap-3">
+            {countries.map((country) => (
+              <Link
+                key={country.code}
+                href={`/countries/${country.code}`}
+                className="text-4xl hover:scale-110 transition-transform cursor-pointer"
+                title={country.name}
+              >
+                {country.flag}
+              </Link>
+            ))}
+          </div>
+
+          {/* Mobile version - two scrolling rows */}
+          <div className="md:hidden space-y-3">
+            {/* First row */}
+            <div className="overflow-x-auto scrollbar-hide -mx-4 px-4">
+              <div className="flex gap-3 pb-2">
+                {firstRowCountries.map((country) => (
+                  <Link
+                    key={country.code}
+                    href={`/countries/${country.code}`}
+                    className="text-3xl active:scale-95 transition-transform cursor-pointer flex-shrink-0"
+                    title={country.name}
+                  >
+                    {country.flag}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            {/* Second row */}
+            <div className="overflow-x-auto scrollbar-hide -mx-4 px-4">
+              <div className="flex gap-3 pb-2">
+                {secondRowCountries.map((country) => (
+                  <Link
+                    key={country.code}
+                    href={`/countries/${country.code}`}
+                    className="text-3xl active:scale-95 transition-transform cursor-pointer flex-shrink-0"
+                    title={country.name}
+                  >
+                    {country.flag}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Cities Carousel */}
@@ -206,42 +267,42 @@ export default function DestinationsSection() {
           >
             <CarouselContent>
               {cities.map((city) => (
-                <CarouselItem
-                  key={city.id}
-                  className="md:basis-1/2 lg:basis-1/3 xl:basis-1/5"
-                >
-                  <div className="p-1">
-                    <Link
-                      href={`/countries/${city.country_code}/${encodeURIComponent(city.name)}`}
-                      className="block"
-                    >
-                      <div className="relative h-64 rounded-lg overflow-hidden group cursor-pointer hover:scale-[1.02] transition-transform duration-300">
-                        <img
-                          src={city.image || '/placeholder-city.jpg'}
-                          alt={city.name}
-                          className="absolute inset-0 w-full h-full object-cover"
-                        />
-                        <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors duration-300" />
-                        <div className="absolute bottom-4 left-4 text-white">
-                          <h3 className="text-lg font-semibold mb-1 drop-shadow-lg">
-                            {city.name}
-                          </h3>
-                          <div className="flex items-center gap-2">
-                            <span className="text-2xl">{countries.find(c => c.code === city.country_code)?.flag || ''}</span>
-                            <span className="text-sm font-medium drop-shadow-lg">
-                              {city.country_name}
-                            </span>
+                  <CarouselItem
+                    key={city.id}
+                    className="basis-[70%] sm:basis-1/2 md:basis-1/2 lg:basis-1/3 xl:basis-1/5 pl-3 md:pl-1"
+                  >
+                    <div className="p-1">
+                      <Link
+                        href={`/countries/${city.country_code}/${encodeURIComponent(city.name)}`}
+                        className="block"
+                      >
+                        <div className="relative h-48 md:h-64 rounded-lg overflow-hidden group cursor-pointer active:scale-[0.98] md:hover:scale-[1.02] transition-transform duration-300">
+                          <img
+                            src={city.image || '/placeholder-city.jpg'}
+                            alt={city.name}
+                            className="absolute inset-0 w-full h-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors duration-300" />
+                          <div className="absolute bottom-2 md:bottom-4 left-2 md:left-4 text-white">
+                            <h3 className="text-base md:text-lg font-semibold mb-1 drop-shadow-lg">
+                              {city.name}
+                            </h3>
+                            <div className="flex items-center gap-1.5 md:gap-2">
+                              <span className="text-xl md:text-2xl">{countries.find(c => c.code === city.country_code)?.flag || ''}</span>
+                              <span className="text-xs md:text-sm font-medium drop-shadow-lg">
+                                {city.country_name}
+                              </span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </Link>
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious />
-            <CarouselNext />
-          </Carousel>
+                      </Link>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="hidden md:flex" />
+              <CarouselNext className="hidden md:flex" />
+            </Carousel>
         )}
       </div>
     </section>

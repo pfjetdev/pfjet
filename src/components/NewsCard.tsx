@@ -20,12 +20,12 @@ const NewsCard: React.FC<NewsCardProps> = ({
 }) => {
   return (
     <Link href={`/news/${slug}`} className="block">
-      <Card className="w-full overflow-hidden p-0 border-0 shadow-none flex flex-col gap-[1px] cursor-pointer group">
+      <Card className="w-full overflow-hidden p-0 border-0 shadow-none flex flex-col gap-[1px] cursor-pointer group active:scale-[0.98] md:active:scale-100 transition-transform">
       {/* Content section */}
-      <div className="bg-card rounded-t-[24px] p-6 flex flex-col justify-between h-64 transition-colors duration-300">
+      <div className="bg-card rounded-t-[24px] p-4 md:p-6 flex flex-col justify-between h-48 md:h-64 transition-colors duration-300">
         {/* Title */}
         <h3
-          className="text-2xl font-medium text-foreground leading-[1.4] group-hover:text-primary transition-colors"
+          className="text-lg md:text-2xl font-medium text-foreground leading-[1.4] group-hover:text-primary transition-colors"
           style={{ fontFamily: 'Montserrat, sans-serif' }}
         >
           {title}
@@ -33,7 +33,7 @@ const NewsCard: React.FC<NewsCardProps> = ({
 
         {/* Meta information */}
         <div
-          className="flex items-center justify-between text-foreground/70 text-[15px] font-medium"
+          className="flex items-center justify-between text-foreground/70 text-xs md:text-[15px] font-medium"
           style={{ fontFamily: 'Montserrat, sans-serif' }}
         >
           <span>{date}</span>
@@ -42,7 +42,7 @@ const NewsCard: React.FC<NewsCardProps> = ({
       </div>
 
       {/* Image section */}
-      <div className="relative h-[242px] w-full rounded-b-[24px] overflow-hidden">
+      <div className="relative h-[180px] md:h-[242px] w-full rounded-b-[24px] overflow-hidden">
         <Image
           src={image}
           alt={title}

@@ -6,6 +6,13 @@ import NewsCard from './NewsCard';
 import { MoveRight } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/lib/supabase';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 interface NewsItem {
   id: string;
@@ -51,12 +58,12 @@ export default function LatestNewsSection() {
   };
 
   return (
-    <section className="py-16 px-4 bg-background">
+    <section className="py-8 md:py-16 px-4 bg-background">
       <div className="max-w-7xl mx-auto">
         {/* Header with title and View all button */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-4 md:mb-8">
           <h2
-            className="text-6xl font-medium text-foreground"
+            className="text-3xl md:text-6xl font-medium text-foreground"
             style={{ fontFamily: 'Clash Display, sans-serif' }}
           >
             Latest news
@@ -65,44 +72,92 @@ export default function LatestNewsSection() {
           {/* View all button */}
           <Link
             href="/news"
-            className="flex items-center gap-2 px-6 py-3 border-2 border-foreground text-foreground hover:bg-foreground hover:text-background transition-all duration-300 rounded-lg group"
+            className="flex items-center gap-1 md:gap-2 px-3 md:px-6 py-2 md:py-3 border border-foreground md:border-2 text-foreground hover:bg-foreground hover:text-background transition-all duration-300 rounded-lg group"
           >
-            <span className="font-semibold text-lg" style={{ fontFamily: 'Clash Display, sans-serif' }}>
+            <span className="font-semibold text-sm md:text-lg" style={{ fontFamily: 'Clash Display, sans-serif' }}>
               View all
             </span>
-            <MoveRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            <MoveRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
 
-        {/* News cards grid */}
+        {/* News cards - Mobile: Carousel, Desktop: Grid */}
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Array.from({ length: 3 }).map((_, index) => (
-              <div key={index} className="flex flex-col gap-[1px]">
-                <div className="bg-card rounded-t-[24px] p-6 flex flex-col justify-between h-64">
-                  <Skeleton className="h-16 w-full" />
-                  <div className="flex items-center justify-between">
-                    <Skeleton className="h-4 w-20" />
-                    <Skeleton className="h-4 w-20" />
+          <>
+            {/* Desktop loading */}
+            <div className="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <div key={index} className="flex flex-col gap-[1px]">
+                  <div className="bg-card rounded-t-[24px] p-6 flex flex-col justify-between h-64">
+                    <Skeleton className="h-16 w-full" />
+                    <div className="flex items-center justify-between">
+                      <Skeleton className="h-4 w-20" />
+                      <Skeleton className="h-4 w-20" />
+                    </div>
                   </div>
+                  <Skeleton className="h-[242px] w-full rounded-b-[24px]" />
                 </div>
-                <Skeleton className="h-[242px] w-full rounded-b-[24px]" />
+              ))}
+            </div>
+            {/* Mobile loading */}
+            <div className="md:hidden">
+              <div className="flex gap-3 overflow-x-auto scrollbar-hide">
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <div key={index} className="flex flex-col gap-[1px] min-w-[70%]">
+                    <div className="bg-card rounded-t-[24px] p-4 flex flex-col justify-between h-48">
+                      <Skeleton className="h-12 w-full" />
+                      <div className="flex items-center justify-between">
+                        <Skeleton className="h-3 w-16" />
+                        <Skeleton className="h-3 w-16" />
+                      </div>
+                    </div>
+                    <Skeleton className="h-[180px] w-full rounded-b-[24px]" />
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          </>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {newsData.map((news) => (
-              <NewsCard
-                key={news.id}
-                slug={news.slug}
-                title={news.title}
-                date={formatDate(news.published_date)}
-                readTime={news.read_time}
-                image={news.image}
-              />
-            ))}
-          </div>
+          <>
+            {/* Desktop grid */}
+            <div className="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {newsData.map((news) => (
+                <NewsCard
+                  key={news.id}
+                  slug={news.slug}
+                  title={news.title}
+                  date={formatDate(news.published_date)}
+                  readTime={news.read_time}
+                  image={news.image}
+                />
+              ))}
+            </div>
+            {/* Mobile carousel */}
+            <div className="md:hidden">
+              <Carousel
+                opts={{
+                  align: "start",
+                }}
+                className="w-full"
+              >
+                <CarouselContent>
+                  {newsData.map((news) => (
+                    <CarouselItem key={news.id} className="basis-[70%] sm:basis-1/2 pl-3">
+                      <NewsCard
+                        slug={news.slug}
+                        title={news.title}
+                        date={formatDate(news.published_date)}
+                        readTime={news.read_time}
+                        image={news.image}
+                      />
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious className="hidden" />
+                <CarouselNext className="hidden" />
+              </Carousel>
+            </div>
+          </>
         )}
       </div>
     </section>

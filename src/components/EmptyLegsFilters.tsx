@@ -118,7 +118,7 @@ export default function EmptyLegsFilters({ onFilterChange, minPrice = 0, maxPric
   };
 
   return (
-    <aside className="w-80 shrink-0 space-y-6">
+    <aside className="w-full lg:w-80 shrink-0 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -161,7 +161,7 @@ export default function EmptyLegsFilters({ onFilterChange, minPrice = 0, maxPric
         {/* From */}
         <div className="relative">
           <div className={cn(
-            "h-12 rounded-xl bg-background border transition-all",
+            "h-12 rounded-xl bg-background border transition-all px-2",
             searchFrom
               ? "border-primary/70 ring-2 ring-primary/10"
               : "border-border hover:border-primary/50"
@@ -188,7 +188,7 @@ export default function EmptyLegsFilters({ onFilterChange, minPrice = 0, maxPric
         {/* To */}
         <div className="relative">
           <div className={cn(
-            "h-12 rounded-xl bg-background border transition-all",
+            "h-12 rounded-xl bg-background border transition-all px-2",
             searchTo
               ? "border-primary/70 ring-2 ring-primary/10"
               : "border-border hover:border-primary/50"
@@ -215,7 +215,7 @@ export default function EmptyLegsFilters({ onFilterChange, minPrice = 0, maxPric
         {/* Date */}
         <div className="relative">
           <div className={cn(
-            "h-12 rounded-xl bg-background border transition-all",
+            "h-12 rounded-xl bg-background border transition-all px-2",
             date
               ? "border-primary/70 ring-2 ring-primary/10"
               : "border-border hover:border-primary/50"

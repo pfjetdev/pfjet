@@ -4,6 +4,13 @@ import { useState } from 'react'
 import EventCard from './EventCard'
 import EventModal from './EventModal'
 import { MoveRight } from 'lucide-react'
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel"
 
 interface EventData {
   title: string
@@ -78,36 +85,46 @@ const EventsSection = () => {
   }
 
   return (
-    <section className="py-16 px-4 bg-background">
+    <section className="py-8 md:py-16 px-4 bg-background">
       <div className="max-w-7xl mx-auto">
         {/* Header with title and View all button */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-4 md:mb-8">
           <div>
-            <h2 className="text-6xl font-medium text-foreground mb-4" style={{ fontFamily: 'Clash Display, sans-serif' }}>
+            <h2 className="text-3xl md:text-6xl font-medium text-foreground mb-2 md:mb-4" style={{ fontFamily: 'Clash Display, sans-serif' }}>
               Events 2026
             </h2>
-            <p className="text-lg text-foreground/80 max-w-2xl">
+            <p className="text-sm md:text-lg text-foreground/80 max-w-2xl hidden md:block">
               Exclusive events and unforgettable experiences await you
             </p>
           </div>
-          <button className="flex items-center gap-2 px-6 py-3 border-2 border-foreground text-foreground hover:bg-foreground hover:text-background transition-all duration-300 rounded-lg group">
-            <span className="font-semibold text-lg" style={{ fontFamily: 'Clash Display, sans-serif' }}>
+          <button className="flex items-center gap-1 md:gap-2 px-3 md:px-6 py-2 md:py-3 border border-foreground md:border-2 text-foreground hover:bg-foreground hover:text-background transition-all duration-300 rounded-lg group">
+            <span className="font-semibold text-sm md:text-lg" style={{ fontFamily: 'Clash Display, sans-serif' }}>
               View all
             </span>
-            <MoveRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            <MoveRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform" />
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-          {eventsData.map((event, index) => (
-            <EventCard
-              key={index}
-              title={event.title}
-              price={event.price}
-              onClick={() => handleCardClick(event)}
-            />
-          ))}
-        </div>
+        <Carousel
+          opts={{
+            align: "start",
+          }}
+          className="w-full"
+        >
+          <CarouselContent>
+            {eventsData.map((event, index) => (
+                <CarouselItem key={index} className="basis-[70%] sm:basis-1/2 md:basis-1/3 lg:basis-1/5 pl-3 md:pl-3">
+                  <EventCard
+                    title={event.title}
+                    price={event.price}
+                    onClick={() => handleCardClick(event)}
+                  />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="hidden md:flex" />
+            <CarouselNext className="hidden md:flex" />
+          </Carousel>
       </div>
 
       {/* Modal */}

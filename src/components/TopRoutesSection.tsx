@@ -72,34 +72,34 @@ const routesData: RouteData[] = [
 
 export default function TopRoutesSection() {
   return (
-    <section className="py-16 px-4 bg-background">
+    <section className="py-8 md:py-16 px-4 bg-background">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-12">
-          <h2 className="text-6xl font-medium text-foreground" style={{ fontFamily: 'Clash Display, sans-serif' }}>
+        <div className="mb-4 md:mb-12">
+          <h2 className="text-3xl md:text-6xl font-medium text-foreground" style={{ fontFamily: 'Clash Display, sans-serif' }}>
             Top Routes
           </h2>
         </div>
 
         {/* Routes Grid */}
-        <div className="grid grid-cols-5 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 md:gap-6">
           {routesData.map((route) => (
             <div
               key={route.id}
-              className="relative h-64 rounded-lg overflow-hidden group cursor-pointer hover:scale-[1.02] transition-transform duration-300"
+              className="relative h-40 md:h-64 rounded-lg overflow-hidden group cursor-pointer active:scale-[0.98] md:hover:scale-[1.02] transition-transform duration-300"
               style={{
                 backgroundColor: route.image
               }}
             >
               {/* Overlay */}
               <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors duration-300" />
-              
+
               {/* Content */}
-              <div className="absolute bottom-4 left-4 text-white">
-                <h3 className="text-lg font-semibold mb-1 drop-shadow-lg">
+              <div className="absolute bottom-2 md:bottom-4 left-2 md:left-4 text-white">
+                <h3 className="text-sm md:text-lg font-semibold mb-0.5 md:mb-1 drop-shadow-lg">
                   {route.destination}
                 </h3>
-                <p className="text-xl font-bold drop-shadow-lg">
+                <p className="text-base md:text-xl font-bold drop-shadow-lg">
                   {route.price}
                 </p>
               </div>

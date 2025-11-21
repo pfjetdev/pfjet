@@ -4,6 +4,7 @@ import { useState, useMemo, useCallback } from 'react'
 import { EmptyLeg } from '@/types/emptyLegs'
 import EmptyLegCard from '@/components/EmptyLegCard'
 import EmptyLegsFilters from '@/components/EmptyLegsFilters'
+import EmptyLegsFiltersMobile from '@/components/EmptyLegsFiltersMobile'
 import { filterEmptyLegs } from '@/lib/emptyLegsGenerator'
 import {
   Pagination,
@@ -49,6 +50,19 @@ export default function EmptyLegsClient({ initialEmptyLegs }: EmptyLegsClientPro
     setFilters(newFilters)
     setCurrentPage(1) // Reset to first page when filters change
   }, [])
+
+  // Calculate active filters count
+  const activeFiltersCount = useMemo(() => {
+    let count = 0
+    if (filters.from) count++
+    if (filters.to) count++
+    if (filters.dateFrom) count++
+    if (filters.dateTo) count++
+    if (filters.maxPrice && filters.maxPrice < priceRange.max) count++
+    if (filters.minPrice && filters.minPrice > priceRange.min) count++
+    if (filters.categories && filters.categories.length > 0) count++
+    return count
+  }, [filters, priceRange])
 
   // Filter empty legs based on current filters
   const filteredEmptyLegs = useMemo(() => {
@@ -107,16 +121,27 @@ export default function EmptyLegsClient({ initialEmptyLegs }: EmptyLegsClientPro
   }
 
   return (
-    <div className="flex flex-col lg:flex-row gap-8">
-      {/* Left: Filters */}
-      <EmptyLegsFilters
+    <>
+      {/* Mobile Filters Drawer */}
+      <EmptyLegsFiltersMobile
         onFilterChange={handleFilterChange}
         minPrice={priceRange.min}
         maxPrice={priceRange.max}
+        activeFiltersCount={activeFiltersCount}
       />
 
-      {/* Right: Cards Grid */}
-      <div className="flex-1">
+      <div className="flex flex-col lg:flex-row gap-8">
+        {/* Left: Filters - Desktop Only */}
+        <div className="hidden lg:block">
+          <EmptyLegsFilters
+            onFilterChange={handleFilterChange}
+            minPrice={priceRange.min}
+            maxPrice={priceRange.max}
+          />
+        </div>
+
+        {/* Right: Cards Grid */}
+        <div className="flex-1">
         {filteredEmptyLegs.length === 0 ? (
           <div className="flex items-center justify-center min-h-[600px]">
             <div className="max-w-2xl text-center space-y-6 px-6">
@@ -231,12 +256,12 @@ export default function EmptyLegsClient({ initialEmptyLegs }: EmptyLegsClientPro
         ) : (
           <>
             <div className="mb-4">
-              <p className="text-sm text-muted-foreground" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+              <p className="text-xs sm:text-sm text-muted-foreground" style={{ fontFamily: 'Montserrat, sans-serif' }}>
                 Found {filteredEmptyLegs.length} empty leg{filteredEmptyLegs.length !== 1 ? 's' : ''} •
                 Page {currentPage} of {totalPages}
               </p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
               {currentEmptyLegs.map((emptyLeg) => (
                 <EmptyLegCard key={emptyLeg.id} emptyLeg={emptyLeg} />
               ))}
@@ -285,7 +310,8 @@ export default function EmptyLegsClient({ initialEmptyLegs }: EmptyLegsClientPro
             )}
           </>
         )}
+        </div>
       </div>
-    </div>
+    </>
   )
 }

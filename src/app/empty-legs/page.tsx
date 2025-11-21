@@ -15,17 +15,17 @@ export default async function EmptyLegsPage() {
 
   return (
     <div className="min-h-screen bg-background transition-colors duration-300">
-      <main className="pt-6 px-4 pb-12">
-        <div className="max-w-7xl mx-auto space-y-8">
+      <main className="pt-6 px-4 pb-24 lg:pb-12">
+        <div className="max-w-7xl mx-auto space-y-6 lg:space-y-8">
           {/* Title */}
           <div>
             <h1
-              className="text-5xl font-medium text-foreground tracking-[2.4px]"
+              className="text-3xl sm:text-4xl lg:text-5xl font-medium text-foreground tracking-[2.4px]"
               style={{ fontFamily: 'Clash Display, sans-serif' }}
             >
               Empty Legs
             </h1>
-            <p className="mt-2 text-muted-foreground" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+            <p className="mt-2 text-sm sm:text-base text-muted-foreground" style={{ fontFamily: 'Montserrat, sans-serif' }}>
               Find exclusive empty leg flights with up to 75% discount on private jet travel
             </p>
           </div>

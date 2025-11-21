@@ -6,9 +6,10 @@ import { ArrowUpRight, ChevronDown, ChevronUp } from 'lucide-react';
 interface CreateOrderFormProps {
   jetName: string;
   price: string;
+  hideTitle?: boolean;
 }
 
-export default function CreateOrderForm({ jetName, price }: CreateOrderFormProps) {
+export default function CreateOrderForm({ jetName, price, hideTitle = false }: CreateOrderFormProps) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -22,15 +23,17 @@ export default function CreateOrderForm({ jetName, price }: CreateOrderFormProps
   };
 
   return (
-    <div className="bg-[#0F142E] dark:bg-card rounded-2xl p-8 border border-border sticky top-6">
-      <form onSubmit={handleSubmit} className="space-y-6">
+    <div className="bg-[#0F142E] dark:bg-card rounded-2xl p-4 sm:p-8 border border-border lg:sticky lg:top-6">
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
         {/* Title */}
-        <h3
-          className="text-2xl font-medium text-white dark:text-foreground"
-          style={{ fontFamily: 'Clash Display, sans-serif' }}
-        >
-          Create Order
-        </h3>
+        {!hideTitle && (
+          <h3
+            className="text-xl sm:text-2xl font-medium text-white dark:text-foreground"
+            style={{ fontFamily: 'Clash Display, sans-serif' }}
+          >
+            Create Order
+          </h3>
+        )}
 
         {/* Name Input */}
         <div>
@@ -111,15 +114,15 @@ export default function CreateOrderForm({ jetName, price }: CreateOrderFormProps
         </div>
 
         {/* Price Display */}
-        <div className="bg-white/5 dark:bg-background rounded-xl p-6 border border-white/10 dark:border-border">
+        <div className="bg-white/5 dark:bg-background rounded-xl p-4 sm:p-6 border border-white/10 dark:border-border">
           <p
-            className="text-sm font-medium text-white/70 dark:text-muted-foreground mb-2"
+            className="text-xs sm:text-sm font-medium text-white/70 dark:text-muted-foreground mb-1 sm:mb-2"
             style={{ fontFamily: 'Montserrat, sans-serif' }}
           >
             Total Price
           </p>
           <p
-            className="text-4xl font-bold text-white dark:text-foreground"
+            className="text-3xl sm:text-4xl font-bold text-white dark:text-foreground"
             style={{ fontFamily: 'Clash Display, sans-serif' }}
           >
             {price}
