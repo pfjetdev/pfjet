@@ -120,8 +120,8 @@ export default function EmptyLegsFiltersMobile({
       </div>
 
       {/* Filters Drawer */}
-      <Drawer open={open} onOpenChange={setOpen}>
-        <DrawerContent className="max-h-[90dvh] pb-safe flex flex-col">
+      <Drawer open={open} onOpenChange={setOpen} repositionInputs={true}>
+        <DrawerContent className="pb-safe flex flex-col">
           {/* Header */}
           <DrawerHeader className="border-b px-4 py-4 flex flex-row items-center justify-between shrink-0">
             <div className="flex items-center gap-3">

@@ -25,8 +25,8 @@ export default function MobileOrderFormDrawer({
   onOpenChange,
 }: MobileOrderFormDrawerProps) {
   return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="max-h-[95dvh] pb-safe flex flex-col">
+    <Drawer open={open} onOpenChange={onOpenChange} repositionInputs={true}>
+      <DrawerContent className="pb-safe flex flex-col">
         {/* Header */}
         <DrawerHeader className="border-b px-4 py-4 flex flex-row items-center justify-between bg-background shrink-0">
           <DrawerTitle

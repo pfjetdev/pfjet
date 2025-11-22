@@ -161,7 +161,7 @@ export function MobileDatePicker({
           </div>
         </div>
       </DrawerTrigger>
-      <DrawerContent className="max-h-[95dvh] overflow-hidden pb-safe">
+      <DrawerContent className="overflow-hidden pb-safe">
         <DrawerHeader className="text-center pt-6 pb-2">
           <DrawerTitle className="text-xl font-semibold">Select departure date</DrawerTitle>
           <DrawerDescription className="text-sm text-muted-foreground mt-1">

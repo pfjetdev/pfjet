@@ -115,8 +115,9 @@ export function MobileAirportPicker({
         onOpenChange={setOpen}
         modal={true}
         shouldScaleBackground={false}
+        repositionInputs={true}
       >
-        <DrawerContent className="max-h-[95dvh] pb-safe flex flex-col">
+        <DrawerContent className="pb-safe flex flex-col">
           {/* Pull Indicator - Handled by drawer component */}
 
           {/* Header */}
