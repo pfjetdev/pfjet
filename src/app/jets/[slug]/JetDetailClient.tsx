@@ -2,20 +2,30 @@
 
 import { useState, useMemo } from 'react';
 import Image from 'next/image';
-import { Plane, Users, Gauge, Briefcase, ArrowLeft, ArrowUpRight } from 'lucide-react';
+import { Plane, Users, Gauge, Briefcase, ArrowLeft, ArrowUpRight, ChevronDown, Clock, Minus, Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import { Label } from '@/components/ui/label';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import {
   Drawer,
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
-  DrawerClose,
+  DrawerDescription,
+  DrawerTrigger,
 } from '@/components/ui/drawer';
+import { WheelPicker, WheelPickerWrapper } from '@/components/wheel-picker';
+import type { WheelPickerOption } from '@/components/wheel-picker';
 import CreateOrderForm from '@/components/CreateOrderForm';
-import { DateTimePicker } from '@/components/DateTimePicker';
-import { PassengerPicker } from '@/components/PassengerPicker';
 import airportsData from '@/data/airports-full.json';
+import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface Aircraft {
   id: string;
@@ -195,10 +205,139 @@ export default function JetDetailClient({
   passengers: initialPassengers,
 }: JetDetailClientProps) {
   const router = useRouter();
-  const [date, setDate] = useState(initialDate);
+  const isMobile = useIsMobile();
+  const [orderDrawerOpen, setOrderDrawerOpen] = useState(false);
+
+  // State for editable fields
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
+  const [timePickerOpen, setTimePickerOpen] = useState(false);
+  const [date, setDate] = useState<Date | undefined>(() => {
+    const [year, month, day] = initialDate.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  });
   const [time, setTime] = useState(initialTime);
   const [passengers, setPassengers] = useState(initialPassengers);
-  const [orderDrawerOpen, setOrderDrawerOpen] = useState(false);
+  const [passengersPickerOpen, setPassengersPickerOpen] = useState(false);
+
+  // Calendar month state for swipe navigation
+  const [calendarMonth, setCalendarMonth] = useState<Date | undefined>(date || new Date());
+
+  // Touch swipe handling for calendar
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      const newMonth = new Date(calendarMonth || new Date());
+      newMonth.setMonth(newMonth.getMonth() + 1);
+      setCalendarMonth(newMonth);
+    }
+
+    if (isRightSwipe) {
+      const newMonth = new Date(calendarMonth || new Date());
+      const today = new Date();
+      newMonth.setMonth(newMonth.getMonth() - 1);
+      if (newMonth >= new Date(today.getFullYear(), today.getMonth(), 1)) {
+        setCalendarMonth(newMonth);
+      }
+    }
+  };
+
+  // Time picker state
+  const parseTime = (timeStr: string) => {
+    if (!timeStr) return { hour: 12, minute: '00', period: 'AM' };
+    const [h, m] = timeStr.split(':');
+    const hour24 = parseInt(h);
+    const period = hour24 >= 12 ? 'PM' : 'AM';
+    const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
+    return { hour: hour12, minute: m, period };
+  };
+
+  const { hour, minute, period } = parseTime(time);
+  const [selectedPeriod, setSelectedPeriod] = useState(period);
+  const [selectedHour, setSelectedHour] = useState(hour);
+  const [selectedMinute, setSelectedMinute] = useState(minute);
+
+  const convertTo24Hour = (hour12: number, period: string) => {
+    if (period === 'AM') {
+      return hour12 === 12 ? 0 : hour12;
+    } else {
+      return hour12 === 12 ? 12 : hour12 + 12;
+    }
+  };
+
+  const handleTimeHourClick = (hour: number) => {
+    setSelectedHour(hour);
+    const hour24 = convertTo24Hour(hour, selectedPeriod);
+    setTime(`${hour24.toString().padStart(2, '0')}:${selectedMinute}`);
+  };
+
+  const handleTimeMinuteClick = (minute: string) => {
+    setSelectedMinute(minute);
+    const hour24 = convertTo24Hour(selectedHour, selectedPeriod);
+    setTime(`${hour24.toString().padStart(2, '0')}:${minute}`);
+  };
+
+  const handleTimePeriodChange = (newPeriod: string) => {
+    setSelectedPeriod(newPeriod);
+    const hour24 = convertTo24Hour(selectedHour, newPeriod);
+    setTime(`${hour24.toString().padStart(2, '0')}:${selectedMinute}`);
+  };
+
+  const formatTime = (time: string) => {
+    if (!time) return 'Select time';
+    const [h, m] = time.split(':');
+    const hour24 = parseInt(h);
+    const ampm = hour24 >= 12 ? 'PM' : 'AM';
+    const displayHour = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
+    return `${displayHour}:${m} ${ampm}`;
+  };
+
+  // Mobile wheel picker - convert minutes for wheel
+  const getWheelMinutes = () => {
+    if (!time) return 0;
+    const m = parseInt(time.split(':')[1]);
+    return Math.round(m / 5) * 5;
+  };
+
+  const [wheelMinutes, setWheelMinutes] = useState(getWheelMinutes());
+
+  // Generate wheel picker options
+  const hourOptions: WheelPickerOption[] = Array.from({ length: 12 }, (_, i) => ({
+    value: (i + 1).toString(),
+    label: (i + 1).toString().padStart(2, '0'),
+  }));
+
+  const minuteOptions: WheelPickerOption[] = Array.from({ length: 12 }, (_, i) => ({
+    value: (i * 5).toString(),
+    label: (i * 5).toString().padStart(2, '0'),
+  }));
+
+  const periodOptions: WheelPickerOption[] = [
+    { value: 'AM', label: 'AM' },
+    { value: 'PM', label: 'PM' },
+  ];
+
+  const handleMobileTimeConfirm = () => {
+    const hour24 = convertTo24Hour(selectedHour, selectedPeriod);
+    setTime(`${hour24.toString().padStart(2, '0')}:${wheelMinutes.toString().padStart(2, '0')}`);
+    setTimePickerOpen(false);
+  };
 
   // Get airport information
   const fromAirport = getAirportInfo(from);
@@ -208,39 +347,58 @@ export default function JetDetailClient({
   const arrivalTime = calculateArrivalTime(time, flightDuration);
   const estimatedPrice = calculateEstimatedPrice(aircraft.category);
 
-  // Get max passengers for this aircraft
-  const maxPassengers = useMemo(() => extractMaxPassengers(aircraft.passengers), [aircraft.passengers]);
+  // Format date for display
+  const formatDate = (date: Date | undefined) => {
+    if (!date) return 'Select date';
+    return date.toLocaleDateString('en-US', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    });
+  };
 
-  // Format date - parse directly from string without Date object to avoid timezone issues
-  const dateParts = date.split('-');
-  const yearStr = dateParts[0];
-  const monthNum = parseInt(dateParts[1]);
-  const dayOfMonth = parseInt(dateParts[2]);
+  // Handle date selection
+  const handleDateSelect = (selectedDate: Date | undefined) => {
+    setDate(selectedDate);
+    setDatePickerOpen(false);
+  };
 
-  // Get month and day names
-  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  const monthName = monthNames[monthNum - 1];
-
-  // Get day of week
-  const tempDate = new Date(`${date}T12:00:00`);
-  const dayOfWeek = tempDate.toLocaleDateString('en-US', { weekday: 'short' });
-
-  // Handler for passenger change with validation
-  const handlePassengerChange = (value: string) => {
-    const numValue = parseInt(value) || 1;
-    if (numValue <= maxPassengers) {
-      setPassengers(numValue);
+  // Handle passenger increment/decrement
+  const incrementPassengers = () => {
+    if (passengers < maxPassengers) {
+      setPassengers(passengers + 1);
     }
   };
 
+  const decrementPassengers = () => {
+    if (passengers > 1) {
+      setPassengers(passengers - 1);
+    }
+  };
+
+  // Get max passengers for this aircraft
+  const maxPassengers = useMemo(() => extractMaxPassengers(aircraft.passengers), [aircraft.passengers]);
+
+  // Format date - using current date state
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const dayOfMonth = date?.getDate() || 1;
+  const monthNum = (date?.getMonth() || 0) + 1;
+  const monthName = monthNames[monthNum - 1];
+  const dayOfWeek = date?.toLocaleDateString('en-US', { weekday: 'short' }) || '';
+
   // Handler for back button
   const handleBack = () => {
+    // Format current date to string
+    const dateStr = date
+      ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+      : initialDate;
+
     // Construct search results URL with current parameters
     const searchParams = new URLSearchParams({
       from: `${fromAirport.city}, ${fromAirport.code}`,
       to: `${toAirport.city}, ${toAirport.code}`,
-      date,
-      time,
+      date: dateStr,
+      time: time,
       passengers: passengers.toString(),
       skipSearch: 'true', // Skip search animation when returning
     });
@@ -433,31 +591,352 @@ export default function JetDetailClient({
             </div>
           </div>
 
-          {/* Editable Fields */}
-          <div className="flex flex-col gap-3 mt-4 sm:mt-6 bg-white dark:bg-card rounded-xl p-4 border border-border">
-            {/* Date and Time Picker */}
-            <div>
-              <DateTimePicker
-                date={date}
-                time={time}
-                onDateChange={setDate}
-                onTimeChange={setTime}
-              />
+          {/* Editable Fields - Shadcn Pattern */}
+          <div className="flex flex-wrap gap-4 mt-6">
+            {/* Date Picker */}
+            <div className="flex flex-col gap-3 flex-1 min-w-[140px]">
+              <Label htmlFor="date-picker" className="px-1 text-muted-foreground">
+                Departure
+              </Label>
+              {isMobile ? (
+                <Drawer open={datePickerOpen} onOpenChange={setDatePickerOpen} shouldScaleBackground={false}>
+                  <DrawerTrigger asChild>
+                    <Button variant="outline" id="date-picker" className="w-full justify-between font-normal">
+                      {formatDate(date)}
+                      <ChevronDown className="h-4 w-4 opacity-50" />
+                    </Button>
+                  </DrawerTrigger>
+                  <DrawerContent className="overflow-hidden pb-safe">
+                    <DrawerHeader className="text-center pt-6 pb-2">
+                      <DrawerTitle className="text-xl font-semibold">Select departure date</DrawerTitle>
+                      <DrawerDescription className="text-sm text-muted-foreground mt-1">Choose when you want to depart</DrawerDescription>
+                      <div className="text-xs text-muted-foreground mt-2 flex items-center justify-center gap-2">
+                        <span>←</span>
+                        <span>Swipe to change month</span>
+                        <span>→</span>
+                      </div>
+                    </DrawerHeader>
+                    <div
+                      className="px-4 pb-6 touch-pan-y"
+                      style={{ touchAction: 'pan-y' }}
+                      onTouchStart={onTouchStart}
+                      onTouchMove={onTouchMove}
+                      onTouchEnd={onTouchEnd}
+                      data-vaul-no-drag
+                    >
+                      <Calendar
+                        mode="single"
+                        month={calendarMonth}
+                        onMonthChange={setCalendarMonth}
+                        selected={date}
+                        onSelect={handleDateSelect}
+                        disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                        fromDate={new Date()}
+                        fromMonth={new Date()}
+                        initialFocus
+                        fixedWeeks
+                        showOutsideDays={false}
+                        className="mx-auto rounded-lg [--cell-size:clamp(0px,calc(100vw/7.5),52px)]"
+                      />
+                    </div>
+                  </DrawerContent>
+                </Drawer>
+              ) : (
+                <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    id="date-picker"
+                    className="w-full justify-between font-normal"
+                  >
+                    {formatDate(date)}
+                    <ChevronDown className="h-4 w-4 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={handleDateSelect}
+                    disabled={(date) => {
+                      const today = new Date();
+                      today.setHours(0, 0, 0, 0);
+                      return date < today;
+                    }}
+                  />
+                </PopoverContent>
+              </Popover>
+              )}
             </div>
 
-            {/* Divider */}
-            <div className="h-px bg-border"></div>
+            {/* Time Picker */}
+            <div className="flex flex-col gap-3 flex-1 min-w-[140px]">
+              <Label htmlFor="time-picker" className="px-1 text-muted-foreground">
+                Departure time
+              </Label>
+              {isMobile ? (
+                <Drawer open={timePickerOpen} onOpenChange={setTimePickerOpen} shouldScaleBackground={false}>
+                  <DrawerTrigger asChild>
+                    <Button variant="outline" id="time-picker" className="w-full justify-between font-normal">
+                      {formatTime(time)}
+                      <ChevronDown className="h-4 w-4 opacity-50" />
+                    </Button>
+                  </DrawerTrigger>
+                  <DrawerContent>
+                    <DrawerHeader className="text-center pb-2">
+                      <DrawerTitle className="text-xl font-semibold">Select departure time</DrawerTitle>
+                      <DrawerDescription className="text-sm text-muted-foreground mt-1">Choose your preferred departure time</DrawerDescription>
+                      <div className="mt-4 pt-4 border-t">
+                        <div className="text-5xl font-bold tabular-nums">
+                          {selectedHour.toString().padStart(2, '0')}:{wheelMinutes.toString().padStart(2, '0')}<span className="text-3xl ml-2">{selectedPeriod}</span>
+                        </div>
+                      </div>
+                    </DrawerHeader>
+                    <div className="px-6 pb-6 space-y-6">
+                      {/* Quick Presets */}
+                      <div className="space-y-2">
+                        <div className="text-xs font-medium text-muted-foreground text-center">
+                          Quick select
+                        </div>
+                        <div className="grid grid-cols-4 gap-2">
+                          {[
+                            { label: 'Morning', time: '09:00' },
+                            { label: 'Afternoon', time: '14:00' },
+                            { label: 'Evening', time: '18:00' },
+                            { label: 'Night', time: '21:00' },
+                          ].map((preset) => (
+                            <Button
+                              key={preset.label}
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                const [h, m] = preset.time.split(':');
+                                const h24 = parseInt(h);
+                                const h12 = h24 === 0 ? 12 : h24 > 12 ? h24 - 12 : h24;
+                                const period = h24 >= 12 ? 'PM' : 'AM';
+                                setSelectedHour(h12);
+                                setWheelMinutes(parseInt(m));
+                                setSelectedPeriod(period);
+                                setTime(preset.time);
+                                setTimePickerOpen(false);
+                              }}
+                              className="flex flex-col h-auto py-3 transition-all hover:scale-105"
+                            >
+                              <span className="text-xs text-muted-foreground mb-1">{preset.label}</span>
+                              <span className="font-semibold text-sm">{formatTime(preset.time)}</span>
+                            </Button>
+                          ))}
+                        </div>
+                      </div>
 
-            {/* Passengers */}
-            <div className="flex items-center justify-between">
-              <PassengerPicker
-                value={passengers.toString()}
-                onChange={handlePassengerChange}
-                maxPassengers={maxPassengers}
-              />
-              <p className="text-xs text-muted-foreground ml-4">
-                Max {maxPassengers} passengers
-              </p>
+                      {/* Wheel Picker */}
+                      <div data-vaul-no-drag>
+                        <div className="flex items-end justify-center gap-4 py-4">
+                          <div className="flex flex-col items-center gap-2 flex-shrink-0">
+                            <div className="text-xs font-medium text-muted-foreground px-2 py-1 bg-secondary rounded-md">Hour</div>
+                            <WheelPickerWrapper className="!w-20"><WheelPicker value={selectedHour.toString()} options={hourOptions} onValueChange={(value) => setSelectedHour(parseInt(value as string))} infinite /></WheelPickerWrapper>
+                          </div>
+                          <span className="text-2xl font-bold mb-[90px] flex-shrink-0">:</span>
+                          <div className="flex flex-col items-center gap-2 flex-shrink-0">
+                            <div className="text-xs font-medium text-muted-foreground px-2 py-1 bg-secondary rounded-md">Minutes</div>
+                            <WheelPickerWrapper className="!w-20"><WheelPicker value={wheelMinutes.toString()} options={minuteOptions} onValueChange={(value) => setWheelMinutes(parseInt(value as string))} infinite /></WheelPickerWrapper>
+                          </div>
+                          <div className="flex flex-col items-center gap-2 flex-shrink-0">
+                            <div className="text-xs font-medium text-muted-foreground px-2 py-1 bg-secondary rounded-md">Period</div>
+                            <WheelPickerWrapper className="!w-20"><WheelPicker value={selectedPeriod} options={periodOptions} onValueChange={(value) => setSelectedPeriod(value as 'AM' | 'PM')} /></WheelPickerWrapper>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Confirm Button */}
+                      <Button onClick={handleMobileTimeConfirm} className="w-full h-12 text-base font-semibold" size="lg">
+                        Confirm Time - {selectedHour.toString().padStart(2, '0')}:{wheelMinutes.toString().padStart(2, '0')} {selectedPeriod}
+                      </Button>
+                    </div>
+                  </DrawerContent>
+                </Drawer>
+              ) : (
+                <Popover open={timePickerOpen} onOpenChange={setTimePickerOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    id="time-picker"
+                    className="w-full justify-between font-normal"
+                  >
+                    {formatTime(time)}
+                    <ChevronDown className="h-4 w-4 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[280px] p-0" align="start">
+                  <div className="p-3 border-b flex justify-between items-center">
+                    <span className="text-sm font-medium">Select Time</span>
+                    <div className="flex gap-1 rounded-lg p-1 border">
+                      <button
+                        onClick={() => handleTimePeriodChange('AM')}
+                        className={cn(
+                          'px-4 py-1.5 text-xs rounded-md transition-all font-medium',
+                          selectedPeriod === 'AM'
+                            ? 'bg-primary text-primary-foreground shadow-sm'
+                            : 'bg-transparent hover:bg-muted'
+                        )}
+                      >
+                        AM
+                      </button>
+                      <button
+                        onClick={() => handleTimePeriodChange('PM')}
+                        className={cn(
+                          'px-4 py-1.5 text-xs rounded-md transition-all font-medium',
+                          selectedPeriod === 'PM'
+                            ? 'bg-primary text-primary-foreground shadow-sm'
+                            : 'bg-transparent hover:bg-muted'
+                        )}
+                      >
+                        PM
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="p-3">
+                    {/* Hours Grid */}
+                    <div className="mb-4">
+                      <span className="text-xs font-medium text-muted-foreground mb-2 block">
+                        Hour
+                      </span>
+                      <div className="grid grid-cols-6 gap-1">
+                        {Array.from({ length: 12 }, (_, i) => i + 1).map((h) => (
+                          <button
+                            key={h}
+                            onClick={() => handleTimeHourClick(h)}
+                            className={cn(
+                              'aspect-square rounded-md text-sm font-medium transition-all hover:bg-accent',
+                              selectedHour === h
+                                ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+                                : 'bg-muted'
+                            )}
+                          >
+                            {h}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Minutes Grid */}
+                    <div>
+                      <span className="text-xs font-medium text-muted-foreground mb-2 block">
+                        Minute
+                      </span>
+                      <div className="grid grid-cols-4 gap-2">
+                        {['00', '15', '30', '45'].map((m) => (
+                          <button
+                            key={m}
+                            onClick={() => handleTimeMinuteClick(m)}
+                            className={cn(
+                              'py-2 rounded-md text-sm font-medium transition-all hover:bg-accent',
+                              selectedMinute === m
+                                ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+                                : 'bg-muted'
+                            )}
+                          >
+                            {m}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Confirm Button */}
+                    <Button
+                      onClick={() => setTimePickerOpen(false)}
+                      className="w-full mt-4"
+                      size="sm"
+                    >
+                      Confirm
+                    </Button>
+                  </div>
+                </PopoverContent>
+              </Popover>
+              )}
+            </div>
+
+            {/* Passengers Picker */}
+            <div className="flex flex-col gap-3 flex-1 min-w-[140px]">
+              <Label htmlFor="passengers-picker" className="px-1 text-muted-foreground">
+                Passengers
+              </Label>
+              {isMobile ? (
+                <Drawer open={passengersPickerOpen} onOpenChange={setPassengersPickerOpen} shouldScaleBackground={false}>
+                  <DrawerTrigger asChild>
+                    <Button variant="outline" id="passengers-picker" className="w-full justify-between font-normal">
+                      <span className="flex items-center gap-2"><Users className="h-4 w-4" />{passengers}</span>
+                      <ChevronDown className="h-4 w-4 opacity-50" />
+                    </Button>
+                  </DrawerTrigger>
+                  <DrawerContent>
+                    <DrawerHeader className="text-center pt-6 pb-4">
+                      <DrawerTitle className="text-xl font-semibold">Select passengers</DrawerTitle>
+                      <DrawerDescription className="text-sm text-muted-foreground mt-1">How many people are flying?</DrawerDescription>
+                    </DrawerHeader>
+                    <div className="px-6 pb-6 space-y-6">
+                      <div className="flex items-center justify-center gap-6 py-8">
+                        <Button variant="outline" size="icon" onClick={decrementPassengers} disabled={passengers <= 1} className="h-12 w-12 rounded-full"><Minus className="h-5 w-5" /></Button>
+                        <div className="flex flex-col items-center gap-2">
+                          <span className="text-5xl font-bold">{passengers}</span>
+                          <span className="text-sm text-muted-foreground">{passengers === 1 ? 'passenger' : 'passengers'}</span>
+                        </div>
+                        <Button variant="outline" size="icon" onClick={incrementPassengers} disabled={passengers >= maxPassengers} className="h-12 w-12 rounded-full"><Plus className="h-5 w-5" /></Button>
+                      </div>
+                      <div className="grid grid-cols-4 gap-2">
+                        {[1, 2, 4, Math.min(8, maxPassengers)].map((count) => (
+                          <Button key={count} variant={passengers === count ? "default" : "outline"} size="sm" onClick={() => setPassengers(count)} className="h-10">{count}</Button>
+                        ))}
+                      </div>
+                      <Button onClick={() => setPassengersPickerOpen(false)} className="w-full" size="lg">Confirm</Button>
+                    </div>
+                  </DrawerContent>
+                </Drawer>
+              ) : (
+                <Popover open={passengersPickerOpen} onOpenChange={setPassengersPickerOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    id="passengers-picker"
+                    className="w-full justify-between font-normal"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Users className="h-4 w-4" />
+                      {passengers}
+                    </span>
+                    <ChevronDown className="h-4 w-4 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-64" align="start">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Passengers</span>
+                      <span className="text-xs text-muted-foreground">Max {maxPassengers}</span>
+                    </div>
+                    <div className="flex items-center justify-center gap-4">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={decrementPassengers}
+                        disabled={passengers <= 1}
+                      >
+                        -
+                      </Button>
+                      <span className="text-2xl font-bold w-12 text-center">{passengers}</span>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={incrementPassengers}
+                        disabled={passengers >= maxPassengers}
+                      >
+                        +
+                      </Button>
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
+              )}
             </div>
           </div>
         </div>

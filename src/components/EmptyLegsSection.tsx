@@ -43,8 +43,8 @@ function formatPrice(price: number): string {
 
 export default function EmptyLegsSection({ emptyLegs }: EmptyLegsSectionProps) {
   return (
-    <section className="py-8 md:py-16 px-4 bg-background">
-      <div className="max-w-7xl mx-auto">
+    <section className="py-8 md:py-16 pl-4 pr-0 bg-background">
+      <div className="max-w-7xl mx-auto pr-0">
         {/* Header with title and View all button */}
         <div className="flex items-center justify-between mb-4 md:mb-8">
           <h2 className="text-3xl md:text-6xl font-medium text-foreground" style={{ fontFamily: 'Clash Display, sans-serif' }}>
@@ -63,10 +63,12 @@ export default function EmptyLegsSection({ emptyLegs }: EmptyLegsSectionProps) {
         <Carousel
           opts={{
             align: "start",
+            loop: false,
+            skipSnaps: false,
           }}
           className="w-full"
         >
-          <CarouselContent>
+          <CarouselContent className="-ml-2 md:-ml-3">
             {emptyLegs.map((leg) => {
                 const route = `${leg.from.city} - ${leg.to.city}`;
                 const passengers = `Up to ${leg.availableSeats}`;
@@ -75,22 +77,24 @@ export default function EmptyLegsSection({ emptyLegs }: EmptyLegsSectionProps) {
                 const image = leg.from.image || leg.to.image || '/day.jpg';
 
                 return (
-                  <CarouselItem key={leg.id} className="basis-[70%] sm:basis-1/2 md:basis-1/2 lg:basis-1/3 xl:basis-1/4 pl-3 md:pl-1">
-                    <Link href={`/empty-legs/${leg.id}`}>
-                      <EmptyLegsCard
-                        date={date}
-                        passengers={passengers}
-                        route={route}
-                        price={price}
-                        image={image}
-                      />
-                    </Link>
+                  <CarouselItem key={leg.id} className="pl-2 md:pl-3 basis-[60%] sm:basis-[48%] md:basis-[33%] lg:basis-[25%]">
+                    <div className="p-1">
+                      <Link href={`/empty-legs/${leg.id}`} className="block">
+                        <EmptyLegsCard
+                          date={date}
+                          passengers={passengers}
+                          route={route}
+                          price={price}
+                          image={image}
+                        />
+                      </Link>
+                    </div>
                   </CarouselItem>
                 );
               })}
             </CarouselContent>
-            <CarouselPrevious className="hidden md:flex" />
-            <CarouselNext className="hidden md:flex" />
+            <CarouselPrevious className="hidden lg:flex -left-4 xl:-left-12" />
+            <CarouselNext className="hidden lg:flex -right-4 xl:-right-12" />
           </Carousel>
       </div>
     </section>

@@ -39,6 +39,7 @@ const NavBar = () => {
               height={40}
               className="h-5 w-auto"
               priority
+              suppressHydrationWarning
             />
           </Link>
         </div>

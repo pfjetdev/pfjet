@@ -16,6 +16,9 @@ interface MobileOrderFormDrawerProps {
   price: string
   open: boolean
   onOpenChange: (open: boolean) => void
+  isJetSharing?: boolean
+  availableSeats?: number
+  selectedPassengers?: number
 }
 
 export default function MobileOrderFormDrawer({
@@ -23,6 +26,9 @@ export default function MobileOrderFormDrawer({
   price,
   open,
   onOpenChange,
+  isJetSharing = false,
+  availableSeats = 1,
+  selectedPassengers = 1,
 }: MobileOrderFormDrawerProps) {
   return (
     <Drawer open={open} onOpenChange={onOpenChange} repositionInputs={true}>
@@ -44,7 +50,14 @@ export default function MobileOrderFormDrawer({
 
         {/* Form Content - Scrollable */}
         <div className="flex-1 overflow-y-auto px-4 py-4 min-h-0" data-vaul-no-drag>
-          <CreateOrderForm jetName={jetName} price={price} hideTitle={true} />
+          <CreateOrderForm
+            jetName={jetName}
+            price={price}
+            hideTitle={true}
+            isJetSharing={isJetSharing}
+            availableSeats={availableSeats}
+            selectedPassengers={selectedPassengers}
+          />
         </div>
       </DrawerContent>
     </Drawer>

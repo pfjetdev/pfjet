@@ -7,15 +7,29 @@ interface CreateOrderFormProps {
   jetName: string;
   price: string;
   hideTitle?: boolean;
+  isJetSharing?: boolean;
+  availableSeats?: number;
+  selectedPassengers?: number;
 }
 
-export default function CreateOrderForm({ jetName, price, hideTitle = false }: CreateOrderFormProps) {
+export default function CreateOrderForm({
+  jetName,
+  price,
+  hideTitle = false,
+  isJetSharing = false,
+  availableSeats = 1,
+  selectedPassengers = 1
+}: CreateOrderFormProps) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [countryCode, setCountryCode] = useState('+1');
   const [orderConditionsOpen, setOrderConditionsOpen] = useState(false);
   const [cancellationPolicyOpen, setCancellationPolicyOpen] = useState(false);
+
+  // Extract price number from string (e.g., "$ 2,340" -> 2340)
+  const pricePerSeat = parseFloat(price.replace(/[^0-9.]/g, ''));
+  const totalPrice = isJetSharing ? pricePerSeat * selectedPassengers : pricePerSeat;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -125,8 +139,16 @@ export default function CreateOrderForm({ jetName, price, hideTitle = false }: C
             className="text-3xl sm:text-4xl font-bold text-white dark:text-foreground"
             style={{ fontFamily: 'Clash Display, sans-serif' }}
           >
-            {price}
+            $ {totalPrice.toLocaleString()}
           </p>
+          {isJetSharing && selectedPassengers > 1 && (
+            <p
+              className="text-xs text-white/60 dark:text-muted-foreground mt-1"
+              style={{ fontFamily: 'Montserrat, sans-serif' }}
+            >
+              $ {pricePerSeat.toLocaleString()} × {selectedPassengers} passengers
+            </p>
+          )}
         </div>
 
         {/* Submit Button */}

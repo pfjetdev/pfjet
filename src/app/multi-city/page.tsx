@@ -55,12 +55,12 @@ function MultiCityContent() {
           {/* Title */}
           <div className="text-center mb-8">
             <h1
-              className="text-6xl font-medium text-foreground mb-4 tracking-[2.4px]"
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-medium text-foreground mb-4 tracking-tight sm:tracking-[2.4px]"
               style={{ fontFamily: 'Clash Display, sans-serif' }}
             >
               Multi-City Flights
             </h1>
-            <p className="text-lg max-w-2xl mx-auto text-foreground/80">
+            <p className="text-sm sm:text-base lg:text-lg max-w-2xl mx-auto text-foreground/80 px-4">
               Plan your journey with multiple destinations. Add as many stops as you need.
             </p>
           </div>

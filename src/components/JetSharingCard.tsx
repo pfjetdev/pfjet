@@ -1,10 +1,10 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
-import { Calendar, Users, MoveUpRight } from 'lucide-react';
+import { Calendar, Users, ArrowUpRight, Plane } from 'lucide-react';
 import Link from 'next/link';
 
 interface JetSharingCardProps {
-  id: number;
+  id: string;
   from: string;
   to: string;
   date: string;
@@ -13,6 +13,7 @@ interface JetSharingCardProps {
   availableSeats: number;
   price: number;
   image: string;
+  aircraftName: string;
 }
 
 const JetSharingCard: React.FC<JetSharingCardProps> = ({
@@ -24,14 +25,15 @@ const JetSharingCard: React.FC<JetSharingCardProps> = ({
   totalSeats,
   availableSeats,
   price,
-  image
+  image,
+  aircraftName
 }) => {
   return (
     <Link href={`/jet-sharing/${id}`} className="block">
-      <Card className="w-full max-w-sm overflow-hidden p-0 cursor-pointer hover:shadow-lg transition-all duration-300">
-        {/* Image Background */}
+      <Card className="group w-full overflow-hidden border border-border/50 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1 p-0 gap-0 bg-background">
+        {/* Image container with overlay */}
         <div
-          className="relative aspect-square bg-cover bg-center bg-no-repeat"
+          className="relative aspect-square overflow-hidden bg-cover bg-center bg-no-repeat"
           style={{
             backgroundImage: `url(${image})`,
             backgroundSize: 'cover',
@@ -39,46 +41,54 @@ const JetSharingCard: React.FC<JetSharingCardProps> = ({
             backgroundRepeat: 'no-repeat'
           }}
         >
-          {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+          {/* Gradient overlay - enhanced on hover */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent transition-all duration-300 group-hover:from-black/80" />
 
-          {/* Content at bottom left */}
-          <div className="absolute bottom-4 left-4 text-white">
-            {/* Date/Time and Passengers */}
-            <div className="flex items-center gap-2 mb-3 flex-wrap">
-              {/* Date with Time */}
-              <div className="flex items-center gap-1.5 bg-black/50 backdrop-blur-sm px-2.5 py-1.5 rounded-lg">
-                <Calendar className="w-3.5 h-3.5 shrink-0" />
+          {/* Content overlay */}
+          <div className="absolute inset-x-0 bottom-0 p-2.5 md:p-3 text-white">
+            {/* Date/Time and Available Seats badges */}
+            <div className="flex items-center gap-1.5 mb-1.5 md:mb-2 flex-wrap">
+              {/* Date with Time badge */}
+              <div className="flex items-center gap-1 bg-white/10 backdrop-blur-md px-2 py-1 rounded-md border border-white/20 transition-all duration-300 group-hover:bg-white/20">
+                <Calendar className="w-3 h-3" />
                 <span className="text-xs font-medium whitespace-nowrap" style={{ fontFamily: 'Clash Display, sans-serif' }}>
                   {date} / {time}
                 </span>
               </div>
 
-              {/* Available Seats */}
-              <div className="flex items-center gap-1.5 bg-black/50 backdrop-blur-sm px-2.5 py-1.5 rounded-lg">
-                <Users className="w-3.5 h-3.5 shrink-0" />
+              {/* Available Seats badge */}
+              <div className="flex items-center gap-1 bg-white/10 backdrop-blur-md px-2 py-1 rounded-md border border-white/20 transition-all duration-300 group-hover:bg-white/20">
+                <Users className="w-3 h-3" />
                 <span className="text-xs font-medium whitespace-nowrap" style={{ fontFamily: 'Clash Display, sans-serif' }}>
-                  {availableSeats} out of {totalSeats} left
+                  {availableSeats}/{totalSeats} left
                 </span>
               </div>
             </div>
 
-            {/* Route */}
-            <div className="font-sans" style={{ fontSize: '18px', fontWeight: '600' }}>
-              {from} - {to}
+            {/* Aircraft Name */}
+            <div className="flex items-center gap-1 mb-1.5">
+              <Plane className="w-3 h-3" />
+              <span className="text-xs font-medium" style={{ fontFamily: 'Clash Display, sans-serif' }}>
+                {aircraftName}
+              </span>
             </div>
+
+            {/* Route */}
+            <h3 className="text-sm md:text-lg font-semibold tracking-tight transition-all duration-300 group-hover:translate-x-1" style={{ fontFamily: 'Clash Display, sans-serif' }}>
+              {from} - {to}
+            </h3>
           </div>
         </div>
 
-        {/* Price Section */}
-        <div className="px-4 pb-4 flex items-center justify-center">
-          <div className="text-lg font-medium" style={{ fontFamily: 'Clash Display, sans-serif', fontWeight: '500' }}>
+        {/* Price footer */}
+        <div className="flex items-center justify-between px-3 md:px-4 py-2 md:py-2.5 bg-background">
+          <div className="text-sm md:text-base font-semibold text-foreground" style={{ fontFamily: 'Clash Display, sans-serif' }}>
             From $ {price.toLocaleString()}
           </div>
 
-          {/* Arrow Icon Button */}
-          <div className="bg-black dark:bg-foreground text-white dark:text-background p-2 rounded-lg hover:bg-gray-800 transition-colors cursor-pointer ml-auto">
-            <MoveUpRight className="w-5 h-5" />
+          {/* Arrow button */}
+          <div className="w-7 h-7 sm:w-9 sm:h-9 bg-muted text-muted-foreground rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform cursor-pointer">
+            <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" strokeWidth={2} />
           </div>
         </div>
       </Card>

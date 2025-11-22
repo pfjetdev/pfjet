@@ -645,13 +645,15 @@ function calculatePrice(distance: number, category: string, random: () => number
 }
 
 // Generate future dates
+// Минимум 2 дня вперед (не сегодня и не завтра)
+// Пользователю нужно время на оформление билета и дорогу до аэропорта
 function generateFutureDates(random: () => number, count: number): Date[] {
   const dates: Date[] = []
   const today = new Date()
   today.setHours(0, 0, 0, 0)
 
   for (let i = 0; i < count; i++) {
-    const daysAhead = 1 + Math.floor(random() * 14) // 1-14 days ahead
+    const daysAhead = 2 + Math.floor(random() * 13) // 2-14 days ahead (минимум послезавтра)
     const date = new Date(today)
     date.setDate(date.getDate() + daysAhead)
     dates.push(date)

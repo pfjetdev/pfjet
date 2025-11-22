@@ -116,8 +116,8 @@ export default function DestinationsSection() {
 
   if (loading) {
     return (
-      <section className="py-8 md:py-16 px-4 bg-background">
-        <div className="max-w-7xl mx-auto">
+      <section className="py-8 md:py-16 pl-4 pr-0 bg-background">
+        <div className="max-w-7xl mx-auto pr-0">
           <div className="flex items-center justify-between mb-4 md:mb-12">
             <h2 className="text-3xl md:text-6xl font-medium text-foreground" style={{ fontFamily: 'Clash Display, sans-serif' }}>
               {selectedContinent}
@@ -162,8 +162,8 @@ export default function DestinationsSection() {
   const secondRowCountries = countries.slice(midPoint);
 
   return (
-    <section className="py-8 md:py-16 px-4 bg-background">
-      <div className="max-w-7xl mx-auto">
+    <section className="py-8 md:py-16 pl-4 pr-0 bg-background">
+      <div className="max-w-7xl mx-auto pr-0">
         {/* Header with Continent Selector and View all button */}
         <div className="flex items-center justify-between mb-4 md:mb-12">
           <Select
@@ -261,15 +261,16 @@ export default function DestinationsSection() {
           <Carousel
             opts={{
               align: "start",
-              loop: true,
+              loop: false,
+              skipSnaps: false,
             }}
             className="w-full"
           >
-            <CarouselContent>
+            <CarouselContent className="-ml-2 md:-ml-3">
               {cities.map((city) => (
                   <CarouselItem
                     key={city.id}
-                    className="basis-[70%] sm:basis-1/2 md:basis-1/2 lg:basis-1/3 xl:basis-1/5 pl-3 md:pl-1"
+                    className="pl-2 md:pl-3 basis-[60%] sm:basis-[48%] md:basis-[33%] lg:basis-[25%]"
                   >
                     <div className="p-1">
                       <Link
@@ -300,8 +301,8 @@ export default function DestinationsSection() {
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <CarouselPrevious className="hidden md:flex" />
-              <CarouselNext className="hidden md:flex" />
+              <CarouselPrevious className="hidden lg:flex -left-4 xl:-left-12" />
+              <CarouselNext className="hidden lg:flex -right-4 xl:-right-12" />
             </Carousel>
         )}
       </div>

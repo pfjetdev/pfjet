@@ -2,11 +2,17 @@
 
 import { useState, useEffect } from 'react'
 import { useTheme } from 'next-themes'
-import { PlaneTakeoff, PlaneLanding, Plus, X } from 'lucide-react'
+import { PlaneTakeoff, PlaneLanding, Plus, X, ArrowUpDown, Plane } from 'lucide-react'
 import { AirportCombobox } from '@/components/AirportCombobox'
 import { DateTimePicker } from '@/components/DateTimePicker'
 import { PassengerPicker } from '@/components/PassengerPicker'
+import { MobileAirportPickerNew as MobileAirportPicker } from '@/components/MobileAirportPickerNew'
+import { MobileDatePicker } from '@/components/MobileDatePicker'
+import { MobileTimePicker } from '@/components/MobileTimePicker'
+import { MobilePassengerPicker } from '@/components/MobilePassengerPicker'
 import { useFormContext } from '@/contexts/FormContext'
+import { useIsMobile } from '@/hooks/useIsMobile'
+import { cn } from '@/lib/utils'
 
 interface RouteData {
   id: string
@@ -30,6 +36,7 @@ interface MultiCityFormProps {
 const MultiCityForm = ({ initialFormData }: MultiCityFormProps) => {
   const { theme } = useTheme()
   const { setFormData } = useFormContext()
+  const isMobile = useIsMobile()
 
   // Initialize with two routes
   // Flight 1: from initialFormData if provided
@@ -130,6 +137,17 @@ const MultiCityForm = ({ initialFormData }: MultiCityFormProps) => {
     }
   }
 
+  const handleSwapDestinations = (routeId: string) => {
+    setRoutes(prev => {
+      return prev.map(route => {
+        if (route.id === routeId) {
+          return { ...route, from: route.to, to: route.from }
+        }
+        return route
+      })
+    })
+  }
+
   const handleSearch = () => {
     console.log('Multi-city search data:', routes)
     alert('Searching for jets with your multi-city criteria...')
@@ -170,80 +188,182 @@ const MultiCityForm = ({ initialFormData }: MultiCityFormProps) => {
             )}
           </div>
 
-          {/* Route Form */}
-          <div className={`backdrop-blur-sm rounded-xl shadow-xl border p-2 h-16 ${
-            theme === 'dark'
-              ? 'bg-gray-800/95 border-white/30'
-              : 'bg-white/95 border-white/50'
-          }`}>
-            <div className="flex flex-col lg:flex-row items-center gap-2 lg:gap-0 h-full">
+          {/* Route Form - Mobile Version */}
+          {isMobile ? (
+            <div className="space-y-3">
+              {/* From and To Fields Container */}
+              <div className={cn(
+                "rounded-xl overflow-hidden relative",
+                theme === 'dark' ? 'bg-white' : 'bg-[#0F142E]'
+              )}>
+                {/* Swap Button - positioned on the right */}
+                <button
+                  onClick={() => handleSwapDestinations(route.id)}
+                  className={cn(
+                    "absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full transition-all duration-200 shadow-lg z-10",
+                    theme === 'dark'
+                      ? 'bg-gray-900 hover:bg-gray-800 text-white'
+                      : 'bg-white hover:bg-white/90 text-gray-900'
+                  )}
+                  aria-label="Swap destinations"
+                >
+                  <ArrowUpDown className="w-4 h-4" />
+                </button>
 
-              {/* From Field */}
-              <div className="flex-1 lg:flex-[2] relative h-full">
-                <AirportCombobox
-                  value={route.from}
-                  onValueChange={(value) => handleInputChange(route.id, 'from', value)}
-                  placeholder="From"
-                  icon={
-                    <PlaneTakeoff
-                      className={`w-4 h-4 ${
-                        theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-                      }`}
+                {/* From Field */}
+                <div className="relative px-4 pt-4 pb-3">
+                  <label className={cn(
+                    "text-xs mb-1 block",
+                    theme === 'dark' ? 'text-gray-600' : 'text-white/60'
+                  )}>From</label>
+                  <div className={cn(
+                    "text-2xl font-semibold",
+                    theme === 'dark'
+                      ? 'text-gray-900'
+                      : 'text-white'
+                  )}>
+                    <MobileAirportPicker
+                      value={route.from}
+                      onValueChange={(value) => handleInputChange(route.id, 'from', value)}
+                      placeholder="ex. Amsterdam, AMS"
+                      label="Departure Airport"
+                      fieldType="from"
+                      theme={theme}
                     />
-                  }
-                  className={theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}
-                  fieldType="from"
-                  disabled={index > 0}
-                />
+                  </div>
+                </div>
+
+                {/* Divider */}
+                <div className={cn(
+                  "h-px mx-4",
+                  theme === 'dark' ? 'bg-gray-200' : 'bg-white/10'
+                )} />
+
+                {/* To Field */}
+                <div className="relative px-4 pt-3 pb-4">
+                  <label className={cn(
+                    "text-xs mb-1 block",
+                    theme === 'dark' ? 'text-gray-600' : 'text-white/60'
+                  )}>Going to</label>
+                  <div className={cn(
+                    "text-2xl font-semibold",
+                    theme === 'dark'
+                      ? 'text-gray-900'
+                      : 'text-white'
+                  )}>
+                    <MobileAirportPicker
+                      value={route.to}
+                      onValueChange={(value) => handleInputChange(route.id, 'to', value)}
+                      placeholder="ex. London, LHR"
+                      label="Destination Airport"
+                      showNearby={false}
+                      fieldType="to"
+                      theme={theme}
+                    />
+                  </div>
+                </div>
               </div>
 
-              {/* Divider */}
-              <div className={`hidden lg:block w-px h-8 ${theme === 'dark' ? 'bg-gray-600' : 'bg-gray-200'}`}></div>
-
-              {/* To Field */}
-              <div className="flex-1 lg:flex-[2] relative h-full">
-                <AirportCombobox
-                  value={route.to}
-                  onValueChange={(value) => handleInputChange(route.id, 'to', value)}
-                  placeholder="To"
-                  icon={
-                    <PlaneLanding
-                      className={`w-4 h-4 ${
-                        theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-                      }`}
-                    />
-                  }
-                  className={theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}
-                  showNearby={false}
-                  fieldType="to"
-                />
-              </div>
-
-              {/* Divider */}
-              <div className={`hidden lg:block w-px h-8 ${theme === 'dark' ? 'bg-gray-600' : 'bg-gray-200'}`}></div>
-
-              {/* Date and Time Picker */}
-              <div className="flex-[2] relative h-full px-2">
-                <DateTimePicker
+              {/* Date and Time Pickers - Two Columns */}
+              <div className="grid grid-cols-2 gap-3">
+                {/* Date Picker */}
+                <MobileDatePicker
                   date={route.date}
-                  time={route.time}
                   onDateChange={(value) => handleInputChange(route.id, 'date', value)}
+                  theme={theme}
+                />
+
+                {/* Time Picker */}
+                <MobileTimePicker
+                  time={route.time}
                   onTimeChange={(value) => handleInputChange(route.id, 'time', value)}
+                  theme={theme}
                 />
               </div>
 
-              {/* Divider */}
-              <div className={`hidden lg:block w-px h-8 ${theme === 'dark' ? 'bg-gray-600' : 'bg-gray-200'}`}></div>
+              {/* Passengers Selector */}
+              <MobilePassengerPicker
+                value={route.passengers}
+                onChange={(value) => handleInputChange(route.id, 'passengers', value)}
+                theme={theme}
+              />
+            </div>
+          ) : (
+            /* Desktop Version */
+            <div className={`backdrop-blur-sm rounded-xl shadow-xl border p-2 h-16 ${
+              theme === 'dark'
+                ? 'bg-gray-800/95 border-white/30'
+                : 'bg-white/95 border-white/50'
+            }`}>
+              <div className="flex flex-col lg:flex-row items-center gap-2 lg:gap-0 h-full">
 
-              {/* Passengers Field */}
-              <div className="flex-shrink-0 w-20 relative h-full">
-                <PassengerPicker
-                  value={route.passengers}
-                  onChange={(value) => handleInputChange(route.id, 'passengers', value)}
-                />
+                {/* From Field */}
+                <div className="flex-1 lg:flex-[2] relative h-full">
+                  <AirportCombobox
+                    value={route.from}
+                    onValueChange={(value) => handleInputChange(route.id, 'from', value)}
+                    placeholder="From"
+                    icon={
+                      <PlaneTakeoff
+                        className={`w-4 h-4 ${
+                          theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+                        }`}
+                      />
+                    }
+                    className={theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}
+                    fieldType="from"
+                    disabled={index > 0}
+                  />
+                </div>
+
+                {/* Divider */}
+                <div className={`hidden lg:block w-px h-8 ${theme === 'dark' ? 'bg-gray-600' : 'bg-gray-200'}`}></div>
+
+                {/* To Field */}
+                <div className="flex-1 lg:flex-[2] relative h-full">
+                  <AirportCombobox
+                    value={route.to}
+                    onValueChange={(value) => handleInputChange(route.id, 'to', value)}
+                    placeholder="To"
+                    icon={
+                      <PlaneLanding
+                        className={`w-4 h-4 ${
+                          theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+                        }`}
+                      />
+                    }
+                    className={theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}
+                    showNearby={false}
+                    fieldType="to"
+                  />
+                </div>
+
+                {/* Divider */}
+                <div className={`hidden lg:block w-px h-8 ${theme === 'dark' ? 'bg-gray-600' : 'bg-gray-200'}`}></div>
+
+                {/* Date and Time Picker */}
+                <div className="flex-[2] relative h-full px-2">
+                  <DateTimePicker
+                    date={route.date}
+                    time={route.time}
+                    onDateChange={(value) => handleInputChange(route.id, 'date', value)}
+                    onTimeChange={(value) => handleInputChange(route.id, 'time', value)}
+                  />
+                </div>
+
+                {/* Divider */}
+                <div className={`hidden lg:block w-px h-8 ${theme === 'dark' ? 'bg-gray-600' : 'bg-gray-200'}`}></div>
+
+                {/* Passengers Field */}
+                <div className="flex-shrink-0 w-20 relative h-full">
+                  <PassengerPicker
+                    value={route.passengers}
+                    onChange={(value) => handleInputChange(route.id, 'passengers', value)}
+                  />
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       ))}
 
@@ -251,7 +371,7 @@ const MultiCityForm = ({ initialFormData }: MultiCityFormProps) => {
       <button
         onClick={addRoute}
         disabled={isAddFlightDisabled}
-        className={`w-full py-3 rounded-xl border-2 border-dashed transition-all duration-200 flex items-center justify-center gap-2 ${
+        className={`w-full py-3 sm:py-3 rounded-xl border-2 border-dashed transition-all duration-200 flex items-center justify-center gap-2 text-sm sm:text-base ${
           isAddFlightDisabled
             ? theme === 'dark'
               ? 'border-gray-700 text-gray-600 cursor-not-allowed opacity-50'
@@ -261,7 +381,7 @@ const MultiCityForm = ({ initialFormData }: MultiCityFormProps) => {
               : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50 text-gray-600'
         }`}
       >
-        <Plus className="w-5 h-5" />
+        <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
         <span className="font-medium">Add another flight</span>
       </button>
 
@@ -269,10 +389,11 @@ const MultiCityForm = ({ initialFormData }: MultiCityFormProps) => {
       <div className="flex justify-center pt-4">
         <button
           onClick={handleSearch}
-          className="text-white px-12 py-4 rounded-lg font-semibold transition-all duration-200 shadow-lg hover:opacity-90 text-lg"
+          className="w-full sm:w-auto text-white px-6 sm:px-12 py-4 rounded-xl sm:rounded-lg font-semibold transition-all duration-200 shadow-lg hover:opacity-90 text-base sm:text-lg flex items-center justify-center gap-2"
           style={{ backgroundColor: 'var(--brand-red)' }}
         >
-          Search Multi-City Jets
+          <span>Search Multi-City Jets</span>
+          {isMobile && <Plane className="w-5 h-5 rotate-45" />}
         </button>
       </div>
     </div>

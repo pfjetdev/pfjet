@@ -58,8 +58,8 @@ export default function LatestNewsSection() {
   };
 
   return (
-    <section className="py-8 md:py-16 px-4 bg-background">
-      <div className="max-w-7xl mx-auto">
+    <section className="py-8 md:py-16 pl-4 pr-0 bg-background">
+      <div className="max-w-7xl mx-auto pr-0">
         {/* Header with title and View all button */}
         <div className="flex items-center justify-between mb-4 md:mb-8">
           <h2
@@ -137,19 +137,23 @@ export default function LatestNewsSection() {
               <Carousel
                 opts={{
                   align: "start",
+                  loop: false,
+                  skipSnaps: false,
                 }}
                 className="w-full"
               >
-                <CarouselContent>
+                <CarouselContent className="-ml-2 md:-ml-3">
                   {newsData.map((news) => (
-                    <CarouselItem key={news.id} className="basis-[70%] sm:basis-1/2 pl-3">
-                      <NewsCard
-                        slug={news.slug}
-                        title={news.title}
-                        date={formatDate(news.published_date)}
-                        readTime={news.read_time}
-                        image={news.image}
-                      />
+                    <CarouselItem key={news.id} className="pl-2 md:pl-3 basis-[70%] sm:basis-1/2">
+                      <div className="p-1">
+                        <NewsCard
+                          slug={news.slug}
+                          title={news.title}
+                          date={formatDate(news.published_date)}
+                          readTime={news.read_time}
+                          image={news.image}
+                        />
+                      </div>
                     </CarouselItem>
                   ))}
                 </CarouselContent>
