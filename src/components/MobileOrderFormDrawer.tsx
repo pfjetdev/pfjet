@@ -26,9 +26,9 @@ export default function MobileOrderFormDrawer({
 }: MobileOrderFormDrawerProps) {
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="h-[95vh] pb-safe">
+      <DrawerContent className="max-h-[95dvh] pb-safe flex flex-col">
         {/* Header */}
-        <DrawerHeader className="border-b px-4 py-4 flex flex-row items-center justify-between bg-background">
+        <DrawerHeader className="border-b px-4 py-4 flex flex-row items-center justify-between bg-background shrink-0">
           <DrawerTitle
             className="text-xl font-medium text-foreground"
             style={{ fontFamily: 'Clash Display, sans-serif' }}
@@ -43,7 +43,7 @@ export default function MobileOrderFormDrawer({
         </DrawerHeader>
 
         {/* Form Content - Scrollable */}
-        <div className="flex-1 overflow-y-auto px-4 py-4" data-vaul-no-drag>
+        <div className="flex-1 overflow-y-auto px-4 py-4 min-h-0" data-vaul-no-drag>
           <CreateOrderForm jetName={jetName} price={price} hideTitle={true} />
         </div>
       </DrawerContent>

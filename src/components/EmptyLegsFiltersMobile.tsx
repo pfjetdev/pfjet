@@ -121,9 +121,9 @@ export default function EmptyLegsFiltersMobile({
 
       {/* Filters Drawer */}
       <Drawer open={open} onOpenChange={setOpen}>
-        <DrawerContent className="h-[90vh]">
+        <DrawerContent className="max-h-[90dvh] pb-safe flex flex-col">
           {/* Header */}
-          <DrawerHeader className="border-b px-4 py-4 flex flex-row items-center justify-between">
+          <DrawerHeader className="border-b px-4 py-4 flex flex-row items-center justify-between shrink-0">
             <div className="flex items-center gap-3">
               <SlidersHorizontal className="w-5 h-5 text-foreground" />
               <DrawerTitle
@@ -158,7 +158,7 @@ export default function EmptyLegsFiltersMobile({
           </DrawerHeader>
 
           {/* Filters Content - Scrollable */}
-          <div className="flex-1 overflow-y-auto px-4 py-4" data-vaul-no-drag>
+          <div className="flex-1 overflow-y-auto px-4 py-4 min-h-0" data-vaul-no-drag>
             <div className="space-y-4">
               {/* Search Section */}
               <div className="space-y-3">

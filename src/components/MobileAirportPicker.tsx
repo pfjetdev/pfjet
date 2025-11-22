@@ -116,11 +116,11 @@ export function MobileAirportPicker({
         modal={true}
         shouldScaleBackground={false}
       >
-        <DrawerContent className="h-[95vh] pb-safe overflow-hidden">
+        <DrawerContent className="max-h-[95dvh] pb-safe flex flex-col">
           {/* Pull Indicator - Handled by drawer component */}
 
           {/* Header */}
-          <DrawerHeader className="border-b px-4 py-3 flex flex-row items-center justify-between">
+          <DrawerHeader className="border-b px-4 py-3 flex flex-row items-center justify-between shrink-0">
             <DrawerTitle className="text-lg font-semibold">{label}</DrawerTitle>
             <button
               onClick={() => setOpen(false)}
@@ -131,10 +131,10 @@ export function MobileAirportPicker({
           </DrawerHeader>
 
           {/* Search Content */}
-          <div className="flex-1 overflow-hidden" data-vaul-no-drag>
+          <div className="flex-1 overflow-hidden min-h-0" data-vaul-no-drag>
             <Command shouldFilter={false} className="h-full">
               {/* Search Input */}
-              <div className="px-4 py-3 sticky top-0 bg-background z-10">
+              <div className="px-4 py-3 sticky top-0 bg-background z-10 shrink-0">
                 <CommandInput
                   ref={inputRef}
                   placeholder={placeholder}
@@ -145,7 +145,7 @@ export function MobileAirportPicker({
               </div>
 
               {/* Results */}
-              <CommandList className="max-h-[calc(95vh-180px)] overflow-y-auto">
+              <CommandList className="overflow-y-auto" style={{ maxHeight: 'calc(100% - 80px)' }}>
                 <CommandEmpty className="py-12 text-center">
                   <div className="text-muted-foreground">
                     {searchQuery.length < 1

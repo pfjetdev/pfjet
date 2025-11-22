@@ -161,7 +161,7 @@ export function MobileDatePicker({
           </div>
         </div>
       </DrawerTrigger>
-      <DrawerContent className="overflow-hidden pb-safe">
+      <DrawerContent className="max-h-[95dvh] overflow-hidden pb-safe">
         <DrawerHeader className="text-center pt-6 pb-2">
           <DrawerTitle className="text-xl font-semibold">Select departure date</DrawerTitle>
           <DrawerDescription className="text-sm text-muted-foreground mt-1">
@@ -174,10 +174,12 @@ export function MobileDatePicker({
           </div>
         </DrawerHeader>
         <div
-          className="px-4 pb-6"
+          className="px-4 pb-6 touch-pan-y"
+          style={{ touchAction: 'pan-y' }}
           onTouchStart={onTouchStart}
           onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}
+          data-vaul-no-drag
         >
           <Calendar
             mode="single"
