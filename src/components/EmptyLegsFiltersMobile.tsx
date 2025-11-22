@@ -11,7 +11,7 @@ import {
   DrawerTitle,
   DrawerClose,
 } from '@/components/ui/drawer'
-import { MobileAirportPicker } from '@/components/MobileAirportPicker'
+import { MobileAirportPickerNew as MobileAirportPicker } from '@/components/MobileAirportPickerNew'
 import { MobileDatePicker } from '@/components/MobileDatePicker'
 import { MobilePassengerPicker } from '@/components/MobilePassengerPicker'
 import { Slider } from '@/components/ui/slider'

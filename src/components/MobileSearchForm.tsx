@@ -6,7 +6,7 @@ import { PlaneTakeoff, PlaneLanding, ArrowUpDown, Calendar, Clock, Users, Plane 
 import { AirportCombobox } from '@/components/AirportCombobox'
 import { MobileAirportPickerNew as MobileAirportPicker } from '@/components/MobileAirportPickerNew'
 import { PassengerPicker } from '@/components/PassengerPicker'
-import { MobileDatePickerNew as MobileDatePicker } from '@/components/MobileDatePickerNew'
+import { MobileDatePicker } from '@/components/MobileDatePicker'
 import { MobileTimePicker } from '@/components/MobileTimePicker'
 import { MobilePassengerPicker } from '@/components/MobilePassengerPicker'
 import { cn } from '@/lib/utils'
