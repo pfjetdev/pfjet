@@ -130,22 +130,26 @@ export function MobileAirportPicker({
             </button>
           </DrawerHeader>
 
-          {/* Search Content */}
-          <div className="flex-1 overflow-hidden min-h-0" data-vaul-no-drag>
-            <Command shouldFilter={false} className="h-full">
-              {/* Search Input */}
-              <div className="px-4 py-3 sticky top-0 bg-background z-10 shrink-0">
-                <CommandInput
-                  ref={inputRef}
-                  placeholder={placeholder}
-                  value={searchQuery}
-                  onValueChange={setSearchQuery}
-                  className="h-12 text-base"
-                />
-              </div>
+          {/* Search Input */}
+          <div className="px-4 py-3 border-b bg-background shrink-0">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <input
+                ref={inputRef}
+                type="text"
+                placeholder={placeholder}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full h-12 pl-10 pr-4 text-base bg-muted rounded-lg border-0 focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+          </div>
 
+          {/* Search Content */}
+          <div className="flex-1 overflow-y-auto min-h-0" data-vaul-no-drag>
+            <Command shouldFilter={false} className="h-auto bg-transparent">
               {/* Results */}
-              <CommandList className="overflow-y-auto" style={{ maxHeight: 'calc(100% - 80px)' }}>
+              <CommandList className="max-h-none">
                 <CommandEmpty className="py-12 text-center">
                   <div className="text-muted-foreground">
                     {searchQuery.length < 1
