@@ -25,7 +25,7 @@ export const jetSharingConfig = {
    * - hybrid/dynamic: 3600 (1 час) - т.к. данные меняются
    * - static: 86400 (24 часа) - т.к. данные редко меняются
    */
-  revalidate: process.env.NEXT_PUBLIC_JET_SHARING_MODE === 'static' ? 86400 : 3600,
+  revalidate: 3600,
 
   /**
    * Настройки для динамической генерации

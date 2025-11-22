@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   description: 'Book individual seats on shared private jet flights. Share the luxury of private jet travel at a fraction of the cost.',
 }
 
-export const revalidate = jetSharingConfig.revalidate
+export const revalidate = 3600
 
 export default async function JetSharingPage() {
   const mode = getJetSharingMode()

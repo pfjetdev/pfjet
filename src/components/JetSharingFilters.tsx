@@ -166,7 +166,7 @@ export default function JetSharingFilters({ onFilterChange, minPrice = 0, maxPri
           </label>
           <AirportCombobox
             value={searchFrom}
-            onChange={setSearchFrom}
+            onValueChange={setSearchFrom}
             placeholder="Departure city"
           />
         </div>
@@ -179,7 +179,7 @@ export default function JetSharingFilters({ onFilterChange, minPrice = 0, maxPri
           </label>
           <AirportCombobox
             value={searchTo}
-            onChange={setSearchTo}
+            onValueChange={setSearchTo}
             placeholder="Arrival city"
           />
         </div>
@@ -190,8 +190,8 @@ export default function JetSharingFilters({ onFilterChange, minPrice = 0, maxPri
             Departure Date
           </label>
           <DatePickerSimple
-            value={date}
-            onChange={setDate}
+            date={date}
+            onDateChange={setDate}
             placeholder="Select date"
           />
         </div>
