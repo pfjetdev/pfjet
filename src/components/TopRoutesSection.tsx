@@ -1,11 +1,26 @@
 import Image from 'next/image';
-import { getSimpleGeolocation } from '@/lib/geolocation';
+import { headers } from 'next/headers';
+import { getSimpleGeolocation, getClientIP } from '@/lib/geolocation';
 import { getContinentByCountryCode } from '@/lib/continents';
 import { getTopRoutesWithImages, formatRoutePrice } from '@/lib/topRoutesGenerator';
 
 export default async function TopRoutesSection() {
-  // Get user's geolocation
-  const geolocation = await getSimpleGeolocation();
+  // Get real client IP from headers (important for Vercel/CDN)
+  const headersList = await headers();
+  const clientIP = getClientIP(headersList);
+
+  // Debug: log IP detection
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🔍 Client IP detected:', clientIP);
+  }
+
+  // Get user's geolocation using real client IP
+  const geolocation = await getSimpleGeolocation(clientIP || undefined);
+
+  // Debug: log geolocation result
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🌍 Geolocation:', geolocation);
+  }
 
   // Determine continent (default to Europe if geolocation fails)
   const continent = geolocation

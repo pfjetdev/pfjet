@@ -74,19 +74,28 @@ export async function getSimpleGeolocation(ip?: string): Promise<SimpleGeolocati
  */
 export function getClientIP(headers: Headers): string | null {
   // Try different headers that might contain the client IP
+  // Order matters: more specific headers first
   const possibleHeaders = [
-    'x-forwarded-for',
-    'x-real-ip',
-    'cf-connecting-ip', // Cloudflare
+    'x-real-ip',           // Vercel, Nginx
+    'x-forwarded-for',     // Standard proxy header
+    'cf-connecting-ip',    // Cloudflare
+    'x-vercel-forwarded-for', // Vercel specific
     'x-client-ip',
-    'x-cluster-client-ip'
+    'x-cluster-client-ip',
+    'forwarded'            // RFC 7239
   ];
 
   for (const header of possibleHeaders) {
     const value = headers.get(header);
     if (value) {
-      // x-forwarded-for might contain multiple IPs, take the first one
-      return value.split(',')[0].trim();
+      // x-forwarded-for might contain multiple IPs (client, proxy1, proxy2, ...)
+      // Take the first one (original client IP)
+      const ip = value.split(',')[0].trim();
+
+      // Skip localhost/private IPs in production
+      if (ip && !ip.startsWith('127.') && !ip.startsWith('::1') && !ip.startsWith('10.')) {
+        return ip;
+      }
     }
   }
 
