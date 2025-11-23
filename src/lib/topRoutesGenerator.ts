@@ -1,8 +1,9 @@
 import { supabase } from './supabase';
-import { TopRoute, getTopRoutesForContinent } from '@/data/topRoutes';
+import { TopRoute, getTopRoutesForContinent, defaultCityByContinent } from '@/data/topRoutes';
 import { Continent } from './continents';
 
 export interface TopRouteWithImage extends TopRoute {
+  fromCity: string;
   image: string;
   fromCityFull: string;
   toCityFull: string;
@@ -35,7 +36,7 @@ async function getCityImage(cityName: string): Promise<string | null> {
 /**
  * Get top routes with images for a continent
  * @param continent - The continent to get routes for
- * @param userCity - Optional user city to use as 'from' city
+ * @param userCity - Optional user city to use as 'from' city (from IP geolocation)
  * @returns Array of routes with images
  */
 export async function getTopRoutesWithImages(
@@ -44,15 +45,16 @@ export async function getTopRoutesWithImages(
 ): Promise<TopRouteWithImage[]> {
   const routes = getTopRoutesForContinent(continent);
 
+  // Determine the 'from' city: use user's city from geolocation, or default for continent
+  const fromCity = userCity || defaultCityByContinent[continent];
+
   // Get all unique city names for batch fetching
   const cityNames = new Set<string>();
   routes.forEach(route => {
     cityNames.add(route.toCity);
-    // If user city is provided, we'll use it instead of the route's fromCity
-    if (!userCity) {
-      cityNames.add(route.fromCity);
-    }
   });
+  // Add the fromCity to fetch its image if needed
+  cityNames.add(fromCity);
 
   // Fetch all city images in one query for better performance
   const { data: citiesData, error } = await supabase
@@ -75,7 +77,6 @@ export async function getTopRoutesWithImages(
   // Map routes with images
   const routesWithImages = await Promise.all(
     routes.map(async (route) => {
-      const fromCity = userCity || route.fromCity;
       const toCity = route.toCity;
 
       // Get image for destination city (priority)
