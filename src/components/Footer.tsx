@@ -5,10 +5,10 @@ import Image from 'next/image';
 
 export default function Footer() {
   const navigationLinks = [
-    { name: 'Empty Legs', href: '#empty-legs' },
+    { name: 'Empty Legs', href: '/empty-legs' },
     { name: 'Top Routes', href: '#top-routes' },
-    { name: 'Our Jets', href: '#our-jets' },
-    { name: 'Contact Us', href: '#contact' },
+    { name: 'Our Jets', href: '/aircraft' },
+    { name: 'Contact Us', href: '/contact' },
   ];
 
   const legalLinks = [

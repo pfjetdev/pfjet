@@ -1,16 +1,19 @@
 'use client'
 
 import { Card, CardContent } from '@/components/ui/card'
+import Image from 'next/image'
 
 interface EventCardProps {
   title: string
   price: string
+  image: string
   onClick?: () => void
 }
 
 const EventCard = ({
   title,
   price,
+  image,
   onClick
 }: EventCardProps) => {
   return (
@@ -19,11 +22,17 @@ const EventCard = ({
       onClick={onClick}
     >
       <div className="relative h-full">
-        {/* Gradient Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-black" />
+        {/* Background Image */}
+        <Image
+          src={image}
+          alt={title}
+          fill
+          className="object-cover"
+          sizes="(max-width: 768px) 70vw, (max-width: 1024px) 33vw, 20vw"
+        />
 
-        {/* Overlay for hover effect */}
-        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300" />
+        {/* Overlay for better text readability */}
+        <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors duration-300" />
 
         {/* Content */}
         <CardContent className="relative z-10 h-full flex flex-col justify-end items-start p-4 md:p-6">

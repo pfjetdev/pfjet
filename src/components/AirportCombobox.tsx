@@ -122,7 +122,7 @@ export function AirportCombobox({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <div
-          className="flex items-center space-x-2 h-full cursor-pointer"
+          className="flex items-center space-x-2 h-full cursor-pointer w-full"
           onClick={() => setOpen(true)}
         >
           {icon && <div className="flex-shrink-0">{icon}</div>}

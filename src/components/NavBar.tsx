@@ -23,7 +23,7 @@ const NavBar = () => {
     { name: 'Empty Legs', href: '/empty-legs', icon: Plane, description: 'Browse available flights' },
     { name: 'Top Routes', href: '#top-routes', icon: Route, description: 'Popular destinations' },
     { name: 'Our Fleet', href: '/aircraft', icon: Plane, description: 'View our aircraft' },
-    { name: 'Contact Us', href: '#contact', icon: Mail, description: 'Get in touch' },
+    { name: 'Contact Us', href: '/contact', icon: Mail, description: 'Get in touch' },
   ]
 
   return (

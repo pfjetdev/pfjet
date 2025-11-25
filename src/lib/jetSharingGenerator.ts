@@ -1,23 +1,16 @@
-import { JetSharingFlight } from '@/types/jetSharing'
-import { Airport } from '@/types/emptyLegs'
+import { JetSharingFlight, Airport } from '@/types/jetSharing'
 import { supabase } from './supabase'
 import airportsData from '@/data/airports-full.json'
 
-// Type for flights from Supabase
-interface JetSharingFlightDB {
+// Type for routes from Supabase
+interface JetSharingRouteDB {
   id: string
   from_city_id: string
   to_city_id: string
-  aircraft_id: string
-  departure_date: string
-  departure_time: string
-  total_seats: number
-  available_seats: number
-  price_per_seat: number
+  aircraft_category: string
   distance_nm: number | null
   duration: string
-  status: string
-  is_featured: boolean
+  is_popular: boolean
   from_city: {
     id: string
     name: string
@@ -30,21 +23,9 @@ interface JetSharingFlightDB {
     country_code: string
     image: string | null
   }
-  aircraft: {
-    id: string
-    name: string
-    slug: string
-    category: string
-    category_slug: string
-    image: string | null
-    passengers: string
-    range: string
-    speed: string
-  }
 }
 
 // Timezone mapping for cities (IANA timezone identifiers)
-// Reuse from emptyLegsGenerator or import if needed
 const CITY_TIMEZONES: Record<string, string> = {
   // North America - United States
   'New York': 'America/New_York',
@@ -63,7 +44,14 @@ const CITY_TIMEZONES: Record<string, string> = {
   'Denver': 'America/Denver',
   'Orlando': 'America/New_York',
 
-  // Europe
+  // Canada & Mexico
+  'Toronto': 'America/Toronto',
+  'Vancouver': 'America/Vancouver',
+  'Montreal': 'America/Montreal',
+  'Mexico City': 'America/Mexico_City',
+  'Cancun': 'America/Cancun',
+
+  // Europe - Western
   'London': 'Europe/London',
   'Paris': 'Europe/Paris',
   'Amsterdam': 'Europe/Amsterdam',
@@ -74,31 +62,100 @@ const CITY_TIMEZONES: Record<string, string> = {
   'Zurich': 'Europe/Zurich',
   'Geneva': 'Europe/Zurich',
   'Vienna': 'Europe/Vienna',
+
+  // Europe - Southern
   'Madrid': 'Europe/Madrid',
   'Barcelona': 'Europe/Madrid',
   'Rome': 'Europe/Rome',
   'Milan': 'Europe/Rome',
   'Venice': 'Europe/Rome',
+  'Florence': 'Europe/Rome',
   'Athens': 'Europe/Athens',
   'Lisbon': 'Europe/Lisbon',
   'Nice': 'Europe/Paris',
   'Monaco': 'Europe/Monaco',
   'Ibiza': 'Europe/Madrid',
+
+  // Europe - Eastern & Northern
   'Istanbul': 'Europe/Istanbul',
   'Moscow': 'Europe/Moscow',
   'Prague': 'Europe/Prague',
+  'Warsaw': 'Europe/Warsaw',
+  'Budapest': 'Europe/Budapest',
   'Copenhagen': 'Europe/Copenhagen',
   'Stockholm': 'Europe/Stockholm',
   'Oslo': 'Europe/Oslo',
+  'Helsinki': 'Europe/Helsinki',
 
-  // Middle East & Asia
+  // Middle East
   'Dubai': 'Asia/Dubai',
   'Abu Dhabi': 'Asia/Dubai',
   'Doha': 'Asia/Qatar',
+  'Riyadh': 'Asia/Riyadh',
+  'Tel Aviv': 'Asia/Jerusalem',
+  'Cairo': 'Africa/Cairo',
+
+  // Africa
+  'Casablanca': 'Africa/Casablanca',
+  'Cape Town': 'Africa/Johannesburg',
+  'Johannesburg': 'Africa/Johannesburg',
+  'Nairobi': 'Africa/Nairobi',
+
+  // Asia - East
+  'Tokyo': 'Asia/Tokyo',
+  'Osaka': 'Asia/Tokyo',
+  'Hong Kong': 'Asia/Hong_Kong',
+  'Shanghai': 'Asia/Shanghai',
+  'Beijing': 'Asia/Shanghai',
+  'Seoul': 'Asia/Seoul',
+  'Taipei': 'Asia/Taipei',
+
+  // Asia - Southeast
   'Singapore': 'Asia/Singapore',
   'Bangkok': 'Asia/Bangkok',
-  'Tokyo': 'Asia/Tokyo',
-  'Hong Kong': 'Asia/Hong_Kong',
+  'Phuket': 'Asia/Bangkok',
+  'Kuala Lumpur': 'Asia/Kuala_Lumpur',
+  'Jakarta': 'Asia/Jakarta',
+  'Bali': 'Asia/Makassar',
+  'Manila': 'Asia/Manila',
+  'Ho Chi Minh City': 'Asia/Ho_Chi_Minh',
+  'Hanoi': 'Asia/Ho_Chi_Minh',
+
+  // Asia - South
+  'Mumbai': 'Asia/Kolkata',
+  'Delhi': 'Asia/Kolkata',
+  'Bangalore': 'Asia/Kolkata',
+  'Colombo': 'Asia/Colombo',
+  'Maldives': 'Indian/Maldives',
+  'Malé': 'Indian/Maldives',
+
+  // Oceania
+  'Sydney': 'Australia/Sydney',
+  'Melbourne': 'Australia/Melbourne',
+  'Brisbane': 'Australia/Brisbane',
+  'Perth': 'Australia/Perth',
+  'Auckland': 'Pacific/Auckland',
+
+  // South America
+  'Sao Paulo': 'America/Sao_Paulo',
+  'Rio de Janeiro': 'America/Sao_Paulo',
+  'Buenos Aires': 'America/Argentina/Buenos_Aires',
+  'Santiago': 'America/Santiago',
+  'Lima': 'America/Lima',
+  'Bogota': 'America/Bogota',
+
+  // Caribbean
+  'Nassau': 'America/Nassau',
+  'Kingston': 'America/Jamaica',
+  'San Juan': 'America/Puerto_Rico',
+  'Panama City': 'America/Panama',
+  'San Jose': 'America/Costa_Rica',
+  'Providenciales': 'America/Grand_Turk',
+  'Gustavia': 'America/St_Barthelemy',
+  'Philipsburg': 'America/Lower_Princes',
+
+  // Ski Resorts
+  'Aspen': 'America/Denver',
 }
 
 // Convert duration to display format
@@ -110,6 +167,13 @@ function convertDuration(duration: string): string {
 
 // Parse duration string to minutes
 function parseDurationToMinutes(duration: string): number {
+  // Handle ranges like "50-58m" - take average
+  const rangeMatch = duration.match(/(\d+)-(\d+)\s*m/)
+  if (rangeMatch) {
+    return Math.round((parseInt(rangeMatch[1]) + parseInt(rangeMatch[2])) / 2)
+  }
+
+  // Handle "1h 40m" format
   const hoursMatch = duration.match(/(\d+)\s*h/)
   const minutesMatch = duration.match(/(\d+)\s*m/)
 
@@ -141,35 +205,42 @@ function calculateArrivalTime(departureTime: string, flightDuration: string): st
   return `${arrivalHours}:${arrivalMinutes}`
 }
 
-// Cache for airport lookup by city name
-let airportLookupCache: Map<string, any> | null = null
+// Fetch jet sharing routes from Supabase
+async function fetchJetSharingRoutesFromSupabase(limit: number = 100): Promise<JetSharingRouteDB[]> {
+  const { data, error } = await supabase
+    .from('jet_sharing_routes')
+    .select(`
+      id,
+      from_city_id,
+      to_city_id,
+      aircraft_category,
+      distance_nm,
+      duration,
+      is_popular,
+      from_city:cities!jet_sharing_routes_from_city_id_fkey (
+        id,
+        name,
+        country_code,
+        image
+      ),
+      to_city:cities!jet_sharing_routes_to_city_id_fkey (
+        id,
+        name,
+        country_code,
+        image
+      )
+    `)
+    .limit(limit)
 
-// Build airport lookup map (runs once and caches)
-function getAirportLookupMap(): Map<string, any> {
-  if (airportLookupCache) {
-    return airportLookupCache
+  if (error) {
+    console.error('Error fetching jet sharing routes:', error)
+    throw error
   }
 
-  const lookupMap = new Map<string, any>()
-  const airportsList = Object.values(airportsData) as any[]
-
-  for (const airport of airportsList) {
-    if (airport.city && airport.iata && airport.lat && airport.lon) {
-      lookupMap.set(airport.city.toLowerCase(), airport)
-    }
-  }
-
-  airportLookupCache = lookupMap
-  return lookupMap
+  return data as unknown as JetSharingRouteDB[]
 }
 
-// Find airport data by city name from airports JSON
-function findAirportDataByCityName(cityName: string): any | null {
-  const lookupMap = getAirportLookupMap()
-  return lookupMap.get(cityName.toLowerCase()) || null
-}
-
-// Filter out past flights
+// Filter out flights that have already departed
 function filterPastFlights(flights: JetSharingFlight[]): JetSharingFlight[] {
   const now = new Date()
 
@@ -186,145 +257,312 @@ function filterPastFlights(flights: JetSharingFlight[]): JetSharingFlight[] {
   })
 }
 
+// Cache for airport lookup by city name
+let airportLookupCache: Map<string, any> | null = null
+
+// Build airport lookup map (runs once and caches)
+function getAirportLookupMap(): Map<string, any> {
+  if (airportLookupCache) {
+    return airportLookupCache
+  }
+
+  const lookupMap = new Map<string, any>()
+  const airportsList = Object.values(airportsData) as any[]
+
+  for (const airport of airportsList) {
+    if (airport.city && airport.iata && airport.lat && airport.lon) {
+      // Use lowercase city name as key for case-insensitive lookup
+      lookupMap.set(airport.city.toLowerCase(), airport)
+    }
+  }
+
+  airportLookupCache = lookupMap
+  return lookupMap
+}
+
+// City name aliases for airport lookup
+// Maps city names from database to city names in airports-full.json
+const CITY_ALIASES: Record<string, string> = {
+  'New York City': 'New York',  // NYC → JFK/LGA/EWR
+  'São Paulo': 'Sao Paulo',     // São Paulo → GRU
+  'Frankfurt': 'Frankfurt-am-Main', // Frankfurt → FRA
+  // Add more aliases as needed when cities don't match
+}
+
+// Find airport data by city name from airports JSON
+function findAirportDataByCityName(cityName: string): any | null {
+  const lookupMap = getAirportLookupMap()
+
+  // Try original city name first
+  let result = lookupMap.get(cityName.toLowerCase())
+  if (result) return result
+
+  // Try alias if exists
+  const alias = CITY_ALIASES[cityName]
+  if (alias) {
+    result = lookupMap.get(alias.toLowerCase())
+    if (result) return result
+  }
+
+  return null
+}
+
+// Seeded random number generator
+function seededRandom(seed: number): () => number {
+  let state = seed
+  return () => {
+    state = (state * 9301 + 49297) % 233280
+    return state / 233280
+  }
+}
+
+// Get seed from today's date
+function getTodaySeed(): number {
+  const today = new Date()
+  const year = today.getFullYear()
+  const month = today.getMonth() + 1
+  const day = today.getDate()
+  return year * 10000 + month * 100 + day
+}
+
+// Calculate price per seat based on distance and category
+function calculatePricePerSeat(distanceNm: number, category: string, random: () => number): number {
+  // Convert NM to miles for calculation (1 NM = 1.15078 miles)
+  const distanceMiles = distanceNm * 1.15078
+
+  // Base price per seat by category
+  const basePricePerSeat: Record<string, number> = {
+    'Turboprop': 300,
+    'Very Light': 400,
+    'Light': 600,
+    'Super Light': 800,
+    'Midsize': 1000,
+    'Super Midsize': 1200,
+    'Heavy': 1800,
+    'Ultra Long Range': 2500,
+  }
+
+  // Price per mile by category
+  const pricePerMile: Record<string, number> = {
+    'Turboprop': 1.2,
+    'Very Light': 1.5,
+    'Light': 2.0,
+    'Super Light': 2.5,
+    'Midsize': 3.0,
+    'Super Midsize': 3.5,
+    'Heavy': 5.0,
+    'Ultra Long Range': 7.0,
+  }
+
+  const basePrice = basePricePerSeat[category] || 600
+  const ratePerMile = pricePerMile[category] || 2.0
+
+  // Calculate: Base + (Distance × Rate)
+  const calculatedPrice = basePrice + (ratePerMile * distanceMiles)
+
+  // Add random variation ±15%
+  const randomFactor = 0.85 + random() * 0.3 // Range: 0.85 to 1.15
+  const finalPrice = Math.round(calculatedPrice * randomFactor)
+
+  // Ensure minimum price
+  return Math.max(300, finalPrice)
+}
+
+// Get seats count by category
+function getSeatsByCategory(category: string, random: () => number): number {
+  const seatsRange: Record<string, [number, number]> = {
+    'Turboprop': [4, 6],
+    'Very Light': [4, 6],
+    'Light': [6, 8],
+    'Super Light': [7, 9],
+    'Midsize': [8, 10],
+    'Super Midsize': [9, 12],
+    'Heavy': [12, 16],
+    'Ultra Long Range': [14, 19],
+  }
+
+  const [min, max] = seatsRange[category] || [6, 8]
+  return min + Math.floor(random() * (max - min + 1))
+}
+
+// Generate future dates
+// Минимум 2 дня вперед (не сегодня и не завтра)
+// Пользователю нужно время на оформление билета и дорогу до аэропорта
+function generateFutureDates(random: () => number, count: number): Date[] {
+  const dates: Date[] = []
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  for (let i = 0; i < count; i++) {
+    const daysAhead = 2 + Math.floor(random() * 13) // 2-14 days ahead (минимум послезавтра)
+    const date = new Date(today)
+    date.setDate(date.getDate() + daysAhead)
+    dates.push(date)
+  }
+
+  return dates.sort((a, b) => a.getTime() - b.getTime())
+}
+
+// Generate departure times
+function generateDepartureTime(random: () => number): string {
+  const hours = 6 + Math.floor(random() * 14) // 6 AM to 8 PM
+  const minutes = Math.floor(random() * 4) * 15 // 0, 15, 30, 45
+  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`
+}
+
 /**
- * Fetch static Jet Sharing flights from Supabase database
- * @param limit - Maximum number of flights to fetch (default 100)
+ * Generate all Jet Sharing flights (from routes in database)
+ * Uses predefined routes from Supabase database
+ * EXACTLY LIKE Empty Legs - dynamic generation only
+ * @param count - Total number of flights to generate (default 100)
  */
-export async function getStaticJetSharingFlights(limit: number = 100): Promise<JetSharingFlight[]> {
-  const { data, error } = await supabase
-    .from('jet_sharing_flights')
-    .select(`
-      id,
-      from_city_id,
-      to_city_id,
-      aircraft_id,
-      departure_date,
-      departure_time,
-      total_seats,
-      available_seats,
-      price_per_seat,
-      distance_nm,
-      duration,
-      status,
-      is_featured,
-      from_city:cities!jet_sharing_flights_from_city_id_fkey (
-        id,
-        name,
-        country_code,
-        image
-      ),
-      to_city:cities!jet_sharing_flights_to_city_id_fkey (
-        id,
-        name,
-        country_code,
-        image
-      ),
-      aircraft:aircraft!jet_sharing_flights_aircraft_id_fkey (
-        id,
-        name,
-        slug,
-        category,
-        category_slug,
-        image,
-        passengers,
-        range,
-        speed
-      )
-    `)
-    .eq('status', 'available')
-    .gte('departure_date', new Date().toISOString().split('T')[0])
-    .order('departure_date', { ascending: true })
-    .limit(limit)
+export async function generateAllJetSharingFlights(count: number = 100): Promise<JetSharingFlight[]> {
+  const seed = getTodaySeed()
+  const random = seededRandom(seed)
 
-  if (error) {
-    console.error('Error fetching jet sharing flights:', error)
-    throw error
+  // Fetch routes and aircraft in parallel
+  const [routes, { data: aircraftData }] = await Promise.all([
+    fetchJetSharingRoutesFromSupabase(count),
+    supabase
+      .from('aircraft')
+      .select('id, name, slug, category, category_slug, image, passengers, range, speed')
+  ])
+
+  if (!routes || routes.length === 0) {
+    throw new Error('No jet sharing routes available')
   }
 
-  if (!data || data.length === 0) {
-    return []
+  if (!aircraftData || aircraftData.length === 0) {
+    throw new Error('No aircraft data available')
   }
 
-  // Transform database records to JetSharingFlight objects
+  // Generate dates
+  const dates = generateFutureDates(random, routes.length)
+
+  // Generate flights from database routes
   const flights: JetSharingFlight[] = []
 
-  for (const flight of data as unknown as JetSharingFlightDB[]) {
-    // Skip if cities or aircraft data is missing
-    if (!flight.from_city || !flight.to_city || !flight.aircraft) {
-      console.warn(`Skipping flight ${flight.id}: missing city or aircraft data`)
+  for (let i = 0; i < routes.length; i++) {
+    const route = routes[i]
+
+    // Skip if cities data is missing
+    if (!route.from_city || !route.to_city) {
+      console.warn(`Skipping route ${route.id}: missing city data`)
       continue
     }
 
-    // Find matching IATA codes for cities
-    const fromAirportData = findAirportDataByCityName(flight.from_city.name)
-    const toAirportData = findAirportDataByCityName(flight.to_city.name)
+    // Find matching IATA codes for cities (for airport data)
+    const fromAirportData = findAirportDataByCityName(route.from_city.name)
+    const toAirportData = findAirportDataByCityName(route.to_city.name)
 
     // Create Airport objects
     const fromAirport: Airport = {
-      city: flight.from_city.name,
-      code: fromAirportData?.iata || flight.from_city.name.substring(0, 3).toUpperCase(),
-      country: flight.from_city.country_code === 'US' ? 'United States' : flight.from_city.country_code,
-      countryCode: flight.from_city.country_code,
+      city: route.from_city.name,
+      code: fromAirportData?.iata || route.from_city.name.substring(0, 3).toUpperCase(),
+      country: route.from_city.country_code === 'US' ? 'United States' : route.from_city.country_code,
+      countryCode: route.from_city.country_code,
       lat: fromAirportData?.lat || 0,
       lng: fromAirportData?.lon || 0,
-      image: flight.from_city.image || undefined,
-      timezone: CITY_TIMEZONES[flight.from_city.name] || 'UTC',
+      image: route.from_city.image || undefined,
+      timezone: CITY_TIMEZONES[route.from_city.name] || 'UTC',
     }
 
     const toAirport: Airport = {
-      city: flight.to_city.name,
-      code: toAirportData?.iata || flight.to_city.name.substring(0, 3).toUpperCase(),
-      country: flight.to_city.country_code === 'US' ? 'United States' : flight.to_city.country_code,
-      countryCode: flight.to_city.country_code,
+      city: route.to_city.name,
+      code: toAirportData?.iata || route.to_city.name.substring(0, 3).toUpperCase(),
+      country: route.to_city.country_code === 'US' ? 'United States' : route.to_city.country_code,
+      countryCode: route.to_city.country_code,
       lat: toAirportData?.lat || 0,
       lng: toAirportData?.lon || 0,
-      image: flight.to_city.image || undefined,
-      timezone: CITY_TIMEZONES[flight.to_city.name] || 'UTC',
+      image: route.to_city.image || undefined,
+      timezone: CITY_TIMEZONES[route.to_city.name] || 'UTC',
     }
 
-    // Convert duration format
-    const flightDuration = convertDuration(flight.duration)
+    // Select aircraft from the specified category
+    const categoryAircraft = aircraftData.filter(a => a.category === route.aircraft_category)
+    const aircraft = categoryAircraft.length > 0
+      ? categoryAircraft[Math.floor(random() * categoryAircraft.length)]
+      : aircraftData[Math.floor(random() * aircraftData.length)]
 
-    // Calculate arrival time
-    const arrivalTime = calculateArrivalTime(flight.departure_time, flightDuration)
+    // Use the distance from route (already in nautical miles)
+    const distanceNm = route.distance_nm || 0
 
+    // Calculate price per seat
+    const pricePerSeat = calculatePricePerSeat(distanceNm, aircraft.category, random)
+
+    // Get total seats for this aircraft
+    const totalSeats = getSeatsByCategory(aircraft.category, random)
+
+    // Random available seats (20-80% of total)
+    const availableSeats = Math.max(1, Math.floor(totalSeats * (0.2 + random() * 0.6)))
+
+    // Use the duration from the route data (convert from Russian format)
+    const flightDuration = convertDuration(route.duration)
+
+    // Generate departure time and calculate arrival time
+    const departureTime = generateDepartureTime(random)
+    const arrivalTime = calculateArrivalTime(departureTime, flightDuration)
+
+    // Generate flight with stable ID using route UUID
     flights.push({
-      id: flight.id,
+      id: `js-${seed}-${route.id}`,
       from: fromAirport,
       to: toAirport,
-      departureDate: flight.departure_date,
-      departureTime: flight.departure_time,
+      departureDate: dates[i % dates.length].toISOString().split('T')[0],
+      departureTime,
       arrivalTime,
       aircraft: {
-        id: flight.aircraft.id,
-        name: flight.aircraft.name,
-        slug: flight.aircraft.slug,
-        category: flight.aircraft.category,
-        categorySlug: flight.aircraft.category_slug,
-        image: flight.aircraft.image || '/placeholder-jet.jpg',
-        passengers: flight.aircraft.passengers,
-        range: flight.aircraft.range,
-        speed: flight.aircraft.speed,
+        id: aircraft.id,
+        name: aircraft.name,
+        slug: aircraft.slug,
+        category: aircraft.category,
+        categorySlug: aircraft.category_slug,
+        image: aircraft.image || '/placeholder-jet.jpg',
+        passengers: aircraft.passengers,
+        range: aircraft.range,
+        speed: aircraft.speed,
       },
-      totalSeats: flight.total_seats,
-      availableSeats: flight.available_seats,
-      pricePerSeat: Number(flight.price_per_seat),
+      totalSeats,
+      availableSeats,
+      pricePerSeat,
       flightDuration,
-      status: flight.status as 'available' | 'full' | 'cancelled' | 'completed',
-      isFeatured: flight.is_featured,
+      status: 'available',
+      isFeatured: random() > 0.85, // 15% chance to be featured
     })
   }
 
-  // Filter out past flights and sort by departure date
-  return filterPastFlights(flights)
+  // Sort by departure date and filter out past flights
+  const sorted = flights.sort((a, b) => new Date(a.departureDate).getTime() - new Date(b.departureDate).getTime())
+  return filterPastFlights(sorted)
 }
 
-// NOTE: getJetSharingFlightById is now defined in the HYBRID MODE section below
+/**
+ * Get a specific Jet Sharing flight by ID
+ * @param id - Flight ID in format "js-{seed}-{route_uuid}"
+ */
+export async function getJetSharingFlightById(id: string): Promise<JetSharingFlight | null> {
+  try {
+    // Validate ID format: js-{seed}-{uuid}
+    if (!id.startsWith('js-')) {
+      return null
+    }
+
+    // Generate all flights for today's seed
+    const allFlights = await generateAllJetSharingFlights(100)
+
+    // Find the flight with matching ID
+    return allFlights.find(flight => flight.id === id) || null
+  } catch (error) {
+    console.error('Error getting jet sharing flight by ID:', error)
+    return null
+  }
+}
 
 /**
  * Extract city name from "City, CODE" format
  */
 function extractCityName(cityString: string): string {
+  // If format is "City, CODE", extract just the city part
   const commaIndex = cityString.indexOf(',')
   if (commaIndex > 0) {
     return cityString.substring(0, commaIndex).trim()
@@ -407,170 +645,4 @@ export function filterJetSharingFlights(
 
     return true
   })
-}
-
-// ============================================================================
-// HYBRID MODE: Combine Static + Dynamic Data
-// ============================================================================
-
-import { generateDynamicJetSharingFlights, getDynamicJetSharingFlightById } from './jetSharingDynamicGenerator'
-
-/**
- * HYBRID: Get all flights (static from DB + dynamically generated)
- * @param limit - Maximum number of flights to return
- * @param mode - 'hybrid' (default), 'static', or 'dynamic'
- */
-export async function getAllJetSharingFlights(
-  limit: number = 100,
-  mode: 'hybrid' | 'static' | 'dynamic' = 'hybrid'
-): Promise<JetSharingFlight[]> {
-  try {
-    if (mode === 'static') {
-      return await getStaticJetSharingFlights(limit)
-    }
-
-    if (mode === 'dynamic') {
-      return await generateDynamicJetSharingFlights(limit)
-    }
-
-    // HYBRID MODE: Combine both sources
-    const [staticFlights, dynamicFlights] = await Promise.all([
-      getStaticJetSharingFlights(Math.floor(limit / 2)),
-      generateDynamicJetSharingFlights(Math.floor(limit / 2)),
-    ])
-
-    // Combine and sort by date
-    const allFlights = [...staticFlights, ...dynamicFlights]
-    return allFlights.sort((a, b) =>
-      new Date(a.departureDate).getTime() - new Date(b.departureDate).getTime()
-    )
-  } catch (error) {
-    console.error('Error in getAllJetSharingFlights:', error)
-    // Fallback to dynamic generation if DB fails
-    return await generateDynamicJetSharingFlights(limit)
-  }
-}
-
-/**
- * HYBRID: Get flight by ID (try static first, then dynamic)
- */
-export async function getJetSharingFlightById(id: string): Promise<JetSharingFlight | null> {
-  // Check if it's a dynamic ID (starts with 'js-')
-  if (id.startsWith('js-')) {
-    return await getDynamicJetSharingFlightById(id)
-  }
-
-  // Otherwise, try to fetch from database
-  try {
-    const { data, error } = await supabase
-      .from('jet_sharing_flights')
-      .select(`
-        id,
-        from_city_id,
-        to_city_id,
-        aircraft_id,
-        departure_date,
-        departure_time,
-        total_seats,
-        available_seats,
-        price_per_seat,
-        distance_nm,
-        duration,
-        status,
-        is_featured,
-        from_city:cities!jet_sharing_flights_from_city_id_fkey (
-          id,
-          name,
-          country_code,
-          image
-        ),
-        to_city:cities!jet_sharing_flights_to_city_id_fkey (
-          id,
-          name,
-          country_code,
-          image
-        ),
-        aircraft:aircraft!jet_sharing_flights_aircraft_id_fkey (
-          id,
-          name,
-          slug,
-          category,
-          category_slug,
-          image,
-          passengers,
-          range,
-          speed
-        )
-      `)
-      .eq('id', id)
-      .single()
-
-    if (error || !data) {
-      console.error('Error fetching jet sharing flight:', error)
-      return null
-    }
-
-    const flight = data as unknown as JetSharingFlightDB
-
-    if (!flight.from_city || !flight.to_city || !flight.aircraft) {
-      return null
-    }
-
-    const fromAirportData = findAirportDataByCityName(flight.from_city.name)
-    const toAirportData = findAirportDataByCityName(flight.to_city.name)
-
-    const fromAirport: Airport = {
-      city: flight.from_city.name,
-      code: fromAirportData?.iata || flight.from_city.name.substring(0, 3).toUpperCase(),
-      country: flight.from_city.country_code === 'US' ? 'United States' : flight.from_city.country_code,
-      countryCode: flight.from_city.country_code,
-      lat: fromAirportData?.lat || 0,
-      lng: fromAirportData?.lon || 0,
-      image: flight.from_city.image || undefined,
-      timezone: CITY_TIMEZONES[flight.from_city.name] || 'UTC',
-    }
-
-    const toAirport: Airport = {
-      city: flight.to_city.name,
-      code: toAirportData?.iata || flight.to_city.name.substring(0, 3).toUpperCase(),
-      country: flight.to_city.country_code === 'US' ? 'United States' : flight.to_city.country_code,
-      countryCode: flight.to_city.country_code,
-      lat: toAirportData?.lat || 0,
-      lng: toAirportData?.lon || 0,
-      image: flight.to_city.image || undefined,
-      timezone: CITY_TIMEZONES[flight.to_city.name] || 'UTC',
-    }
-
-    const flightDuration = convertDuration(flight.duration)
-    const arrivalTime = calculateArrivalTime(flight.departure_time, flightDuration)
-
-    return {
-      id: flight.id,
-      from: fromAirport,
-      to: toAirport,
-      departureDate: flight.departure_date,
-      departureTime: flight.departure_time,
-      arrivalTime,
-      aircraft: {
-        id: flight.aircraft.id,
-        name: flight.aircraft.name,
-        slug: flight.aircraft.slug,
-        category: flight.aircraft.category,
-        categorySlug: flight.aircraft.category_slug,
-        image: flight.aircraft.image || '/placeholder-jet.jpg',
-        passengers: flight.aircraft.passengers,
-        range: flight.aircraft.range,
-        speed: flight.aircraft.speed,
-      },
-      totalSeats: flight.total_seats,
-      availableSeats: flight.available_seats,
-      pricePerSeat: Number(flight.price_per_seat),
-      flightDuration,
-      status: flight.status as 'available' | 'full' | 'cancelled' | 'completed',
-      isFeatured: flight.is_featured,
-    }
-  } catch (error) {
-    console.error('Error getting jet sharing flight by ID:', error)
-    return null
-  }
 }

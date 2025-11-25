@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { FormProvider } from "@/contexts/FormContext";
 import NavBar from "@/components/NavBar";
+import { ScrollToTop } from "@/components/ScrollToTop";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,6 +38,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <FormProvider>
+            <ScrollToTop />
             <NavBar />
             {children}
           </FormProvider>

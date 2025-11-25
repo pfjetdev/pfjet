@@ -7,7 +7,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { AirportCombobox } from '@/components/AirportCombobox'
 import { DateTimePicker } from '@/components/DateTimePicker'
 import { PassengerPicker } from '@/components/PassengerPicker'
-import { PlaneTakeoff, PlaneLanding } from 'lucide-react'
+import { PlaneTakeoff, PlaneLanding, ArrowLeft } from 'lucide-react'
 import Footer from '@/components/Footer'
 import ImageWithFallback from '@/components/ImageWithFallback'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -177,6 +177,17 @@ export default function CityDetailPage() {
     <div className="min-h-screen bg-background transition-colors duration-300">
       <main className="pt-6 px-4 pb-12">
         <div className="max-w-7xl mx-auto">
+          {/* Back to Country Button */}
+          <Link
+            href={`/countries/${countryCode}`}
+            className={`inline-flex items-center gap-2 mb-4 transition-colors ${
+              theme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span className="text-sm font-medium">Back to {country.name}</span>
+          </Link>
+
           {/* Breadcrumbs */}
           <div className="flex items-center gap-2 mb-6 text-sm">
             <Link
@@ -267,7 +278,7 @@ export default function CityDetailPage() {
                     }`}>
                       From
                     </label>
-                    <div className={`rounded-lg border ${
+                    <div className={`rounded-lg border px-3 py-2.5 ${
                       theme === 'dark' ? 'border-gray-600' : 'border-gray-300'
                     }`}>
                       <AirportCombobox
@@ -306,7 +317,7 @@ export default function CityDetailPage() {
                     }`}>
                       Date & Time
                     </label>
-                    <div className={`rounded-lg border ${
+                    <div className={`rounded-lg border px-3 py-2.5 ${
                       theme === 'dark' ? 'border-gray-600' : 'border-gray-300'
                     }`}>
                       <DateTimePicker
@@ -325,7 +336,7 @@ export default function CityDetailPage() {
                     }`}>
                       Passengers
                     </label>
-                    <div className={`rounded-lg border ${
+                    <div className={`rounded-lg border px-3 py-2.5 ${
                       theme === 'dark' ? 'border-gray-600' : 'border-gray-300'
                     }`}>
                       <PassengerPicker

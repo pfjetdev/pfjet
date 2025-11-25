@@ -77,10 +77,10 @@ export function TimePicker({ value, onChange }: TimePickerProps) {
   const minutesArray = ['00', '15', '30', '45'];
 
   return (
-    <div className="flex items-center space-x-2 flex-1 h-full">
+    <div className="flex items-center space-x-2 flex-1 h-full w-full">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <div className="flex items-center space-x-2 flex-1 h-full cursor-pointer">
+          <div className="flex items-center space-x-2 flex-1 h-full cursor-pointer w-full">
             <Clock
               className={`w-4 h-4 flex-shrink-0 ${
                 theme === 'dark' ? 'text-gray-300' : 'text-gray-600'

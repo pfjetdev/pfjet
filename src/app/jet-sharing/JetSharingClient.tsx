@@ -4,6 +4,7 @@ import { useState, useMemo, useCallback } from 'react'
 import { JetSharingFlight } from '@/types/jetSharing'
 import JetSharingCard from '@/components/JetSharingCard'
 import JetSharingFilters from '@/components/JetSharingFilters'
+import JetSharingFiltersMobile from '@/components/JetSharingFiltersMobile'
 import { filterJetSharingFlights } from '@/lib/jetSharingGenerator'
 import {
   Pagination,
@@ -125,6 +126,14 @@ export default function JetSharingClient({ initialFlights }: JetSharingClientPro
 
   return (
     <>
+      {/* Mobile Filters Drawer */}
+      <JetSharingFiltersMobile
+        onFilterChange={handleFilterChange}
+        minPrice={priceRange.min}
+        maxPrice={priceRange.max}
+        activeFiltersCount={activeFiltersCount}
+      />
+
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Left: Filters - Desktop Only */}
         <div className="hidden lg:block">
@@ -204,6 +213,36 @@ export default function JetSharingClient({ initialFlights }: JetSharingClientPro
                       +1 (415) 854-2675
                     </a>
                   </div>
+
+                  {/* Premium Flight Options */}
+                  <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
+                    <p
+                      className="text-sm font-medium text-foreground"
+                      style={{ fontFamily: 'Montserrat, sans-serif' }}
+                    >
+                      Or explore our premium flight options:
+                    </p>
+                    <div className="flex flex-wrap justify-center gap-3">
+                      <a
+                        href="https://www.priorityflyers.com/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-white font-medium hover:opacity-90 transition-all shadow-lg"
+                        style={{ backgroundColor: 'var(--brand-red)', fontFamily: 'Montserrat, sans-serif' }}
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                        </svg>
+                        Search Business & First Class
+                      </a>
+                    </div>
+                    <p
+                      className="text-xs text-muted-foreground"
+                      style={{ fontFamily: 'Montserrat, sans-serif' }}
+                    >
+                      Premium commercial flights with luxury amenities
+                    </p>
+                  </div>
                 </div>
 
                 {/* Try adjusting filters */}
@@ -237,7 +276,7 @@ export default function JetSharingClient({ initialFlights }: JetSharingClientPro
                     totalSeats={flight.totalSeats}
                     availableSeats={flight.availableSeats}
                     price={flight.pricePerSeat}
-                    image={flight.from.image || '/day.jpg'}
+                    image={flight.to.image || '/day.jpg'}
                     aircraftName={flight.aircraft.name}
                   />
                 ))}

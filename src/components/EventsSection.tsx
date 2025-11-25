@@ -11,6 +11,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel"
+import { Event } from '@/lib/supabase'
 
 interface EventData {
   title: string
@@ -22,57 +23,24 @@ interface EventData {
   image: string
 }
 
-const EventsSection = () => {
+interface EventsSectionProps {
+  events: Event[]
+}
+
+const EventsSection = ({ events }: EventsSectionProps) => {
   const [selectedEvent, setSelectedEvent] = useState<EventData | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
-  const eventsData: EventData[] = [
-    {
-      title: "Monaco Grand Prix 2026",
-      price: "$15,000",
-      description: "Exclusive access to the most prestigious Formula 1 race in Monaco. Includes VIP seats, paddock access and meet & greet with drivers.",
-      date: "May 25-28, 2026",
-      location: "Monte Carlo, Monaco",
-      capacity: "50 seats",
-      image: "/car.jpg"
-    },
-    {
-      title: "Cannes Film Festival 2026",
-      price: "$8,500",
-      description: "Join movie stars on the red carpet at the Cannes Film Festival. Film premieres, gala dinners and exclusive parties.",
-      date: "May 12-23, 2026",
-      location: "Cannes, France",
-      capacity: "100 seats",
-      image: "/night.jpg"
-    },
-    {
-      title: "Wimbledon Finals 2026",
-      price: "$12,000",
-      description: "Centre Court at Wimbledon awaits you! Enjoy the final matches of the world's most prestigious tennis tournament.",
-      date: "June 29 - July 12, 2026",
-      location: "London, United Kingdom",
-      capacity: "75 seats",
-      image: "/day.jpg"
-    },
-    {
-      title: "Art Basel Miami 2026",
-      price: "$6,000",
-      description: "Discover contemporary art at one of the world's most influential art fairs. Private viewings and artist meet & greets.",
-      date: "December 3-6, 2026",
-      location: "Miami Beach, USA",
-      capacity: "120 seats",
-      image: "/night.jpg"
-    },
-    {
-      title: "World Economic Forum 2026",
-      price: "$25,000",
-      description: "Participate in global discussions about the future of economy and technology. Networking with world leaders and innovators.",
-      date: "January 17-21, 2026",
-      location: "Davos, Switzerland",
-      capacity: "200 seats",
-      image: "/hotel.jpg"
-    }
-  ]
+  // Transform Supabase events to component format
+  const eventsData: EventData[] = events.map(event => ({
+    title: event.title,
+    price: `$${event.price.toLocaleString()}`,
+    description: event.description,
+    date: event.date_display,
+    location: event.location,
+    capacity: `${event.capacity} seats`,
+    image: event.image
+  }))
 
   const handleCardClick = (event: EventData) => {
     setSelectedEvent(event)
@@ -117,6 +85,7 @@ const EventsSection = () => {
                   <EventCard
                     title={event.title}
                     price={event.price}
+                    image={event.image}
                     onClick={() => handleCardClick(event)}
                   />
                 </CarouselItem>

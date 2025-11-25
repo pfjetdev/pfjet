@@ -74,7 +74,7 @@ export default function EmptyLegsSection({ emptyLegs }: EmptyLegsSectionProps) {
                 const passengers = `Up to ${leg.availableSeats}`;
                 const price = `From $ ${formatPrice(leg.discountedPrice)}`;
                 const date = formatCardDate(leg.departureDate);
-                const image = leg.from.image || leg.to.image || '/day.jpg';
+                const image = leg.to.image || '/day.jpg';
 
                 return (
                   <CarouselItem key={leg.id} className="pl-2 md:pl-3 basis-[60%] sm:basis-[48%] md:basis-[33%] lg:basis-[25%]">

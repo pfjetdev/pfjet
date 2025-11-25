@@ -124,27 +124,26 @@ export function PassengerPicker({ value, onChange, maxPassengers = 20, fullCard 
   }
 
   return (
-    <div className="flex items-center space-x-2 h-full">
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <div className="flex items-center space-x-2 h-full cursor-pointer px-2">
-            <UserPlus
-              className={`w-4 h-4 flex-shrink-0 ${
-                theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-              }`}
-            />
-            <button
-              className={cn(
-                'text-left border-0 bg-transparent text-sm font-medium focus:outline-none cursor-pointer',
-                theme === 'dark'
-                  ? 'text-gray-100 placeholder-gray-400'
-                  : 'text-gray-900 placeholder-gray-500'
-              )}
-            >
-              {passengers}
-            </button>
-          </div>
-        </PopoverTrigger>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <div className="flex items-center space-x-2 h-full cursor-pointer w-full">
+          <UserPlus
+            className={`w-4 h-4 flex-shrink-0 ${
+              theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+            }`}
+          />
+          <button
+            className={cn(
+              'text-left border-0 bg-transparent text-sm font-medium focus:outline-none cursor-pointer',
+              theme === 'dark'
+                ? 'text-gray-100 placeholder-gray-400'
+                : 'text-gray-900 placeholder-gray-500'
+            )}
+          >
+            {passengers}
+          </button>
+        </div>
+      </PopoverTrigger>
         <PopoverContent className="w-[280px] p-0" align="start">
           <div className="p-4">
             <div className="flex items-center justify-between">
@@ -210,6 +209,5 @@ export function PassengerPicker({ value, onChange, maxPassengers = 20, fullCard 
           </div>
         </PopoverContent>
       </Popover>
-    </div>
   );
 }

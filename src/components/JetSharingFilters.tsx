@@ -149,154 +149,327 @@ export default function JetSharingFilters({ onFilterChange, minPrice = 0, maxPri
         )}
       </div>
 
-      {/* Route Section */}
-      <div className="bg-card rounded-2xl p-4 sm:p-6 border border-border space-y-4">
+      {/* Search Section */}
+      <div className="bg-card rounded-2xl p-6 border border-border space-y-4">
         <h3
-          className="text-sm font-medium text-foreground"
+          className="text-sm font-medium text-foreground mb-4"
           style={{ fontFamily: 'Montserrat, sans-serif' }}
         >
-          Route
+          Search
         </h3>
 
         {/* From */}
-        <div className="space-y-2">
-          <label className="text-xs text-muted-foreground flex items-center gap-1" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-            <PlaneTakeoff className="w-3 h-3" />
-            From
-          </label>
-          <AirportCombobox
-            value={searchFrom}
-            onValueChange={setSearchFrom}
-            placeholder="Departure city"
-          />
+        <div className="relative">
+          <div className={cn(
+            "h-12 rounded-xl bg-background border transition-all px-2",
+            searchFrom
+              ? "border-primary/70 ring-2 ring-primary/10"
+              : "border-border hover:border-primary/50"
+          )}>
+            <AirportCombobox
+              value={searchFrom}
+              onValueChange={setSearchFrom}
+              placeholder="From"
+              icon={<PlaneTakeoff className="w-4 h-4 text-muted-foreground" />}
+              fieldType="from"
+              showNearby={true}
+            />
+          </div>
+          {searchFrom && (
+            <button
+              onClick={() => setSearchFrom('')}
+              className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-colors z-10"
+            >
+              <X className="w-3 h-3" />
+            </button>
+          )}
         </div>
 
         {/* To */}
-        <div className="space-y-2">
-          <label className="text-xs text-muted-foreground flex items-center gap-1" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-            <PlaneLanding className="w-3 h-3" />
-            To
-          </label>
-          <AirportCombobox
-            value={searchTo}
-            onValueChange={setSearchTo}
-            placeholder="Arrival city"
-          />
+        <div className="relative">
+          <div className={cn(
+            "h-12 rounded-xl bg-background border transition-all px-2",
+            searchTo
+              ? "border-primary/70 ring-2 ring-primary/10"
+              : "border-border hover:border-primary/50"
+          )}>
+            <AirportCombobox
+              value={searchTo}
+              onValueChange={setSearchTo}
+              placeholder="Going to"
+              icon={<PlaneLanding className="w-4 h-4 text-muted-foreground" />}
+              fieldType="to"
+              showNearby={false}
+            />
+          </div>
+          {searchTo && (
+            <button
+              onClick={() => setSearchTo('')}
+              className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-colors z-10"
+            >
+              <X className="w-3 h-3" />
+            </button>
+          )}
         </div>
 
         {/* Date */}
-        <div className="space-y-2">
-          <label className="text-xs text-muted-foreground" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-            Departure Date
-          </label>
-          <DatePickerSimple
-            date={date}
-            onDateChange={setDate}
-            placeholder="Select date"
-          />
-        </div>
-      </div>
-
-      {/* Passengers Section */}
-      <div className="bg-card rounded-2xl p-4 sm:p-6 border border-border space-y-4">
-        <h3
-          className="text-sm font-medium text-foreground"
-          style={{ fontFamily: 'Montserrat, sans-serif' }}
-        >
-          Seats Needed
-        </h3>
-
-        <Popover open={passengersOpen} onOpenChange={setPassengersOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              role="combobox"
-              aria-expanded={passengersOpen}
-              className="w-full justify-between"
+        <div className="relative">
+          <div className={cn(
+            "h-12 rounded-xl bg-background border transition-all px-2",
+            date
+              ? "border-primary/70 ring-2 ring-primary/10"
+              : "border-border hover:border-primary/50"
+          )}>
+            <DatePickerSimple
+              date={date}
+              onDateChange={setDate}
+            />
+          </div>
+          {date && (
+            <button
+              onClick={() => setDate('')}
+              className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-colors z-10"
             >
-              <span className="flex items-center gap-2">
-                <UserPlus className="w-4 h-4" />
-                {passengers} {parseInt(passengers) === 1 ? 'seat' : 'seats'}
-              </span>
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-[280px] p-4" align="start">
-            <div className="flex items-center justify-between gap-4">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={handlePassengersDecrement}
-                disabled={parseInt(passengers) <= 1}
-              >
-                <Minus className="h-4 w-4" />
-              </Button>
-              <div className="flex-1 text-center">
-                <p className="text-2xl font-semibold">{passengers}</p>
-                <p className="text-xs text-muted-foreground">
-                  {parseInt(passengers) === 1 ? 'seat' : 'seats'}
-                </p>
+              <X className="w-3 h-3" />
+            </button>
+          )}
+        </div>
+
+        {/* Passengers */}
+        <div className="relative">
+          <Popover open={passengersOpen} onOpenChange={setPassengersOpen}>
+            <PopoverTrigger asChild>
+              <div className={cn(
+                "h-12 rounded-xl bg-background border transition-all cursor-pointer",
+                passengers !== '1'
+                  ? "border-primary/70 ring-2 ring-primary/10"
+                  : "border-border hover:border-primary/50"
+              )}>
+                <div className="flex items-center space-x-2 h-full px-2">
+                  <UserPlus className="w-4 h-4 flex-shrink-0 text-muted-foreground" />
+                  <button
+                    className="w-full text-left border-0 bg-transparent text-sm font-medium focus:outline-none cursor-pointer"
+                    style={{ fontFamily: 'Montserrat, sans-serif' }}
+                  >
+                    {passengers} {parseInt(passengers) === 1 ? 'passenger' : 'passengers'}
+                  </button>
+                </div>
               </div>
+            </PopoverTrigger>
+          <PopoverContent className="w-[280px] p-0" align="start">
+            <div className="p-3 border-b">
+              <span className="text-sm font-medium">Passengers</span>
+            </div>
+
+            <div className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium">Number of passengers</span>
+                  <span className="text-xs text-muted-foreground">
+                    Select from 1 to 20 passengers
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-center gap-4 mt-4">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handlePassengersDecrement}
+                  disabled={parseInt(passengers) <= 1}
+                  className="h-10 w-10 rounded-full"
+                >
+                  <Minus className="h-4 w-4" />
+                </Button>
+
+                <div className="flex items-center justify-center min-w-[60px]">
+                  <span className="text-2xl font-bold">{passengers}</span>
+                </div>
+
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handlePassengersIncrement}
+                  disabled={parseInt(passengers) >= 20}
+                  className="h-10 w-10 rounded-full"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+
+              {/* Quick selection buttons */}
+              <div className="grid grid-cols-4 gap-2 mt-4">
+                {[2, 5, 10, 15].map((num) => (
+                  <button
+                    key={num}
+                    onClick={() => setPassengers(num.toString())}
+                    className={cn(
+                      'py-2 rounded-md text-sm font-medium transition-all hover:bg-accent',
+                      parseInt(passengers) === num
+                        ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+                        : 'bg-muted'
+                    )}
+                  >
+                    {num}
+                  </button>
+                ))}
+              </div>
+
               <Button
-                variant="outline"
-                size="icon"
-                onClick={handlePassengersIncrement}
-                disabled={parseInt(passengers) >= 20}
+                onClick={() => setPassengersOpen(false)}
+                className="w-full mt-4"
+                size="sm"
               >
-                <Plus className="h-4 w-4" />
+                Confirm
               </Button>
             </div>
           </PopoverContent>
         </Popover>
+        {passengers !== '1' && (
+          <button
+            onClick={() => setPassengers('1')}
+            className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-colors z-10"
+          >
+            <X className="w-3 h-3" />
+          </button>
+        )}
       </div>
 
-      {/* Price Section */}
-      <div className="bg-card rounded-2xl p-4 sm:p-6 border border-border space-y-4">
-        <div className="flex items-center justify-between">
+        {/* Price Range */}
+        <div className={cn(
+          "space-y-3 p-4 rounded-xl border transition-all",
+          (priceRange[0] > minPrice || priceRange[1] < maxPrice)
+            ? "border-primary/70 bg-primary/5"
+            : "border-transparent"
+        )}>
+          <div className="flex items-center justify-between">
+            <label className="text-sm font-medium text-foreground" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+              Price range
+            </label>
+            {(priceRange[0] > minPrice || priceRange[1] < maxPrice) && (
+              <button
+                onClick={() => setPriceRange([minPrice, maxPrice])}
+                className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
+              >
+                <X className="w-3 h-3" />
+                Clear
+              </button>
+            )}
+          </div>
+
+          {/* Min and Max inputs */}
+          <div className="flex items-center gap-2">
+            <div className="flex-1">
+              <div className="relative">
+                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <input
+                  type="number"
+                  value={priceRange[0]}
+                  onChange={(e) => {
+                    const val = Math.max(minPrice, Math.min(parseInt(e.target.value) || minPrice, priceRange[1]))
+                    setPriceRange([val, priceRange[1]])
+                  }}
+                  min={minPrice}
+                  max={priceRange[1]}
+                  step={100}
+                  className="w-full pl-9 pr-3 py-2 rounded-lg bg-background border border-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
+                  style={{ fontFamily: 'Montserrat, sans-serif' }}
+                  placeholder="Min"
+                />
+              </div>
+              <span className="text-xs text-muted-foreground mt-1 block">Min</span>
+            </div>
+
+            <span className="text-muted-foreground">—</span>
+
+            <div className="flex-1">
+              <div className="relative">
+                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <input
+                  type="number"
+                  value={priceRange[1]}
+                  onChange={(e) => {
+                    const val = Math.min(maxPrice, Math.max(parseInt(e.target.value) || maxPrice, priceRange[0]))
+                    setPriceRange([priceRange[0], val])
+                  }}
+                  min={priceRange[0]}
+                  max={maxPrice}
+                  step={100}
+                  className="w-full pl-9 pr-3 py-2 rounded-lg bg-background border border-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
+                  style={{ fontFamily: 'Montserrat, sans-serif' }}
+                  placeholder="Max"
+                />
+              </div>
+              <span className="text-xs text-muted-foreground mt-1 block">Max</span>
+            </div>
+          </div>
+
+          {/* Slider */}
+          <div className="pt-2">
+            <Slider
+              value={priceRange}
+              onValueChange={setPriceRange}
+              min={minPrice}
+              max={maxPrice}
+              step={100}
+              className="w-full"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Aircraft Section */}
+      <div className={cn(
+        "bg-card rounded-2xl p-6 border transition-all",
+        selectedAircraft.length > 0
+          ? "border-primary/70 ring-2 ring-primary/10"
+          : "border-border"
+      )}>
+        <div className="flex items-center justify-between mb-4">
           <h3
             className="text-sm font-medium text-foreground"
             style={{ fontFamily: 'Montserrat, sans-serif' }}
           >
-            Price per Seat
+            Aircraft {selectedAircraft.length > 0 && (
+              <Badge variant="secondary" className="ml-2">
+                {selectedAircraft.length}
+              </Badge>
+            )}
           </h3>
-          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-            <DollarSign className="w-3 h-3" />
-            <span>${priceRange[0].toLocaleString()} - ${priceRange[1].toLocaleString()}</span>
-          </div>
+          {selectedAircraft.length > 0 && (
+            <button
+              onClick={() => setSelectedAircraft([])}
+              className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
+            >
+              <X className="w-3 h-3" />
+              Clear
+            </button>
+          )}
         </div>
 
-        <Slider
-          min={minPrice}
-          max={maxPrice}
-          step={100}
-          value={priceRange}
-          onValueChange={setPriceRange}
-          className="py-4"
-        />
-      </div>
-
-      {/* Aircraft Type Section */}
-      <div className="bg-card rounded-2xl p-4 sm:p-6 border border-border space-y-4">
-        <h3
-          className="text-sm font-medium text-foreground"
-          style={{ fontFamily: 'Montserrat, sans-serif' }}
-        >
-          Aircraft Type
-        </h3>
-
         <div className="flex flex-wrap gap-2">
-          {aircraftTypes.map((type) => (
-            <Badge
-              key={type}
-              variant={selectedAircraft.includes(type) ? 'default' : 'outline'}
-              className={cn(
-                'cursor-pointer hover:bg-primary/80 transition-colors',
-                selectedAircraft.includes(type) && 'bg-primary text-primary-foreground'
-              )}
-              onClick={() => toggleAircraft(type)}
-            >
-              {type}
-            </Badge>
-          ))}
+          {aircraftTypes.map((type) => {
+            const isSelected = selectedAircraft.includes(type);
+            return (
+              <button
+                key={type}
+                onClick={() => toggleAircraft(type)}
+                className={`
+                  px-4 py-2 rounded-full text-sm font-medium transition-all duration-200
+                  ${isSelected
+                    ? 'bg-foreground text-background'
+                    : 'bg-background border border-border text-foreground hover:bg-accent'
+                  }
+                `}
+                style={{ fontFamily: 'Montserrat, sans-serif' }}
+              >
+                <span className="flex items-center gap-2">
+                  {type}
+                  {isSelected && <X className="w-3 h-3" />}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
     </aside>

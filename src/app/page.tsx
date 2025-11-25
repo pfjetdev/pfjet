@@ -10,12 +10,21 @@ import DestinationsSection from "@/components/DestinationsSection";
 import LatestNewsSection from "@/components/LatestNewsSection";
 import Footer from "@/components/Footer";
 import { generateAllEmptyLegs } from "@/lib/emptyLegsGenerator";
+import { supabase, Event } from "@/lib/supabase";
 
 export default async function Home() {
   // Fetch actual empty legs data - generate same dataset as /empty-legs page
   // Then take first 15 to ensure consistency
   const allEmptyLegs = await generateAllEmptyLegs(100);
   const emptyLegs = allEmptyLegs.slice(0, 15);
+
+  // Fetch events from Supabase
+  const { data: events } = await supabase
+    .from('events')
+    .select('*')
+    .order('date_from', { ascending: true });
+
+  const eventsData: Event[] = events || [];
   return (
     <div className="min-h-screen bg-background transition-colors duration-300">
       {/* Hero Section */}
@@ -30,7 +39,7 @@ export default async function Home() {
         {/* Packages Section */}
         <PackagesSection />
         {/* Events Section */}
-        <EventsSection />
+        <EventsSection events={eventsData} />
         {/* Top Routes Section */}
         <TopRoutesSection />
         {/* Aircraft Section */}

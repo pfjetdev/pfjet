@@ -1,6 +1,5 @@
 import { Metadata } from 'next'
-import { getAllJetSharingFlights } from '@/lib/jetSharingGenerator'
-import { jetSharingConfig, getJetSharingMode } from '@/config/jetSharing'
+import { generateAllJetSharingFlights } from '@/lib/jetSharingGenerator'
 import JetSharingClient from './JetSharingClient'
 import Footer from '@/components/Footer'
 
@@ -9,11 +8,10 @@ export const metadata: Metadata = {
   description: 'Book individual seats on shared private jet flights. Share the luxury of private jet travel at a fraction of the cost.',
 }
 
-export const revalidate = 3600
+export const revalidate = 86400 // Revalidate every 24 hours
 
 export default async function JetSharingPage() {
-  const mode = getJetSharingMode()
-  const flights = await getAllJetSharingFlights(jetSharingConfig.defaultLimit, mode)
+  const flights = await generateAllJetSharingFlights(100)
 
   return (
     <div className="min-h-screen bg-background transition-colors duration-300">

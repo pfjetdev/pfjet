@@ -77,12 +77,12 @@ export function DateTimePicker({
   };
 
   return (
-    <div className="flex items-center gap-2 h-full">
+    <div className="flex items-center gap-2 h-full w-full">
       {/* Date Picker */}
       <div className="flex items-center space-x-2 flex-1 h-full">
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
-            <div className="flex items-center space-x-2 flex-1 h-full cursor-pointer">
+            <div className="flex items-center space-x-2 flex-1 h-full cursor-pointer w-full">
               <CalendarDays
                 className={`w-4 h-4 flex-shrink-0 ${
                   theme === 'dark' ? 'text-gray-300' : 'text-gray-600'

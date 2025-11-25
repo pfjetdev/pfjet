@@ -11,6 +11,22 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'images.pexels.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'upload.wikimedia.org',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.wikimedia.org',
+      },
+      {
+        protocol: 'https',
+        hostname: 'wikipedia.org',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.wikipedia.org',
+      },
     ],
   },
 };

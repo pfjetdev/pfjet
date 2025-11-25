@@ -137,7 +137,7 @@ const HeroSection = () => {
           />
           
           {/* Overlay - hidden on mobile */}
-          <div className="hidden md:block absolute inset-0 bg-black/40" />
+          <div className="hidden md:block absolute inset-0 bg-black/20" />
           
           {/* Content */}
           <div className="text-center md:text-center space-y-3 md:space-y-6 px-0 md:px-8 relative z-10 mb-6 md:mb-8 pt-[40px] md:pt-[60px] w-full">

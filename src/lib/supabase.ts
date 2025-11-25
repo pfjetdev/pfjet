@@ -23,3 +23,18 @@ export interface City {
   description: string;
   is_capital: boolean;
 }
+
+export interface Event {
+  id: string;
+  title: string;
+  price: number;
+  description: string;
+  date_from: string;
+  date_to: string;
+  date_display: string;
+  location: string;
+  capacity: number;
+  image: string;
+  created_at?: string;
+  updated_at?: string;
+}
