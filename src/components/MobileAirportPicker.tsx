@@ -13,7 +13,6 @@ import {
   Command,
   CommandEmpty,
   CommandGroup,
-  CommandInput,
   CommandItem,
   CommandList,
   CommandSeparator,
@@ -25,6 +24,11 @@ import {
   addRecentSearch,
   type FieldType,
 } from '@/lib/recentSearches'
+
+// Global cache for nearby airports to avoid repeated geolocation calls
+let nearbyAirportsCache: Airport[] | null = null
+let nearbyAirportsCacheTime = 0
+const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
 
 interface MobileAirportPickerProps {
   value: string
@@ -43,46 +47,72 @@ export function MobileAirportPicker({
   label = 'Select Airport',
   showNearby = true,
   fieldType,
-  theme,
 }: MobileAirportPickerProps) {
   const [open, setOpen] = React.useState(false)
   const [searchQuery, setSearchQuery] = React.useState('')
+  const [debouncedQuery, setDebouncedQuery] = React.useState('')
   const [searchResults, setSearchResults] = React.useState<Airport[]>([])
   const [nearbyAirports, setNearbyAirports] = React.useState<Airport[]>([])
   const [recentSearches, setRecentSearches] = React.useState<Airport[]>([])
   const [loadingNearby, setLoadingNearby] = React.useState(false)
   const inputRef = React.useRef<HTMLInputElement>(null)
 
-  // Load nearby airports and recent searches when drawer opens
+  // Debounce search query
   React.useEffect(() => {
-    if (open && !searchQuery) {
-      setRecentSearches(getRecentSearches(fieldType))
+    const timer = setTimeout(() => {
+      setDebouncedQuery(searchQuery)
+    }, 150)
+    return () => clearTimeout(timer)
+  }, [searchQuery])
 
-      if (showNearby && nearbyAirports.length === 0) {
-        setLoadingNearby(true)
-        findNearbyAirports(getAllAirports(), 5)
-          .then((nearby) => setNearbyAirports(nearby))
-          .finally(() => setLoadingNearby(false))
-      }
-
-      // Focus input after drawer opens
-      setTimeout(() => {
-        inputRef.current?.focus()
-      }, 100)
-    }
-  }, [open, searchQuery, nearbyAirports.length, showNearby, fieldType])
-
-  // Update search results when query changes
+  // Update search results when debounced query changes
   React.useEffect(() => {
-    if (searchQuery) {
-      const results = searchAirports(searchQuery)
-      setSearchResults(results)
+    if (debouncedQuery) {
+      React.startTransition(() => {
+        const results = searchAirports(debouncedQuery)
+        setSearchResults(results)
+      })
     } else {
       setSearchResults([])
     }
-  }, [searchQuery])
+  }, [debouncedQuery])
 
-  const handleSelect = (airport: Airport) => {
+  // Load recent searches immediately when drawer opens
+  React.useEffect(() => {
+    if (open) {
+      setRecentSearches(getRecentSearches(fieldType))
+
+      // Check cache first
+      const now = Date.now()
+      if (nearbyAirportsCache && (now - nearbyAirportsCacheTime) < CACHE_DURATION) {
+        setNearbyAirports(nearbyAirportsCache)
+      } else if (showNearby && nearbyAirports.length === 0) {
+        // Defer nearby airports loading to not block UI
+        setLoadingNearby(true)
+        requestAnimationFrame(() => {
+          findNearbyAirports(getAllAirports(), 5)
+            .then((nearby) => {
+              nearbyAirportsCache = nearby
+              nearbyAirportsCacheTime = Date.now()
+              setNearbyAirports(nearby)
+            })
+            .finally(() => setLoadingNearby(false))
+        })
+      }
+    }
+  }, [open, fieldType, showNearby, nearbyAirports.length])
+
+  // Focus input after drawer animation completes
+  React.useEffect(() => {
+    if (open) {
+      const timer = setTimeout(() => {
+        inputRef.current?.focus()
+      }, 200)
+      return () => clearTimeout(timer)
+    }
+  }, [open])
+
+  const handleSelect = React.useCallback((airport: Airport) => {
     const displayValue = airport.city
       ? `${airport.city}, ${airport.code}`
       : airport.code
@@ -90,7 +120,8 @@ export function MobileAirportPicker({
     addRecentSearch(airport, fieldType)
     setOpen(false)
     setSearchQuery('')
-  }
+    setDebouncedQuery('')
+  }, [onValueChange, fieldType])
 
   const displayValue = value || placeholder
 
@@ -115,11 +146,8 @@ export function MobileAirportPicker({
         onOpenChange={setOpen}
         modal={true}
         shouldScaleBackground={false}
-        repositionInputs={true}
       >
         <DrawerContent className="pb-safe flex flex-col">
-          {/* Pull Indicator - Handled by drawer component */}
-
           {/* Header */}
           <DrawerHeader className="border-b px-4 py-3 flex flex-row items-center justify-between shrink-0">
             <DrawerTitle className="text-lg font-semibold">{label}</DrawerTitle>
@@ -147,20 +175,19 @@ export function MobileAirportPicker({
           </div>
 
           {/* Search Content */}
-          <div className="flex-1 overflow-y-auto min-h-0" data-vaul-no-drag>
+          <div className="flex-1 overflow-y-auto min-h-0">
             <Command shouldFilter={false} className="h-auto bg-transparent">
-              {/* Results */}
               <CommandList className="max-h-none">
                 <CommandEmpty className="py-12 text-center">
                   <div className="text-muted-foreground">
-                    {searchQuery.length < 1
+                    {debouncedQuery.length < 1
                       ? 'Start typing to search airports...'
                       : 'No airport found.'}
                   </div>
                 </CommandEmpty>
 
                 {/* Nearby Locations */}
-                {!searchQuery && showNearby && (
+                {!debouncedQuery && showNearby && (
                   <>
                     <CommandGroup heading="Nearby Locations">
                       {loadingNearby ? (
@@ -171,7 +198,7 @@ export function MobileAirportPicker({
                           </span>
                         </div>
                       ) : nearbyAirports.length > 0 ? (
-                        nearbyAirports.map((airport: any, index) => (
+                        nearbyAirports.map((airport: Airport & { distance?: number }, index) => (
                           <CommandItem
                             key={`nearby-${airport.code}-${index}`}
                             value={airport.code}
@@ -209,42 +236,40 @@ export function MobileAirportPicker({
                 )}
 
                 {/* Recent Searches */}
-                {!searchQuery && recentSearches.length > 0 && (
-                  <>
-                    <CommandGroup heading="Recent Searches">
-                      {recentSearches.map((airport, index) => (
-                        <CommandItem
-                          key={`recent-${airport.code}-${index}`}
-                          value={airport.code}
-                          onSelect={() => handleSelect(airport)}
-                          className="flex items-center justify-between py-4 px-4"
-                        >
-                          <div className="flex items-center gap-3 flex-1">
-                            <div className="p-2 rounded-full bg-muted">
-                              <Clock className="w-4 h-4 text-muted-foreground" />
+                {!debouncedQuery && recentSearches.length > 0 && (
+                  <CommandGroup heading="Recent Searches">
+                    {recentSearches.map((airport, index) => (
+                      <CommandItem
+                        key={`recent-${airport.code}-${index}`}
+                        value={airport.code}
+                        onSelect={() => handleSelect(airport)}
+                        className="flex items-center justify-between py-4 px-4"
+                      >
+                        <div className="flex items-center gap-3 flex-1">
+                          <div className="p-2 rounded-full bg-muted">
+                            <Clock className="w-4 h-4 text-muted-foreground" />
+                          </div>
+                          <div className="flex flex-col flex-1">
+                            <div className="font-medium">
+                              {airport.city
+                                ? `${airport.city}, ${airport.code}`
+                                : airport.code}
                             </div>
-                            <div className="flex flex-col flex-1">
-                              <div className="font-medium">
-                                {airport.city
-                                  ? `${airport.city}, ${airport.code}`
-                                  : airport.code}
-                              </div>
-                              <div className="text-sm text-muted-foreground line-clamp-1">
-                                {airport.name}
-                              </div>
+                            <div className="text-sm text-muted-foreground line-clamp-1">
+                              {airport.name}
                             </div>
                           </div>
-                          <div className="text-xs text-muted-foreground">
-                            {airport.country}
-                          </div>
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </>
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {airport.country}
+                        </div>
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
                 )}
 
                 {/* Search Results */}
-                {searchQuery && searchResults.length > 0 && (
+                {debouncedQuery && searchResults.length > 0 && (
                   <CommandGroup heading="Search Results">
                     {searchResults.map((airport, index) => (
                       <CommandItem
