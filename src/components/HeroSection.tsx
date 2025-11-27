@@ -116,11 +116,9 @@ const HeroSection = () => {
     router.push(`/multi-city?${params.toString()}`)
   }
 
-  if (!mounted) {
-    return null
-  }
-
-  const backgroundImage = theme === 'dark' ? '/night.jpg' : '/day.jpg'
+  const backgroundImage = mounted
+    ? (theme === 'dark' ? '/night.jpg' : '/day.jpg')
+    : '/day.jpg' // Default for SSR
 
   return (
     <section className="w-full px-4">
@@ -130,12 +128,13 @@ const HeroSection = () => {
         >
           {/* Background Image - hidden on mobile */}
           <div
-            className="hidden md:block absolute inset-0 bg-cover bg-center bg-no-repeat"
+            className="hidden md:block absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-300"
             style={{
               backgroundImage: `url(${backgroundImage})`,
+              opacity: mounted ? 1 : 0,
             }}
           />
-          
+
           {/* Overlay - hidden on mobile */}
           <div className="hidden md:block absolute inset-0 bg-black/20" />
           
@@ -151,12 +150,7 @@ const HeroSection = () => {
             </p>
 
             {/* Mobile Jet Sharing Toggle - visible on mobile only */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.5 }}
-              className="md:hidden flex justify-start"
-            >
+            <div className="md:hidden flex justify-start">
               <div className={cn(
                 "flex backdrop-blur-sm rounded-full p-0.5 border transition-all",
                 theme === 'dark'
@@ -198,18 +192,13 @@ const HeroSection = () => {
                   <span>Jet Sharing</span>
                 </motion.button>
               </div>
-            </motion.div>
+            </div>
           </div>
 
           {/* Forms Container */}
           <div className="relative z-10 w-full px-0 md:px-4 space-y-3">
             {/* Jet Sharing Toggle - visible on desktop only */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.5 }}
-              className="hidden md:flex justify-center"
-            >
+            <div className="hidden md:flex justify-center">
               <div className={cn(
                 "flex backdrop-blur-sm rounded-full p-0.5 border transition-all",
                 theme === 'dark'
@@ -251,7 +240,7 @@ const HeroSection = () => {
                   <span>Jet Sharing</span>
                 </motion.button>
               </div>
-            </motion.div>
+            </div>
 
             {/* Desktop Search Form - hidden on mobile */}
             <motion.div
@@ -275,25 +264,15 @@ const HeroSection = () => {
             </motion.div>
 
             {/* Mobile Search Form - visible on mobile only */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.5 }}
-              className="md:hidden w-full max-w-md mx-auto"
-            >
+            <div className="md:hidden w-full max-w-md mx-auto">
               <MobileSearchForm
                 formData={formData}
                 onFormChange={handleFormChange}
               />
-            </motion.div>
+            </div>
 
-            {/* Add Destination Button - остается на месте */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.5 }}
-              className="w-full max-w-6xl mx-auto"
-            >
+            {/* Add Destination Button */}
+            <div className="w-full max-w-6xl mx-auto">
               <motion.button
                 whileHover={{ scale: 1.02, x: 2 }}
                 whileTap={{ scale: 0.98 }}
@@ -308,7 +287,7 @@ const HeroSection = () => {
                 <Plus size={16} />
                 <span>Add a destination</span>
               </motion.button>
-            </motion.div>
+            </div>
           </div>
 
           {/* Bottom Left Text - hidden on mobile */}

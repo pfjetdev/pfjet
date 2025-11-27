@@ -4,6 +4,7 @@ import { useRef, useEffect, useState } from 'react'
 import { useTheme } from 'next-themes'
 import { useRouter } from 'next/navigation'
 import { PlaneTakeoff, PlaneLanding, Plane } from 'lucide-react'
+import { toast } from 'sonner'
 import { AirportCombobox } from '@/components/AirportCombobox'
 import { DateTimePicker } from '@/components/DateTimePicker'
 import { PassengerPicker } from '@/components/PassengerPicker'
@@ -55,7 +56,23 @@ const SearchForm = ({ formData, onFormChange, focusTrigger, fieldToFocus, isStic
   const handleSearch = () => {
     // Validate required fields
     if (!formData.from || !formData.to) {
-      alert('Please select both departure and destination airports')
+      toast.error('Missing airports', {
+        description: 'Please select both departure and destination airports.',
+      })
+      return
+    }
+
+    if (!formData.date) {
+      toast.error('Missing departure date', {
+        description: 'Please select a departure date to continue.',
+      })
+      return
+    }
+
+    if (!formData.time) {
+      toast.error('Missing departure time', {
+        description: 'Please select a departure time to continue.',
+      })
       return
     }
 
@@ -63,8 +80,8 @@ const SearchForm = ({ formData, onFormChange, focusTrigger, fieldToFocus, isStic
     const params = new URLSearchParams({
       from: formData.from,
       to: formData.to,
-      date: formData.date || new Date().toISOString().split('T')[0],
-      time: formData.time || '10:00',
+      date: formData.date,
+      time: formData.time,
       passengers: formData.passengers || '1'
     })
 
@@ -140,7 +157,7 @@ const SearchForm = ({ formData, onFormChange, focusTrigger, fieldToFocus, isStic
           <div className={`hidden lg:block w-px h-8 ${theme === 'dark' ? 'bg-gray-600' : 'bg-gray-200'}`}></div>
 
           {/* Passengers Field */}
-          <div className="flex-shrink-0 w-20 relative h-full">
+          <div className="flex-shrink-0 w-20 relative h-full px-2">
             <PassengerPicker
               value={formData.passengers}
               onChange={(value) => handleInputChange('passengers', value)}

@@ -34,6 +34,9 @@ export default function JetSharingDetailClient({
     setSelectedPassengers(count)
   }
 
+  // Calculate total price
+  const totalPrice = flight.pricePerSeat * selectedPassengers
+
   return (
     <>
       {/* Main Content Grid */}
@@ -47,6 +50,7 @@ export default function JetSharingDetailClient({
             passengers={flight.availableSeats}
             image={flight.to.image || flight.aircraft.image}
             pricePerJet={`${flight.pricePerSeat.toLocaleString()}`}
+            pricePerSeatNum={flight.pricePerSeat}
             isJetSharing={true}
             totalSeats={flight.totalSeats}
             availableSeats={flight.availableSeats}
@@ -85,7 +89,8 @@ export default function JetSharingDetailClient({
 
       {/* Mobile Sticky Order Bar */}
       <MobileOrderBar
-        price={`$ ${flight.pricePerSeat.toLocaleString()} per seat`}
+        price={`$ ${totalPrice.toLocaleString()}`}
+        priceSubtitle={`${selectedPassengers} seat${selectedPassengers > 1 ? 's' : ''} × $${flight.pricePerSeat.toLocaleString()}`}
         onCreateOrder={handleOpenDrawer}
       />
 

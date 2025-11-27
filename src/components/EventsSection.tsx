@@ -4,6 +4,7 @@ import { useState } from 'react'
 import EventCard from './EventCard'
 import EventModal from './EventModal'
 import { MoveRight } from 'lucide-react'
+import Link from 'next/link'
 import {
   Carousel,
   CarouselContent,
@@ -65,12 +66,15 @@ const EventsSection = ({ events }: EventsSectionProps) => {
               Exclusive events and unforgettable experiences await you
             </p>
           </div>
-          <button className="flex items-center gap-1 md:gap-2 px-3 md:px-6 py-2 md:py-3 border border-foreground md:border-2 text-foreground hover:bg-foreground hover:text-background transition-all duration-300 rounded-lg group">
+          <Link
+            href="/events"
+            className="flex items-center gap-1 md:gap-2 px-3 md:px-6 py-2 md:py-3 border border-foreground md:border-2 text-foreground hover:bg-foreground hover:text-background transition-all duration-300 rounded-lg group"
+          >
             <span className="font-semibold text-sm md:text-lg" style={{ fontFamily: 'Clash Display, sans-serif' }}>
               View all
             </span>
             <MoveRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform" />
-          </button>
+          </Link>
         </div>
 
         <Carousel

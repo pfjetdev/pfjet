@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useTheme } from 'next-themes'
-import { Phone, Plane, Route, Mail, ChevronRight } from 'lucide-react'
+import { Phone, Plane, Route, Mail, ChevronRight, CalendarDays } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ThemeToggle } from './ThemeToggle'
@@ -21,6 +21,7 @@ const NavBar = () => {
 
   const navigationItems = [
     { name: 'Empty Legs', href: '/empty-legs', icon: Plane, description: 'Browse available flights' },
+    { name: 'Events', href: '/events', icon: CalendarDays, description: 'Exclusive VIP events' },
     { name: 'Top Routes', href: '#top-routes', icon: Route, description: 'Popular destinations' },
     { name: 'Our Fleet', href: '/aircraft', icon: Plane, description: 'View our aircraft' },
     { name: 'Contact Us', href: '/contact', icon: Mail, description: 'Get in touch' },

@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { FormProvider } from "@/contexts/FormContext";
 import NavBar from "@/components/NavBar";
 import { ScrollToTop } from "@/components/ScrollToTop";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -41,6 +42,7 @@ export default function RootLayout({
             <ScrollToTop />
             <NavBar />
             {children}
+            <Toaster position="top-center" closeButton />
           </FormProvider>
         </ThemeProvider>
       </body>

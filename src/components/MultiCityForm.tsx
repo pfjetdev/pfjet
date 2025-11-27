@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useTheme } from 'next-themes'
 import { PlaneTakeoff, PlaneLanding, Plus, X, ArrowUpDown, Plane } from 'lucide-react'
+import { toast } from 'sonner'
 import { AirportCombobox } from '@/components/AirportCombobox'
 import { DateTimePicker } from '@/components/DateTimePicker'
 import { PassengerPicker } from '@/components/PassengerPicker'
@@ -150,7 +151,9 @@ const MultiCityForm = ({ initialFormData }: MultiCityFormProps) => {
 
   const handleSearch = () => {
     console.log('Multi-city search data:', routes)
-    alert('Searching for jets with your multi-city criteria...')
+    toast.info('Searching for available jets...', {
+      description: 'We are finding the best options for your multi-city trip.',
+    })
   }
 
   // Calculate if "Add another flight" button should be disabled

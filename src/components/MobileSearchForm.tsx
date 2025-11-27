@@ -3,6 +3,7 @@
 import { useTheme } from 'next-themes'
 import { useRouter } from 'next/navigation'
 import { PlaneTakeoff, PlaneLanding, ArrowUpDown, Calendar, Clock, Users, Plane } from 'lucide-react'
+import { toast } from 'sonner'
 import { AirportCombobox } from '@/components/AirportCombobox'
 import { MobileAirportPickerNew as MobileAirportPicker } from '@/components/MobileAirportPickerNew'
 import { PassengerPicker } from '@/components/PassengerPicker'
@@ -35,7 +36,23 @@ const MobileSearchForm = ({ formData, onFormChange }: MobileSearchFormProps) => 
   const handleSearch = () => {
     // Validate required fields
     if (!formData.from || !formData.to) {
-      alert('Please select both departure and destination airports')
+      toast.error('Missing airports', {
+        description: 'Please select both departure and destination airports.',
+      })
+      return
+    }
+
+    if (!formData.date) {
+      toast.error('Missing departure date', {
+        description: 'Please select a departure date to continue.',
+      })
+      return
+    }
+
+    if (!formData.time) {
+      toast.error('Missing departure time', {
+        description: 'Please select a departure time to continue.',
+      })
       return
     }
 
@@ -43,8 +60,8 @@ const MobileSearchForm = ({ formData, onFormChange }: MobileSearchFormProps) => 
     const params = new URLSearchParams({
       from: formData.from,
       to: formData.to,
-      date: formData.date || new Date().toISOString().split('T')[0],
-      time: formData.time || '10:00',
+      date: formData.date,
+      time: formData.time,
       passengers: formData.passengers || '1'
     })
 

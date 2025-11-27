@@ -5,26 +5,29 @@ import { ArrowUpRight } from 'lucide-react'
 interface MobileOrderBarProps {
   price: string
   onCreateOrder: () => void
+  priceSubtitle?: string
 }
 
-export default function MobileOrderBar({ price, onCreateOrder }: MobileOrderBarProps) {
+export default function MobileOrderBar({ price, onCreateOrder, priceSubtitle }: MobileOrderBarProps) {
   return (
     <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-card border-t border-border shadow-2xl z-50 safe-area-inset-bottom">
       <div className="px-4 py-3 flex items-center justify-between gap-4">
         {/* Price */}
         <div>
           <p
-            className="text-xs text-muted-foreground mb-0.5"
-            style={{ fontFamily: 'Montserrat, sans-serif' }}
-          >
-            Total Price
-          </p>
-          <p
             className="text-2xl font-bold text-foreground"
             style={{ fontFamily: 'Clash Display, sans-serif' }}
           >
             {price}
           </p>
+          {priceSubtitle && (
+            <p
+              className="text-xs text-muted-foreground"
+              style={{ fontFamily: 'Montserrat, sans-serif' }}
+            >
+              {priceSubtitle}
+            </p>
+          )}
         </div>
 
         {/* CTA Button */}

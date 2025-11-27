@@ -33,46 +33,76 @@ export function MobileDatePicker({
     date ? new Date(date) : new Date()
   )
 
-  // Touch swipe handling
-  const [touchStart, setTouchStart] = React.useState<number | null>(null)
-  const [touchEnd, setTouchEnd] = React.useState<number | null>(null)
+  // Touch swipe handling for month navigation
+  const touchStartRef = React.useRef<{ x: number; y: number } | null>(null)
+  const touchMoveRef = React.useRef<{ x: number; y: number } | null>(null)
 
   const minSwipeDistance = 50
 
   const onTouchStart = (e: React.TouchEvent) => {
-    setTouchEnd(null)
-    setTouchStart(e.targetTouches[0].clientX)
+    touchStartRef.current = {
+      x: e.targetTouches[0].clientX,
+      y: e.targetTouches[0].clientY
+    }
+    touchMoveRef.current = null
   }
 
   const onTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX)
+    if (!touchStartRef.current) return
+
+    touchMoveRef.current = {
+      x: e.targetTouches[0].clientX,
+      y: e.targetTouches[0].clientY
+    }
+
+    // Calculate if this is a horizontal swipe
+    const deltaX = Math.abs(touchMoveRef.current.x - touchStartRef.current.x)
+    const deltaY = Math.abs(touchMoveRef.current.y - touchStartRef.current.y)
+
+    // If horizontal movement is greater than vertical, prevent drawer drag
+    if (deltaX > deltaY && deltaX > 10) {
+      e.stopPropagation()
+      e.preventDefault()
+    }
   }
 
   const onTouchEnd = () => {
-    if (!touchStart || !touchEnd) return
-
-    const distance = touchStart - touchEnd
-    const isLeftSwipe = distance > minSwipeDistance
-    const isRightSwipe = distance < -minSwipeDistance
-
-    if (isLeftSwipe) {
-      // Swipe left - next month
-      const newMonth = new Date(month || new Date())
-      newMonth.setMonth(newMonth.getMonth() + 1)
-      setMonth(newMonth)
+    if (!touchStartRef.current || !touchMoveRef.current) {
+      touchStartRef.current = null
+      touchMoveRef.current = null
+      return
     }
 
-    if (isRightSwipe) {
-      // Swipe right - previous month (only if not before current month)
-      const newMonth = new Date(month || new Date())
-      const today = new Date()
-      newMonth.setMonth(newMonth.getMonth() - 1)
+    const deltaX = touchStartRef.current.x - touchMoveRef.current.x
+    const deltaY = Math.abs(touchStartRef.current.y - touchMoveRef.current.y)
 
-      // Don't go before current month
-      if (newMonth >= new Date(today.getFullYear(), today.getMonth(), 1)) {
+    // Only process horizontal swipes (deltaX > deltaY)
+    if (Math.abs(deltaX) > deltaY) {
+      const isLeftSwipe = deltaX > minSwipeDistance
+      const isRightSwipe = deltaX < -minSwipeDistance
+
+      if (isLeftSwipe) {
+        // Swipe left - next month
+        const newMonth = new Date(month || new Date())
+        newMonth.setMonth(newMonth.getMonth() + 1)
         setMonth(newMonth)
       }
+
+      if (isRightSwipe) {
+        // Swipe right - previous month (only if not before current month)
+        const newMonth = new Date(month || new Date())
+        const today = new Date()
+        newMonth.setMonth(newMonth.getMonth() - 1)
+
+        // Don't go before current month
+        if (newMonth >= new Date(today.getFullYear(), today.getMonth(), 1)) {
+          setMonth(newMonth)
+        }
+      }
     }
+
+    touchStartRef.current = null
+    touchMoveRef.current = null
   }
 
   const handleDateSelect = (newDate: Date | undefined) => {
@@ -174,8 +204,8 @@ export function MobileDatePicker({
           </div>
         </DrawerHeader>
         <div
-          className="px-4 pb-6 touch-pan-y"
-          style={{ touchAction: 'pan-y' }}
+          className="px-4 pb-6"
+          style={{ touchAction: 'none' }}
           onTouchStart={onTouchStart}
           onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}

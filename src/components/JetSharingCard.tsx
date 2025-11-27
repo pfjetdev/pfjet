@@ -33,7 +33,7 @@ const JetSharingCard: React.FC<JetSharingCardProps> = ({
       <Card className="group w-full overflow-hidden border border-border/50 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1 p-0 gap-0 bg-background">
         {/* Image container with overlay */}
         <div
-          className="relative aspect-square overflow-hidden bg-cover bg-center bg-no-repeat"
+          className="relative aspect-[16/9] md:aspect-square overflow-hidden bg-cover bg-center bg-no-repeat"
           style={{
             backgroundImage: `url(${image})`,
             backgroundSize: 'cover',
@@ -74,7 +74,7 @@ const JetSharingCard: React.FC<JetSharingCardProps> = ({
             </div>
 
             {/* Route */}
-            <h3 className="text-sm md:text-lg font-semibold tracking-tight transition-all duration-300 group-hover:translate-x-1" style={{ fontFamily: 'Clash Display, sans-serif' }}>
+            <h3 className="text-base md:text-lg font-semibold tracking-tight transition-all duration-300 group-hover:translate-x-1" style={{ fontFamily: 'Clash Display, sans-serif' }}>
               {from} - {to}
             </h3>
           </div>

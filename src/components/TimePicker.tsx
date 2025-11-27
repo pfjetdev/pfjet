@@ -177,7 +177,11 @@ export function TimePicker({ value, onChange }: TimePickerProps) {
 
             {/* Confirm Button */}
             <Button
-              onClick={() => setOpen(false)}
+              onClick={() => {
+                const hour24 = convertTo24Hour(selectedHour, selectedPeriod);
+                onChange(`${hour24.toString().padStart(2, '0')}:${selectedMinute}`);
+                setOpen(false);
+              }}
               className="w-full mt-4"
               size="sm"
             >
