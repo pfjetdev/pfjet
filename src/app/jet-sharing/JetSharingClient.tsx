@@ -6,6 +6,7 @@ import JetSharingCard from '@/components/JetSharingCard'
 import JetSharingFilters from '@/components/JetSharingFilters'
 import JetSharingFiltersMobile from '@/components/JetSharingFiltersMobile'
 import { filterJetSharingFlights } from '@/lib/jetSharingGenerator'
+import { formatDateShort } from '@/lib/dateUtils'
 import {
   Pagination,
   PaginationContent,
@@ -265,17 +266,13 @@ export default function JetSharingClient({ initialFlights }: JetSharingClientPro
                 </p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {currentFlights.map((flight) => {
-                  // Parse date as local to avoid timezone issues
-                  const [year, month, day] = flight.departureDate.split('-').map(Number)
-                  const localDate = new Date(year, month - 1, day)
-                  return (
+                {currentFlights.map((flight) => (
                     <JetSharingCard
                       key={flight.id}
                       id={flight.id}
                       from={flight.from.city}
                       to={flight.to.city}
-                      date={localDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                      date={formatDateShort(flight.departureDate)}
                       time={flight.departureTime}
                       totalSeats={flight.totalSeats}
                       availableSeats={flight.availableSeats}
@@ -283,8 +280,7 @@ export default function JetSharingClient({ initialFlights }: JetSharingClientPro
                       image={flight.to.image || '/day.jpg'}
                       aircraftName={flight.aircraft.name}
                     />
-                  );
-                })}
+                  ))}
               </div>
 
               {/* Pagination */}

@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation'
 import { getEmptyLegById, convertTo12Hour } from '@/lib/emptyLegsGenerator'
 import EmptyLegDetailClient from './EmptyLegDetailClient'
 import Footer from '@/components/Footer'
+import { parseDateString } from '@/lib/dateUtils'
+import { format } from 'date-fns'
 
 export const revalidate = 86400 // Revalidate every 24 hours
 
@@ -36,11 +38,10 @@ export default async function EmptyLegDetailPage({ params }: PageProps) {
     notFound()
   }
 
-  // Format dates - parse as local to avoid timezone issues
-  const [year, month, day] = emptyLeg.departureDate.split('-').map(Number)
-  const departureDate = new Date(year, month - 1, day)
-  const formattedDepartureDate = departureDate.toLocaleDateString('en-US', { day: 'numeric', month: 'long' })
-  const shortDate = departureDate.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }).toUpperCase()
+  // Format dates using date-fns to avoid timezone issues
+  const departureDate = parseDateString(emptyLeg.departureDate)
+  const formattedDepartureDate = format(departureDate, 'd MMMM')
+  const shortDate = format(departureDate, 'd MMM yyyy').toUpperCase()
 
   // Format times in AM/PM
   const departureTime12h = convertTo12Hour(emptyLeg.departureTime)

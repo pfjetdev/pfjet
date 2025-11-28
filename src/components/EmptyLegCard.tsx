@@ -1,24 +1,19 @@
 'use client';
 
-import { Calendar, Users, ArrowUpRight, Plane } from 'lucide-react';
+import { Calendar, ArrowUpRight, Plane } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { EmptyLeg } from '@/types/emptyLegs';
 import { convertTo12Hour } from '@/lib/emptyLegsGenerator';
+import { formatDateDisplay } from '@/lib/dateUtils';
 
 interface EmptyLegCardProps {
   emptyLeg: EmptyLeg;
 }
 
 export default function EmptyLegCard({ emptyLeg }: EmptyLegCardProps) {
-  // Parse date as local to avoid timezone issues (YYYY-MM-DD parsed as UTC by default)
-  const [year, month, day] = emptyLeg.departureDate.split('-').map(Number)
-  const localDate = new Date(year, month - 1, day)
-  const formattedDate = localDate.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    weekday: 'short'
-  })
+  // Use date-fns to parse date correctly without timezone issues
+  const formattedDate = formatDateDisplay(emptyLeg.departureDate, 'EEE, MMM d')
 
   const departureTime12h = convertTo12Hour(emptyLeg.departureTime)
 

@@ -4,6 +4,8 @@ import { getJetSharingFlightById } from '@/lib/jetSharingGenerator'
 import { convertTo12Hour } from '@/lib/emptyLegsGenerator'
 import JetSharingDetailClient from './JetSharingDetailClient'
 import Footer from '@/components/Footer'
+import { parseDateString } from '@/lib/dateUtils'
+import { format } from 'date-fns'
 
 export const revalidate = 3600 // Revalidate every hour
 
@@ -37,11 +39,10 @@ export default async function JetSharingDetailPage({ params }: PageProps) {
     notFound()
   }
 
-  // Format dates - parse as local to avoid timezone issues
-  const [year, month, day] = flight.departureDate.split('-').map(Number)
-  const departureDate = new Date(year, month - 1, day)
-  const formattedDepartureDate = departureDate.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })
-  const shortDate = departureDate.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }).toUpperCase()
+  // Format dates using date-fns to avoid timezone issues
+  const departureDate = parseDateString(flight.departureDate)
+  const formattedDepartureDate = format(departureDate, 'd MMMM yyyy')
+  const shortDate = format(departureDate, 'd MMM yyyy').toUpperCase()
 
   // Format times in AM/PM
   const departureTime12h = convertTo12Hour(flight.departureTime)

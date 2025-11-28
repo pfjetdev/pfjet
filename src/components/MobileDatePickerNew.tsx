@@ -11,6 +11,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
+import { parseDateString, formatDateString, isToday, isTomorrow } from "@/lib/dateUtils"
+import { format } from "date-fns"
 
 interface MobileDatePickerProps {
   date: string
@@ -25,55 +27,31 @@ export function MobileDatePickerNew({
 }: MobileDatePickerProps) {
   const [open, setOpen] = React.useState(false)
 
-  // Parse date string to local Date to avoid timezone issues
-  const parseLocalDate = (dateStr: string): Date => {
-    const [year, month, day] = dateStr.split('-').map(Number)
-    return new Date(year, month - 1, day)
-  }
-
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(
-    date ? parseLocalDate(date) : undefined
+    date ? parseDateString(date) : undefined
   )
   const [month, setMonth] = React.useState<Date | undefined>(
-    date ? parseLocalDate(date) : new Date()
+    date ? parseDateString(date) : new Date()
   )
 
   const handleDateSelect = (newDate: Date | undefined) => {
     if (newDate) {
       setSelectedDate(newDate)
-      // Use local date to avoid timezone issues (toISOString converts to UTC which can shift the day)
-      const year = newDate.getFullYear()
-      const month = String(newDate.getMonth() + 1).padStart(2, '0')
-      const day = String(newDate.getDate()).padStart(2, '0')
-      onDateChange(`${year}-${month}-${day}`)
+      // Use date-fns format to avoid timezone issues
+      onDateChange(formatDateString(newDate))
       setOpen(false)
     }
   }
 
-  const formatDate = (dateStr: string) => {
+  const formatDateLabel = (dateStr: string) => {
     if (!dateStr) return 'Select date'
-    const d = parseLocalDate(dateStr)
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    const tomorrow = new Date(today)
-    tomorrow.setDate(tomorrow.getDate() + 1)
 
-    // Check if it's today
-    if (d.toDateString() === today.toDateString()) {
-      return 'Today'
-    }
+    if (isToday(dateStr)) return 'Today'
+    if (isTomorrow(dateStr)) return 'Tomorrow'
 
-    // Check if it's tomorrow
-    if (d.toDateString() === tomorrow.toDateString()) {
-      return 'Tomorrow'
-    }
-
-    // Otherwise format as "Mon, Jan 15"
-    return d.toLocaleDateString('en-US', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric'
-    })
+    // Use date-fns format for consistent parsing
+    const d = parseDateString(dateStr)
+    return format(d, 'EEE, MMM d')
   }
 
   return (
@@ -115,7 +93,7 @@ export function MobileDatePickerNew({
               "text-xs mt-0.5",
               theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
             )}>
-              {formatDate(date)}
+              {formatDateLabel(date)}
             </div>
           )}
         </div>
