@@ -1,6 +1,6 @@
 import { EmptyLeg, Airport } from '@/types/emptyLegs'
 import { supabase } from './supabase'
-import airportsData from '@/data/airports-full.json'
+import airportsData from '@/data/airports.json'
 import { formatDateString } from './dateUtils'
 import { unstable_cache } from 'next/cache'
 
@@ -333,7 +333,8 @@ function getAirportLookupMap(): Map<string, any> {
   const airportsList = Object.values(airportsData) as any[]
 
   for (const airport of airportsList) {
-    if (airport.city && airport.iata && airport.lat && airport.lon) {
+    // airports.json uses 'code' field for IATA code
+    if (airport.city && airport.code && airport.lat && airport.lon) {
       // Use lowercase city name as key for case-insensitive lookup
       lookupMap.set(airport.city.toLowerCase(), airport)
     }
@@ -585,10 +586,11 @@ function findNearbyAirports(fromAirport: Airport, maxDistance: number = 800): Ai
 
   for (const airport of airportsList) {
     // Skip airports without IATA code, coordinates, or city name
-    if (!airport.iata || !airport.lat || !airport.lon || !airport.city || airport.city.trim() === '') continue
+    // airports.json uses 'code' field for IATA code
+    if (!airport.code || !airport.lat || !airport.lon || !airport.city || airport.city.trim() === '') continue
 
     // Skip the same airport
-    if (airport.iata === fromAirport.code) continue
+    if (airport.code === fromAirport.code) continue
 
     const distance = calculateDistanceFromCoords(
       fromAirport.lat,
@@ -601,7 +603,7 @@ function findNearbyAirports(fromAirport: Airport, maxDistance: number = 800): Ai
     if (distance <= maxDistance && distance >= 150) {
       nearby.push({
         city: airport.city,
-        code: airport.iata,
+        code: airport.code,
         country: airport.country === 'US' ? 'United States' : airport.country,
         countryCode: airport.country,
         lat: airport.lat,
@@ -851,7 +853,7 @@ export async function generateAllEmptyLegs(count: number = 100): Promise<EmptyLe
     // Create Airport objects
     const fromAirport: Airport = {
       city: route.from_city.name,
-      code: fromAirportData?.iata || route.from_city.name.substring(0, 3).toUpperCase(),
+      code: fromAirportData?.code || route.from_city.name.substring(0, 3).toUpperCase(),
       country: route.from_city.country_code === 'US' ? 'United States' : route.from_city.country_code,
       countryCode: route.from_city.country_code,
       lat: fromAirportData?.lat || 0,
@@ -862,7 +864,7 @@ export async function generateAllEmptyLegs(count: number = 100): Promise<EmptyLe
 
     const toAirport: Airport = {
       city: route.to_city.name,
-      code: toAirportData?.iata || route.to_city.name.substring(0, 3).toUpperCase(),
+      code: toAirportData?.code || route.to_city.name.substring(0, 3).toUpperCase(),
       country: route.to_city.country_code === 'US' ? 'United States' : route.to_city.country_code,
       countryCode: route.to_city.country_code,
       lat: toAirportData?.lat || 0,

@@ -6,7 +6,7 @@ import { Plane, Users, Gauge, Briefcase } from 'lucide-react';
 import CreateOrderForm from '@/components/CreateOrderForm';
 import { DateTimePicker } from '@/components/DateTimePicker';
 import { PassengerPicker } from '@/components/PassengerPicker';
-import airportsData from '@/data/airports-full.json';
+import airportsData from '@/data/airports.json';
 
 interface Aircraft {
   id: string;
@@ -68,13 +68,16 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
 function calculateFlightDuration(fromCode: string, toCode: string): string {
   try {
     // Find airport data
-    const airports = airportsData as Record<string, { lat: number; lon: number; iata: string; icao: string }>;
+    const airports = airportsData as Record<string, { code: string; icao: string; lat?: number; lon?: number }>;
 
-    // Try to find airports by IATA or ICAO code
-    let fromAirport = Object.values(airports).find(a => a.iata === fromCode || a.icao === fromCode);
-    let toAirport = Object.values(airports).find(a => a.iata === toCode || a.icao === toCode);
+    // Try to find airports by IATA code (direct key) or ICAO code
+    const fromUpper = fromCode.toUpperCase();
+    const toUpper = toCode.toUpperCase();
 
-    if (!fromAirport || !toAirport) {
+    let fromAirport = airports[fromUpper] || Object.values(airports).find(a => a.icao === fromUpper);
+    let toAirport = airports[toUpper] || Object.values(airports).find(a => a.icao === toUpper);
+
+    if (!fromAirport || !toAirport || !fromAirport.lat || !fromAirport.lon || !toAirport.lat || !toAirport.lon) {
       return '1h 30m'; // Default fallback
     }
 

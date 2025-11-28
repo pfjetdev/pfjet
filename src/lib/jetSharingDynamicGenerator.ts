@@ -1,6 +1,6 @@
 import { JetSharingFlight, Airport } from '@/types/jetSharing'
 import { supabase } from './supabase'
-import airportsData from '@/data/airports-full.json'
+import airportsData from '@/data/airports.json'
 import { formatDateString } from './dateUtils'
 
 // Type for routes from Supabase
@@ -61,7 +61,8 @@ function getAirportLookupMap(): Map<string, any> {
   const airportsList = Object.values(airportsData) as any[]
 
   for (const airport of airportsList) {
-    if (airport.city && airport.iata && airport.lat && airport.lon) {
+    // airports.json uses 'code' field for IATA code
+    if (airport.city && airport.code && airport.lat && airport.lon) {
       lookupMap.set(airport.city.toLowerCase(), airport)
     }
   }
@@ -407,7 +408,7 @@ export async function generateDynamicJetSharingFlights(count: number = 50): Prom
     // Create Airport objects
     const fromAirport: Airport = {
       city: fromCityName,
-      code: fromAirportData.iata,
+      code: fromAirportData.code,
       country: fromAirportData.country === 'US' ? 'United States' : fromAirportData.country,
       countryCode: fromAirportData.country,
       lat: fromAirportData.lat,
@@ -417,7 +418,7 @@ export async function generateDynamicJetSharingFlights(count: number = 50): Prom
 
     const toAirport: Airport = {
       city: toCityName,
-      code: toAirportData.iata,
+      code: toAirportData.code,
       country: toAirportData.country === 'US' ? 'United States' : toAirportData.country,
       countryCode: toAirportData.country,
       lat: toAirportData.lat,

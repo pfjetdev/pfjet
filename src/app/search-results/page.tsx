@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import SearchResultsClient from './SearchResultsClient';
 import Footer from '@/components/Footer';
 import { supabase } from '@/lib/supabase-client';
-import airportsData from '@/data/airports-full.json';
+import airportsData from '@/data/airports.json';
 
 export const metadata: Metadata = {
   title: 'Search Results - Find Your Perfect Private Jet',

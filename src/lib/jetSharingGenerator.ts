@@ -1,6 +1,6 @@
 import { JetSharingFlight, Airport } from '@/types/jetSharing'
 import { supabase } from './supabase'
-import airportsData from '@/data/airports-full.json'
+import airportsData from '@/data/airports.json'
 import { formatDateString } from './dateUtils'
 
 // Type for routes from Supabase
@@ -272,7 +272,8 @@ function getAirportLookupMap(): Map<string, any> {
   const airportsList = Object.values(airportsData) as any[]
 
   for (const airport of airportsList) {
-    if (airport.city && airport.iata && airport.lat && airport.lon) {
+    // airports.json uses 'code' field for IATA code
+    if (airport.city && airport.code && airport.lat && airport.lon) {
       // Use lowercase city name as key for case-insensitive lookup
       lookupMap.set(airport.city.toLowerCase(), airport)
     }
@@ -460,7 +461,7 @@ export async function generateAllJetSharingFlights(count: number = 100): Promise
     // Create Airport objects
     const fromAirport: Airport = {
       city: route.from_city.name,
-      code: fromAirportData?.iata || route.from_city.name.substring(0, 3).toUpperCase(),
+      code: fromAirportData?.code || route.from_city.name.substring(0, 3).toUpperCase(),
       country: route.from_city.country_code === 'US' ? 'United States' : route.from_city.country_code,
       countryCode: route.from_city.country_code,
       lat: fromAirportData?.lat || 0,
@@ -471,7 +472,7 @@ export async function generateAllJetSharingFlights(count: number = 100): Promise
 
     const toAirport: Airport = {
       city: route.to_city.name,
-      code: toAirportData?.iata || route.to_city.name.substring(0, 3).toUpperCase(),
+      code: toAirportData?.code || route.to_city.name.substring(0, 3).toUpperCase(),
       country: route.to_city.country_code === 'US' ? 'United States' : route.to_city.country_code,
       countryCode: route.to_city.country_code,
       lat: toAirportData?.lat || 0,

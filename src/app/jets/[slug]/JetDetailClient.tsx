@@ -23,7 +23,7 @@ import {
 import { WheelPicker, WheelPickerWrapper } from '@/components/wheel-picker';
 import type { WheelPickerOption } from '@/components/wheel-picker';
 import CreateOrderForm from '@/components/CreateOrderForm';
-import airportsData from '@/data/airports-full.json';
+import airportsData from '@/data/airports.json';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
@@ -53,26 +53,37 @@ interface JetDetailClientProps {
 // Helper function to get airport info by code (IATA or ICAO)
 function getAirportInfo(code: string): { name: string; city: string; code: string } {
   const airports = airportsData as Record<string, {
-    lat: number;
-    lon: number;
-    iata: string;
+    code: string;
     icao: string;
     name: string;
     city: string;
+    country: string;
+    lat?: number;
+    lon?: number;
   }>;
 
   const upperCode = code.toUpperCase();
 
-  // Try to find airport by IATA or ICAO code
+  // Try to find by IATA code (direct key lookup) or ICAO code
+  const directMatch = airports[upperCode];
+  if (directMatch) {
+    return {
+      name: directMatch.name || directMatch.city || code,
+      city: directMatch.city || code,
+      code: directMatch.code
+    };
+  }
+
+  // Try to find airport by ICAO code
   const airport = Object.values(airports).find(
-    a => a.iata === upperCode || a.icao === upperCode
+    a => a.icao === upperCode
   );
 
   if (airport) {
     return {
       name: airport.name || airport.city || code,
       city: airport.city || code,
-      code: airport.iata || airport.icao || code
+      code: airport.code || airport.icao || code
     };
   }
 
@@ -101,13 +112,16 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
 // Helper function to calculate flight duration based on actual distance
 function calculateFlightDuration(fromCode: string, toCode: string): string {
   try {
-    const airports = airportsData as Record<string, { lat: number; lon: number; iata: string; icao: string }>;
+    const airports = airportsData as Record<string, { code: string; icao: string; lat?: number; lon?: number }>;
 
-    // Try to find airports by IATA or ICAO code
-    let fromAirport = Object.values(airports).find(a => a.iata === fromCode || a.icao === fromCode);
-    let toAirport = Object.values(airports).find(a => a.iata === toCode || a.icao === toCode);
+    // Try to find airports by IATA code (direct key) or ICAO code
+    const fromUpper = fromCode.toUpperCase();
+    const toUpper = toCode.toUpperCase();
 
-    if (!fromAirport || !toAirport) {
+    let fromAirport = airports[fromUpper] || Object.values(airports).find(a => a.icao === fromUpper);
+    let toAirport = airports[toUpper] || Object.values(airports).find(a => a.icao === toUpper);
+
+    if (!fromAirport || !toAirport || !fromAirport.lat || !fromAirport.lon || !toAirport.lat || !toAirport.lon) {
       return '1h 30m'; // Default fallback
     }
 

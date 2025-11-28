@@ -4,8 +4,8 @@ import { getSimpleGeolocation, getClientIP } from '@/lib/geolocation';
 import { getContinentByCountryCode } from '@/lib/continents';
 import { getTopRoutesWithImages } from '@/lib/topRoutesGenerator';
 
-// Cache for 1 hour
-export const revalidate = 3600;
+// Force dynamic rendering since we use headers() for IP detection
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {

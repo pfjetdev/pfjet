@@ -1,38 +1,23 @@
-import airportsData from './airports-full.json';
+// Use optimized airports file (1MB vs 8.6MB original)
+import airportsData from './airports.json';
 
 export interface Airport {
   code: string;
   icao: string;
   name: string;
   city: string;
-  state?: string;
   country: string;
-  elevation?: number;
   lat?: number;
   lon?: number;
-  tz?: string;
 }
 
 // Process the JSON data to create a searchable array
 let airportsArray: Airport[] | null = null;
 
-function getAirportsArray(): Airport[] {
+export function getAirportsArray(): Airport[] {
   if (airportsArray) return airportsArray;
 
-  airportsArray = Object.entries(airportsData as Record<string, any>)
-    .filter(([_, data]) => data.iata && data.iata.trim() !== '') // Only airports with IATA codes
-    .map(([icao, data]) => ({
-      code: data.iata,
-      icao: icao,
-      name: data.name,
-      city: data.city,
-      state: data.state,
-      country: data.country,
-      elevation: data.elevation,
-      lat: data.lat,
-      lon: data.lon,
-      tz: data.tz
-    }));
+  airportsArray = Object.values(airportsData as Record<string, Airport>);
 
   return airportsArray;
 }
