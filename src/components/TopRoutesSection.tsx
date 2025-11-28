@@ -1,34 +1,48 @@
-import { headers } from 'next/headers';
-import { getSimpleGeolocation, getClientIP } from '@/lib/geolocation';
-import { getContinentByCountryCode } from '@/lib/continents';
-import { getTopRoutesWithImages } from '@/lib/topRoutesGenerator';
+'use client';
+
+import { useEffect, useState } from 'react';
 import TopRouteCard from './TopRouteCard';
 
-export default async function TopRoutesSection() {
-  // Get real client IP from headers (important for Vercel/CDN)
-  const headersList = await headers();
-  const clientIP = getClientIP(headersList);
+interface TopRoute {
+  id: string;
+  fromCity: string;
+  toCity: string;
+  price: number;
+  image: string;
+}
 
-  // Debug: log IP detection
-  if (process.env.NODE_ENV === 'development') {
-    console.log('🔍 Client IP detected:', clientIP);
-  }
+interface GeolocationResult {
+  city: string;
+  countryCode: string;
+}
 
-  // Get user's geolocation using real client IP
-  const geolocation = await getSimpleGeolocation(clientIP || undefined);
+export default function TopRoutesSection() {
+  const [routes, setRoutes] = useState<TopRoute[]>([]);
+  const [userCity, setUserCity] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Debug: log geolocation result
-  if (process.env.NODE_ENV === 'development') {
-    console.log('🌍 Geolocation:', geolocation);
-  }
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        // Fetch routes from API (geolocation is handled server-side based on request IP)
+        const response = await fetch('/api/top-routes');
+        const data = await response.json();
 
-  // Determine continent (default to Europe if geolocation fails)
-  const continent = geolocation
-    ? getContinentByCountryCode(geolocation.countryCode)
-    : 'Europe';
+        if (data.routes) {
+          setRoutes(data.routes);
+        }
+        if (data.userCity) {
+          setUserCity(data.userCity);
+        }
+      } catch (error) {
+        console.error('Error fetching top routes:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
 
-  // Get top routes for the user's continent with images from Supabase
-  const routes = await getTopRoutesWithImages(continent, geolocation?.city);
+    fetchData();
+  }, []);
 
   return (
     <section className="py-8 md:py-16 px-4 bg-background">
@@ -36,9 +50,9 @@ export default async function TopRoutesSection() {
         {/* Header */}
         <div className="mb-4 md:mb-12">
           <h2 className="text-3xl md:text-6xl font-medium text-foreground" style={{ fontFamily: 'Clash Display, sans-serif' }}>
-            Top Routes {geolocation && (
+            Top Routes {userCity && (
               <span className="text-lg md:text-2xl text-muted-foreground ml-2">
-                from {geolocation.city}
+                from {userCity}
               </span>
             )}
           </h2>
@@ -46,16 +60,23 @@ export default async function TopRoutesSection() {
 
         {/* Routes Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 md:gap-6">
-          {routes.map((route) => (
-            <TopRouteCard
-              key={route.id}
-              id={route.id}
-              fromCity={route.fromCity}
-              toCity={route.toCity}
-              price={route.price}
-              image={route.image}
-            />
-          ))}
+          {loading ? (
+            // Skeleton loading
+            Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="aspect-[3/4] rounded-xl bg-muted animate-pulse" />
+            ))
+          ) : (
+            routes.map((route) => (
+              <TopRouteCard
+                key={route.id}
+                id={route.id}
+                fromCity={route.fromCity}
+                toCity={route.toCity}
+                price={route.price}
+                image={route.image}
+              />
+            ))
+          )}
         </div>
       </div>
     </section>

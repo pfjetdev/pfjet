@@ -1,30 +1,54 @@
+import dynamic from "next/dynamic";
+import { Suspense } from "react";
 import HeroSection from "@/components/HeroSection";
 import FlightClassBanner from "@/components/FlightClassBanner";
 import FeaturesSection from "@/components/FeaturesSection";
-import EmptyLegsSection from "@/components/EmptyLegsSection";
-import PackagesSection from "@/components/PackagesSection";
-import EventsSection from "@/components/EventsSection";
-import TopRoutesSection from "@/components/TopRoutesSection";
-import AircraftSection from "@/components/AircraftSection";
-import DestinationsSection from "@/components/DestinationsSection";
-import LatestNewsSection from "@/components/LatestNewsSection";
 import Footer from "@/components/Footer";
 import { generateAllEmptyLegs } from "@/lib/emptyLegsGenerator";
 import { supabase, Event } from "@/lib/supabase";
 
+// Revalidate page every hour for fresh data with caching
+export const revalidate = 3600;
+
+// Dynamic imports for below-the-fold components with ssr: false where possible
+const EmptyLegsSection = dynamic(() => import("@/components/EmptyLegsSection"), {
+  loading: () => <div className="py-16 bg-background" aria-hidden="true" />,
+});
+const TopRoutesSection = dynamic(() => import("@/components/TopRoutesSection"), {
+  loading: () => <div className="py-16 bg-background" aria-hidden="true" />,
+});
+const PackagesSection = dynamic(() => import("@/components/PackagesSection"), {
+  loading: () => <div className="py-16 bg-background" aria-hidden="true" />,
+});
+const EventsSection = dynamic(() => import("@/components/EventsSection"), {
+  loading: () => <div className="py-16 bg-background" aria-hidden="true" />,
+});
+const AircraftSection = dynamic(() => import("@/components/AircraftSection"), {
+  loading: () => <div className="py-16 bg-background" aria-hidden="true" />,
+});
+const DestinationsSection = dynamic(() => import("@/components/DestinationsSection"), {
+  loading: () => <div className="py-16 bg-background" aria-hidden="true" />,
+});
+const LatestNewsSection = dynamic(() => import("@/components/LatestNewsSection"), {
+  loading: () => <div className="py-16 bg-background" aria-hidden="true" />,
+});
+
+// Parallel data fetching
+async function getPageData() {
+  const [emptyLegsData, eventsData] = await Promise.all([
+    generateAllEmptyLegs(15), // Only fetch what we need
+    supabase
+      .from('events')
+      .select('*')
+      .order('date_from', { ascending: true })
+      .then(res => res.data || [])
+  ]);
+
+  return { emptyLegs: emptyLegsData, events: eventsData as Event[] };
+}
+
 export default async function Home() {
-  // Fetch actual empty legs data - generate same dataset as /empty-legs page
-  // Then take first 15 to ensure consistency
-  const allEmptyLegs = await generateAllEmptyLegs(100);
-  const emptyLegs = allEmptyLegs.slice(0, 15);
-
-  // Fetch events from Supabase
-  const { data: events } = await supabase
-    .from('events')
-    .select('*')
-    .order('date_from', { ascending: true });
-
-  const eventsData: Event[] = events || [];
+  const { emptyLegs, events } = await getPageData();
   return (
     <div className="min-h-screen bg-background transition-colors duration-300">
       {/* Hero Section */}
@@ -39,7 +63,7 @@ export default async function Home() {
         {/* Packages Section */}
         <PackagesSection />
         {/* Events Section */}
-        <EventsSection events={eventsData} />
+        <EventsSection events={events} />
         {/* Top Routes Section */}
         <TopRoutesSection />
         {/* Aircraft Section */}

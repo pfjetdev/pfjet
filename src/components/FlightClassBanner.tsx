@@ -1,21 +1,10 @@
-'use client'
-
-import { useTheme } from 'next-themes'
 import { Plane, ArrowRight } from 'lucide-react'
 
 const FlightClassBanner = () => {
-  const { theme } = useTheme()
-
   return (
     <section className="w-full px-6 lg:px-8 py-4">
       <div className="max-w-7xl mx-auto">
-        <div
-          className={`relative overflow-hidden rounded-xl border transition-all duration-300 ${
-            theme === 'dark'
-              ? 'bg-gray-800/50 border-gray-700'
-              : 'bg-gray-50 border-gray-200'
-          }`}
-        >
+        <div className="relative overflow-hidden rounded-xl border transition-all duration-300 bg-muted border-border">
           {/* Content */}
           <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-4 p-5 lg:p-6">
             {/* Left Side - Text Content */}
@@ -27,15 +16,11 @@ const FlightClassBanner = () => {
                 </span>
               </div>
 
-              <h2 className={`text-lg lg:text-xl font-bold mb-1 ${
-                theme === 'dark' ? 'text-white' : 'text-gray-900'
-              }`} style={{ fontFamily: 'Clash Display, sans-serif' }}>
+              <h2 className="text-lg lg:text-xl font-bold mb-1 text-foreground" style={{ fontFamily: 'Clash Display, sans-serif' }}>
                 Looking for Business or First Class?
               </h2>
 
-              <p className={`text-sm ${
-                theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
-              }`}>
+              <p className="text-sm text-muted-foreground">
                 Book premium commercial flights with exclusive deals and best prices
               </p>
             </div>

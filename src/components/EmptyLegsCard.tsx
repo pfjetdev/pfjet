@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import { Card } from '@/components/ui/card';
 import { Calendar, Users, ArrowUpRight } from 'lucide-react';
 
@@ -20,15 +21,15 @@ const EmptyLegsCard: React.FC<EmptyLegsCardProps> = ({
   return (
     <Card className="group w-full overflow-hidden border border-border/50 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1 p-0 gap-0 bg-background">
       {/* Image container with overlay */}
-      <div
-        className="relative aspect-square overflow-hidden bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: `url(${image})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat'
-        }}
-      >
+      <div className="relative aspect-square overflow-hidden">
+        <Image
+          src={image}
+          alt={route}
+          fill
+          className="object-cover object-center"
+          sizes="(max-width: 640px) 60vw, (max-width: 768px) 48vw, (max-width: 1024px) 33vw, 25vw"
+          loading="lazy"
+        />
         {/* Gradient overlay - enhanced on hover */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent transition-all duration-300 group-hover:from-black/80" />
 

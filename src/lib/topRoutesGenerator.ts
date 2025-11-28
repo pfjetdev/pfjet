@@ -1,6 +1,7 @@
 import { supabase } from './supabase';
 import { TopRoute, getTopRoutesForContinent, defaultCityByContinent } from '@/data/topRoutes';
 import { Continent } from './continents';
+import { unstable_cache } from 'next/cache';
 
 export interface TopRouteWithImage extends TopRoute {
   fromCity: string;
@@ -10,28 +11,40 @@ export interface TopRouteWithImage extends TopRoute {
 }
 
 /**
- * Get city image from Supabase
+ * Fetch all city images from Supabase (cached)
  */
-async function getCityImage(cityName: string): Promise<string | null> {
+async function fetchAllCityImagesInner(): Promise<Record<string, string>> {
   try {
     const { data, error } = await supabase
       .from('cities')
-      .select('image')
-      .ilike('name', cityName)
-      .limit(1)
-      .single();
+      .select('name, image')
+      .not('image', 'is', null);
 
     if (error || !data) {
-      console.warn(`No image found for city: ${cityName}`);
-      return null;
+      console.warn('Error fetching city images');
+      return {};
     }
 
-    return data.image;
+    const imageMap: Record<string, string> = {};
+    data.forEach(city => {
+      if (city.image) {
+        imageMap[city.name.toLowerCase()] = city.image;
+      }
+    });
+
+    return imageMap;
   } catch (error) {
-    console.error(`Error fetching image for ${cityName}:`, error);
-    return null;
+    console.error('Error fetching city images:', error);
+    return {};
   }
 }
+
+// Cached version - revalidates every hour
+const fetchAllCityImages = unstable_cache(
+  fetchAllCityImagesInner,
+  ['top-routes-city-images'],
+  { revalidate: 3600 }
+);
 
 /**
  * Get top routes with images for a continent
@@ -48,54 +61,29 @@ export async function getTopRoutesWithImages(
   // Determine the 'from' city: use user's city from geolocation, or default for continent
   const fromCity = userCity || defaultCityByContinent[continent];
 
-  // Get all unique city names for batch fetching
-  const cityNames = new Set<string>();
-  routes.forEach(route => {
-    cityNames.add(route.toCity);
-  });
-  // Add the fromCity to fetch its image if needed
-  cityNames.add(fromCity);
-
-  // Fetch all city images in one query for better performance
-  const { data: citiesData, error } = await supabase
-    .from('cities')
-    .select('name, image')
-    .in('name', Array.from(cityNames));
-
-  if (error) {
-    console.error('Error fetching city images:', error);
-  }
-
-  // Create a map of city names to images
-  const cityImageMap = new Map<string, string>();
-  citiesData?.forEach(city => {
-    if (city.image) {
-      cityImageMap.set(city.name.toLowerCase(), city.image);
-    }
-  });
+  // Fetch all city images (cached)
+  const cityImageMap = await fetchAllCityImages();
 
   // Map routes with images
-  const routesWithImages = await Promise.all(
-    routes.map(async (route) => {
-      const toCity = route.toCity;
+  const routesWithImages = routes.map((route) => {
+    const toCity = route.toCity;
 
-      // Get image for destination city (priority)
-      let image = cityImageMap.get(toCity.toLowerCase());
+    // Get image for destination city (priority)
+    let image = cityImageMap[toCity.toLowerCase()];
 
-      // Fallback to a default image if no city image found
-      if (!image) {
-        image = '/day.jpg'; // Default fallback image
-      }
+    // Fallback to a default image if no city image found
+    if (!image) {
+      image = '/day.jpg'; // Default fallback image
+    }
 
-      return {
-        ...route,
-        fromCity,
-        fromCityFull: fromCity,
-        toCityFull: toCity,
-        image
-      };
-    })
-  );
+    return {
+      ...route,
+      fromCity,
+      fromCityFull: fromCity,
+      toCityFull: toCity,
+      image
+    };
+  });
 
   return routesWithImages;
 }

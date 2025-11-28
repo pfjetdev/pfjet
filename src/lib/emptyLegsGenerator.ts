@@ -2,6 +2,7 @@ import { EmptyLeg, Airport } from '@/types/emptyLegs'
 import { supabase } from './supabase'
 import airportsData from '@/data/airports-full.json'
 import { formatDateString } from './dateUtils'
+import { unstable_cache } from 'next/cache'
 
 // Type for routes from Supabase
 interface EmptyLegRouteDB {
@@ -99,8 +100,8 @@ function calculateArrivalTime(departureTime: string, flightDuration: string): st
   return `${arrivalHours}:${arrivalMinutes}`
 }
 
-// Fetch empty leg routes from Supabase
-async function fetchEmptyLegRoutesFromSupabase(limit: number = 100): Promise<EmptyLegRouteDB[]> {
+// Fetch empty leg routes from Supabase (inner function)
+async function fetchEmptyLegRoutesFromSupabaseInner(limit: number = 100): Promise<EmptyLegRouteDB[]> {
   const { data, error } = await supabase
     .from('empty_leg_routes')
     .select(`
@@ -133,6 +134,47 @@ async function fetchEmptyLegRoutesFromSupabase(limit: number = 100): Promise<Emp
 
   return data as unknown as EmptyLegRouteDB[]
 }
+
+// Cached version - revalidates every hour
+const fetchEmptyLegRoutesFromSupabase = unstable_cache(
+  fetchEmptyLegRoutesFromSupabaseInner,
+  ['empty-leg-routes'],
+  { revalidate: 3600 }
+)
+
+// Aircraft data type
+interface AircraftDB {
+  id: string
+  name: string
+  slug: string
+  category: string
+  category_slug: string
+  image: string | null
+  passengers: string
+  range: string
+  speed: string
+}
+
+// Fetch aircraft data (inner function)
+async function fetchAircraftDataInner(): Promise<AircraftDB[]> {
+  const { data, error } = await supabase
+    .from('aircraft')
+    .select('id, name, slug, category, category_slug, image, passengers, range, speed')
+
+  if (error) {
+    console.error('Error fetching aircraft:', error)
+    return []
+  }
+
+  return data || []
+}
+
+// Cached version - revalidates every hour
+const fetchAircraftData = unstable_cache(
+  fetchAircraftDataInner,
+  ['aircraft-data'],
+  { revalidate: 3600 }
+)
 
 // Timezone mapping for cities (IANA timezone identifiers)
 const CITY_TIMEZONES: Record<string, string> = {
@@ -430,15 +472,8 @@ const MAJOR_AIRPORTS: Airport[] = [
   { city: 'San Jose', code: 'SJO', country: 'Costa Rica', countryCode: 'CR', lat: 9.9939, lng: -84.2088 },
 ]
 
-// Cache for city images from Supabase
-let cityImagesCache: Map<string, string> | null = null
-
-// Fetch all city images from Supabase
-async function fetchCityImages(): Promise<Map<string, string>> {
-  if (cityImagesCache) {
-    return cityImagesCache
-  }
-
+// Fetch all city images from Supabase (inner function)
+async function fetchCityImagesInner(): Promise<Record<string, string>> {
   try {
     const { data, error } = await supabase
       .from('cities')
@@ -447,24 +482,36 @@ async function fetchCityImages(): Promise<Map<string, string>> {
 
     if (error) {
       console.error('Error fetching city images:', error)
-      return new Map()
+      return {}
     }
 
-    const imageMap = new Map<string, string>()
+    const imageMap: Record<string, string> = {}
     data?.forEach((city) => {
       // Use city name as key (case-insensitive)
       const key = city.name.toLowerCase()
       if (city.image) {
-        imageMap.set(key, city.image)
+        imageMap[key] = city.image
       }
     })
 
-    cityImagesCache = imageMap
     return imageMap
   } catch (error) {
     console.error('Error in fetchCityImages:', error)
-    return new Map()
+    return {}
   }
+}
+
+// Cached version - revalidates every hour
+const fetchCityImages = unstable_cache(
+  fetchCityImagesInner,
+  ['city-images'],
+  { revalidate: 3600 }
+)
+
+// Helper to convert record to Map for compatibility
+async function getCityImagesMap(): Promise<Map<string, string>> {
+  const imageRecord = await fetchCityImages()
+  return new Map(Object.entries(imageRecord))
 }
 
 // Get city image from cache
@@ -680,14 +727,11 @@ export async function generateEmptyLegsFromCity(userCity: string = 'JFK', count:
   const seed = getTodaySeed()
   const random = seededRandom(seed)
 
-  // Fetch city images from Supabase
-  const cityImages = await fetchCityImages()
-
-  // Get aircraft from database
-  const { data: aircraftData } = await supabase
-    .from('aircraft')
-    .select('id, name, slug, category, category_slug, image, passengers, range, speed')
-    .limit(20)
+  // Fetch city images and aircraft in parallel (both cached)
+  const [cityImages, aircraftData] = await Promise.all([
+    getCityImagesMap(),
+    fetchAircraftData()
+  ])
 
   if (!aircraftData || aircraftData.length === 0) {
     throw new Error('No aircraft data available')
@@ -771,12 +815,10 @@ export async function generateAllEmptyLegs(count: number = 100): Promise<EmptyLe
   const seed = getTodaySeed()
   const random = seededRandom(seed)
 
-  // Fetch routes and aircraft in parallel
-  const [routes, { data: aircraftData }] = await Promise.all([
+  // Fetch routes and aircraft in parallel (both cached)
+  const [routes, aircraftData] = await Promise.all([
     fetchEmptyLegRoutesFromSupabase(count),
-    supabase
-      .from('aircraft')
-      .select('id, name, slug, category, category_slug, image, passengers, range, speed')
+    fetchAircraftData()
   ])
 
   if (!routes || routes.length === 0) {

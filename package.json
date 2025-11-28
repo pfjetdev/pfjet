@@ -8,6 +8,13 @@
     "start": "next start",
     "lint": "eslint"
   },
+  "browserslist": [
+    "Chrome >= 90",
+    "Firefox >= 90",
+    "Safari >= 15",
+    "Edge >= 90",
+    "not dead"
+  ],
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
     "@ncdai/react-wheel-picker": "^1.0.19",

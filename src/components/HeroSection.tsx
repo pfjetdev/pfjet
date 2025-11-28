@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useWindowScroll } from '@uidotdev/usehooks'
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion'
+import Image from 'next/image'
 import SearchForm from './SearchForm'
 import MobileSearchForm from './MobileSearchForm'
 import { Plane, Plus, Search, MoveRight } from 'lucide-react'
@@ -131,24 +132,40 @@ const HeroSection = () => {
     router.push(`/multi-city?${params.toString()}`)
   }
 
-  const backgroundImage = mounted
-    ? (theme === 'dark' ? '/night.jpg' : '/day.jpg')
-    : '/day.jpg' // Default for SSR
-
   return (
     <section className="w-full px-4">
       <div className="max-w-7xl mx-auto">
         <div
           className="min-h-[700px] md:h-[600px] md:rounded-3xl md:border md:border-border bg-background/50 backdrop-blur-sm flex flex-col items-center justify-start relative overflow-hidden pb-6"
         >
-          {/* Background Image - hidden on mobile */}
-          <div
-            className="hidden md:block absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-300"
-            style={{
-              backgroundImage: `url(${backgroundImage})`,
-              opacity: mounted ? 1 : 0,
-            }}
-          />
+          {/* Background Image - hidden on mobile, using next/image for optimization */}
+          {/* Light theme image - shown by default, hidden when dark theme is active */}
+          <div className="hidden md:block absolute inset-0">
+            <Image
+              src="/day.jpg"
+              alt="Private jet background"
+              fill
+              priority
+              fetchPriority="high"
+              quality={85}
+              className={cn(
+                "object-cover object-center transition-opacity duration-300",
+                mounted && theme === 'dark' ? "opacity-0" : "opacity-100"
+              )}
+              sizes="100vw"
+            />
+            {/* Dark theme image - only visible when dark theme is active */}
+            {mounted && theme === 'dark' && (
+              <Image
+                src="/night.jpg"
+                alt="Private jet background"
+                fill
+                quality={85}
+                className="object-cover object-center opacity-100"
+                sizes="100vw"
+              />
+            )}
+          </div>
 
           {/* Overlay - hidden on mobile */}
           <div className="hidden md:block absolute inset-0 bg-black/20" />
