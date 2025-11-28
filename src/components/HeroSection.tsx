@@ -45,11 +45,26 @@ const HeroSection = () => {
   }, [])
 
   // Use global form context
-  const { formData, updateFormData } = useFormContext()
+  const { formData, updateFormData, focusDateTrigger, mobileDrawerTrigger } = useFormContext()
 
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  // Handle date focus trigger from context (e.g., when clicking on TopRoutes)
+  useEffect(() => {
+    if (focusDateTrigger > 0) {
+      setFieldToFocus('date')
+      setFocusTrigger(prev => prev + 1)
+    }
+  }, [focusDateTrigger])
+
+  // Handle mobile drawer trigger from context (e.g., when clicking on TopRoutes on mobile)
+  useEffect(() => {
+    if (mobileDrawerTrigger > 0) {
+      setIsMobileSearchOpen(true)
+    }
+  }, [mobileDrawerTrigger])
 
   // Motion values for smooth scroll-based animations
   const scrollY = useMotionValue(y ?? 0)
@@ -260,6 +275,7 @@ const HeroSection = () => {
                 onFormChange={handleFormChange}
                 focusTrigger={focusTrigger}
                 fieldToFocus={fieldToFocus}
+                dateOpenTrigger={focusDateTrigger}
               />
             </motion.div>
 
@@ -331,6 +347,7 @@ const HeroSection = () => {
                   focusTrigger={focusTrigger}
                   fieldToFocus={fieldToFocus}
                   isSticky={true}
+                  dateOpenTrigger={focusDateTrigger}
                 />
               </div>
             </div>

@@ -54,10 +54,10 @@ const EventsSection = ({ events }: EventsSectionProps) => {
   }
 
   return (
-    <section className="py-8 md:py-16 px-4 bg-background">
-      <div className="max-w-7xl mx-auto">
+    <section className="py-8 md:py-16 pl-4 pr-0 bg-background">
+      <div className="max-w-7xl mx-auto pr-0">
         {/* Header with title and View all button */}
-        <div className="flex items-center justify-between mb-4 md:mb-8">
+        <div className="flex items-center justify-between mb-4 md:mb-8 pr-4">
           <div>
             <h2 className="text-3xl md:text-6xl font-medium text-foreground mb-2 md:mb-4" style={{ fontFamily: 'Clash Display, sans-serif' }}>
               Events 2026
@@ -83,9 +83,9 @@ const EventsSection = ({ events }: EventsSectionProps) => {
           }}
           className="w-full"
         >
-          <CarouselContent>
+          <CarouselContent className="-ml-3">
             {eventsData.map((event, index) => (
-                <CarouselItem key={index} className="basis-[70%] sm:basis-1/2 md:basis-1/3 lg:basis-1/5 pl-3 md:pl-3">
+                <CarouselItem key={index} className="basis-[70%] sm:basis-1/2 md:basis-1/3 lg:basis-1/5 pl-3">
                   <EventCard
                     title={event.title}
                     price={event.price}

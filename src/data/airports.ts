@@ -116,3 +116,77 @@ export function searchAirports(query: string): Airport[] {
 
   return scored;
 }
+
+// Mapping of cities/destinations without airports to their nearest major airports
+const nearestAirportMapping: Record<string, string> = {
+  // Europe
+  'monaco': 'NCE',           // Nice Côte d'Azur
+  'courchevel': 'GVA',       // Geneva (Courchevel altiport CVF has no city name)
+  'st. moritz': 'ZRH',       // Zurich (Samedan SMV has no city name)
+  'sardinia': 'OLB',         // Olbia Costa Smeralda
+  'mallorca': 'PMI',         // Palma de Mallorca
+  'mykonos': 'JMK',          // Mykonos
+  'ibiza': 'IBZ',            // Ibiza
+  'salzburg': 'SZG',         // Salzburg
+  // Caribbean & Islands
+  'bahamas': 'NAS',          // Nassau
+  'maldives': 'MLE',         // Malé
+  'seychelles': 'SEZ',       // Mahé
+  'mauritius': 'MRU',        // Sir Seewoosagur Ramgoolam
+  'fiji': 'NAN',             // Nadi
+  'aruba': 'AUA',            // Queen Beatrix
+  'zanzibar': 'ZNZ',         // Abeid Amani Karume
+  // Americas
+  'cabo san lucas': 'SJD',   // San José del Cabo
+  'aspen': 'ASE',            // Aspen/Pitkin County
+  'cancun': 'CUN',           // Cancún
+  // South America
+  'punta del este': 'PDP',   // Punta del Este
+  'cusco': 'CUZ',            // Alejandro Velasco Astete
+  'cartagena': 'CTG',        // Rafael Núñez
+  'mendoza': 'MDZ',          // El Plumerillo
+  'florianópolis': 'FLN',    // Hercílio Luz
+  'bariloche': 'BRC',        // San Carlos de Bariloche
+  'galápagos': 'GPS',        // Seymour
+  // Africa
+  'cape town': 'CPT',        // Cape Town
+  'sharm el sheikh': 'SSH',  // Sharm el-Sheikh
+  'casablanca': 'CMN',       // Mohammed V
+  'accra': 'ACC',            // Kotoka
+  'addis ababa': 'ADD',      // Bole
+  'victoria falls': 'VFA',   // Victoria Falls
+  'marrakech': 'RAK',        // Menara
+  // Oceania
+  'queenstown': 'ZQN',       // Queenstown
+  'gold coast': 'OOL',       // Gold Coast
+  'tasmania': 'HBA',         // Hobart
+  'great barrier reef': 'CNS', // Cairns
+  'wellington': 'WLG',       // Wellington
+};
+
+// Find the main airport for a city (returns first match, which is usually the main airport)
+export function findAirportByCity(cityName: string): Airport | null {
+  if (!cityName) return null;
+
+  const lowerCity = cityName.toLowerCase();
+  const airports = getAirportsArray();
+
+  // First check if we have a manual mapping for this city
+  const mappedCode = nearestAirportMapping[lowerCity];
+  if (mappedCode) {
+    const mappedAirport = airports.find(a => a.code === mappedCode);
+    if (mappedAirport) return mappedAirport;
+  }
+
+  // Then try exact city match
+  const exactMatch = airports.find(a => a.city.toLowerCase() === lowerCity);
+  if (exactMatch) return exactMatch;
+
+  // Then try city starts with
+  const startsWithMatch = airports.find(a => a.city.toLowerCase().startsWith(lowerCity));
+  if (startsWithMatch) return startsWithMatch;
+
+  // Finally try city contains
+  const containsMatch = airports.find(a => a.city.toLowerCase().includes(lowerCity));
+  return containsMatch || null;
+}

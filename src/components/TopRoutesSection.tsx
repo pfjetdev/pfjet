@@ -1,8 +1,8 @@
-import Image from 'next/image';
 import { headers } from 'next/headers';
 import { getSimpleGeolocation, getClientIP } from '@/lib/geolocation';
 import { getContinentByCountryCode } from '@/lib/continents';
-import { getTopRoutesWithImages, formatRoutePrice } from '@/lib/topRoutesGenerator';
+import { getTopRoutesWithImages } from '@/lib/topRoutesGenerator';
+import TopRouteCard from './TopRouteCard';
 
 export default async function TopRoutesSection() {
   // Get real client IP from headers (important for Vercel/CDN)
@@ -47,32 +47,14 @@ export default async function TopRoutesSection() {
         {/* Routes Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 md:gap-6">
           {routes.map((route) => (
-            <div
+            <TopRouteCard
               key={route.id}
-              className="relative h-40 md:h-64 rounded-lg overflow-hidden group cursor-pointer active:scale-[0.98] md:hover:scale-[1.02] transition-transform duration-300"
-            >
-              {/* Background Image */}
-              <Image
-                src={route.image}
-                alt={route.toCityFull}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 20vw"
-              />
-
-              {/* Overlay */}
-              <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors duration-300" />
-
-              {/* Content */}
-              <div className="absolute bottom-2 md:bottom-4 left-2 md:left-4 text-white">
-                <h3 className="text-sm md:text-lg font-semibold mb-0.5 md:mb-1 drop-shadow-lg" style={{ fontFamily: 'Clash Display, sans-serif' }}>
-                  {route.fromCity} → {route.toCity}
-                </h3>
-                <p className="text-base md:text-xl font-bold drop-shadow-lg" style={{ fontFamily: 'Clash Display, sans-serif' }}>
-                  {formatRoutePrice(route.price)}
-                </p>
-              </div>
-            </div>
+              id={route.id}
+              fromCity={route.fromCity}
+              toCity={route.toCity}
+              price={route.price}
+              image={route.image}
+            />
           ))}
         </div>
       </div>

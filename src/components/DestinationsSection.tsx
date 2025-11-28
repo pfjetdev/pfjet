@@ -3,13 +3,20 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ChevronDown, MoveRight } from "lucide-react";
+import { ChevronDown, MoveRight, Check } from "lucide-react";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/select";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import {
   Carousel,
   CarouselContent,
@@ -49,10 +56,12 @@ const displayContinents = ['Europe', 'Asia', 'North America', 'South America', '
 
 export default function DestinationsSection() {
   const router = useRouter();
+  const isMobile = useIsMobile();
   const [selectedContinent, setSelectedContinent] = useState<string>('Europe');
   const [countries, setCountries] = useState<Country[]>([]);
   const [cities, setCities] = useState<City[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   useEffect(() => {
     async function loadData() {
@@ -165,32 +174,46 @@ export default function DestinationsSection() {
     <section className="py-8 md:py-16 pl-4 pr-0 bg-background">
       <div className="max-w-7xl mx-auto pr-0">
         {/* Header with Continent Selector and View all button */}
-        <div className="flex items-center justify-between mb-4 md:mb-12">
-          <Select
-            value={selectedContinent}
-            onValueChange={(value) => setSelectedContinent(value)}
-          >
-            <SelectTrigger
-              className="!border-0 !p-0 !h-auto !w-auto !shadow-none !bg-transparent !outline-none focus-visible:!ring-0 focus-visible:!ring-offset-0 focus:!ring-0 focus:!ring-offset-0 hover:opacity-80 transition-opacity [&>svg]:hidden data-[state=open]:!bg-transparent data-[state=closed]:!bg-transparent"
-              style={{ border: 'none', boxShadow: 'none', background: 'transparent' }}
+        <div className="flex items-center justify-between mb-4 md:mb-12 pr-4">
+          {/* Mobile: Button that opens Drawer */}
+          {isMobile ? (
+            <button
+              onClick={() => setIsDrawerOpen(true)}
+              className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
             >
-              <h2 className="text-3xl md:text-6xl font-medium text-foreground flex items-center gap-2 md:gap-3 cursor-pointer" style={{ fontFamily: 'Clash Display, sans-serif' }}>
+              <h2 className="text-3xl font-medium text-foreground" style={{ fontFamily: 'Clash Display, sans-serif' }}>
                 {selectedContinent}
-                <ChevronDown className="w-6 h-6 md:w-8 md:h-8 opacity-70" />
               </h2>
-            </SelectTrigger>
-            <SelectContent className="min-w-[200px]">
-              {displayContinents.map((continent) => (
-                <SelectItem
-                  key={continent}
-                  value={continent}
-                  className="text-lg cursor-pointer"
-                >
-                  {continent}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+              <ChevronDown className="w-6 h-6 opacity-70" />
+            </button>
+          ) : (
+            /* Desktop: Select dropdown */
+            <Select
+              value={selectedContinent}
+              onValueChange={(value) => setSelectedContinent(value)}
+            >
+              <SelectTrigger
+                className="!border-0 !p-0 !h-auto !w-auto !shadow-none !bg-transparent !outline-none focus-visible:!ring-0 focus-visible:!ring-offset-0 focus:!ring-0 focus:!ring-offset-0 hover:opacity-80 transition-opacity [&>svg]:hidden data-[state=open]:!bg-transparent data-[state=closed]:!bg-transparent"
+                style={{ border: 'none', boxShadow: 'none', background: 'transparent' }}
+              >
+                <h2 className="text-6xl font-medium text-foreground flex items-center gap-3 cursor-pointer" style={{ fontFamily: 'Clash Display, sans-serif' }}>
+                  {selectedContinent}
+                  <ChevronDown className="w-8 h-8 opacity-70" />
+                </h2>
+              </SelectTrigger>
+              <SelectContent className="min-w-[200px]">
+                {displayContinents.map((continent) => (
+                  <SelectItem
+                    key={continent}
+                    value={continent}
+                    className="text-lg cursor-pointer"
+                  >
+                    {continent}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
 
           {/* View all button */}
           <button
@@ -306,6 +329,45 @@ export default function DestinationsSection() {
             </Carousel>
         )}
       </div>
+
+      {/* Mobile Drawer for continent selection */}
+      <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+        <DrawerContent className="pb-safe">
+          <DrawerHeader className="text-center pb-2">
+            <DrawerTitle
+              className="text-xl font-semibold"
+              style={{ fontFamily: 'Clash Display, sans-serif' }}
+            >
+              Select Continent
+            </DrawerTitle>
+          </DrawerHeader>
+          <div className="px-6 pb-6">
+            <div className="space-y-1">
+              {displayContinents.map((continent) => (
+                <button
+                  key={continent}
+                  onClick={() => {
+                    setSelectedContinent(continent);
+                    setIsDrawerOpen(false);
+                  }}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors ${
+                    selectedContinent === continent
+                      ? 'bg-foreground/10'
+                      : 'hover:bg-foreground/5'
+                  }`}
+                >
+                  <span className="text-lg font-medium text-foreground">
+                    {continent}
+                  </span>
+                  {selectedContinent === continent && (
+                    <Check className="w-5 h-5 text-foreground" />
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        </DrawerContent>
+      </Drawer>
     </section>
   );
 }

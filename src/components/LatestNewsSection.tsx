@@ -61,7 +61,7 @@ export default function LatestNewsSection() {
     <section className="py-8 md:py-16 pl-4 pr-0 bg-background">
       <div className="max-w-7xl mx-auto pr-0">
         {/* Header with title and View all button */}
-        <div className="flex items-center justify-between mb-4 md:mb-8">
+        <div className="flex items-center justify-between mb-4 md:mb-8 pr-4">
           <h2
             className="text-3xl md:text-6xl font-medium text-foreground"
             style={{ fontFamily: 'Clash Display, sans-serif' }}
