@@ -23,6 +23,7 @@ import {
 import { WheelPicker, WheelPickerWrapper } from '@/components/wheel-picker';
 import type { WheelPickerOption } from '@/components/wheel-picker';
 import CreateOrderForm from '@/components/CreateOrderForm';
+import MobileOrderFormDrawer from '@/components/MobileOrderFormDrawer';
 import airportsData from '@/data/airports.json';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -453,12 +454,12 @@ export default function JetDetailClient({
           <div className="bg-white dark:bg-card rounded-2xl sm:rounded-[24px] overflow-hidden border border-border">
             <div className="grid grid-cols-1 lg:grid-cols-10 gap-0">
               {/* Aircraft Photo - 70% */}
-              <div className="lg:col-span-7 relative aspect-[16/10] lg:aspect-auto lg:min-h-[400px] bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900">
+              <div className="lg:col-span-7 relative aspect-[16/10] lg:aspect-auto lg:min-h-[400px] overflow-hidden">
                 <Image
                   src={aircraft.image || '/placeholder-jet.jpg'}
                   alt={aircraft.name}
                   fill
-                  className="object-contain p-4 sm:p-8"
+                  className="object-cover"
                   sizes="(max-width: 1024px) 100vw, 70vw"
                   priority
                 />
@@ -993,26 +994,12 @@ export default function JetDetailClient({
       </div>
 
       {/* Mobile Order Drawer */}
-      <Drawer open={orderDrawerOpen} onOpenChange={setOrderDrawerOpen}>
-        <DrawerContent className="h-[90vh]">
-          <DrawerHeader className="border-b px-4 py-4">
-            <DrawerTitle
-              className="text-xl font-medium text-foreground"
-              style={{ fontFamily: 'Clash Display, sans-serif' }}
-            >
-              Create Order
-            </DrawerTitle>
-          </DrawerHeader>
-
-          <div className="flex-1 overflow-y-auto px-4 py-6" data-vaul-no-drag>
-            <CreateOrderForm
-              jetName={aircraft.name}
-              price={`$ ${estimatedPrice.toLocaleString()}`}
-              hideTitle={true}
-            />
-          </div>
-        </DrawerContent>
-      </Drawer>
+      <MobileOrderFormDrawer
+        jetName={aircraft.name}
+        price={`$ ${estimatedPrice.toLocaleString()}`}
+        open={orderDrawerOpen}
+        onOpenChange={setOrderDrawerOpen}
+      />
     </div>
   );
 }

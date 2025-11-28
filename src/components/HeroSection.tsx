@@ -1,14 +1,15 @@
 'use client'
 
 import { useTheme } from 'next-themes'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useWindowScroll } from '@uidotdev/usehooks'
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion'
 import Image from 'next/image'
 import SearchForm from './SearchForm'
 import MobileSearchForm from './MobileSearchForm'
-import { Plane, Plus, Search, MoveRight } from 'lucide-react'
+import { Plane, Plus, Search, MoveRight, AlertCircle } from 'lucide-react'
+import { toast } from 'sonner'
 import { useFormContext } from '@/contexts/FormContext'
 import { cn } from '@/lib/utils'
 import {
@@ -46,25 +47,20 @@ const HeroSection = () => {
   }, [])
 
   // Use global form context
-  const { formData, updateFormData, focusDateTrigger, mobileDrawerTrigger } = useFormContext()
+  const { formData, updateFormData, mobileDrawerTrigger } = useFormContext()
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  // Handle date focus trigger from context (e.g., when clicking on TopRoutes)
-  useEffect(() => {
-    if (focusDateTrigger > 0) {
-      setFieldToFocus('date')
-      setFocusTrigger(prev => prev + 1)
-    }
-  }, [focusDateTrigger])
-
   // Handle mobile drawer trigger from context (e.g., when clicking on TopRoutes on mobile)
+  // Use ref to track previous value and only react to actual changes, not initial mount
+  const prevMobileDrawerTrigger = useRef(mobileDrawerTrigger)
   useEffect(() => {
-    if (mobileDrawerTrigger > 0) {
+    if (mobileDrawerTrigger > 0 && mobileDrawerTrigger !== prevMobileDrawerTrigger.current) {
       setIsMobileSearchOpen(true)
     }
+    prevMobileDrawerTrigger.current = mobileDrawerTrigger
   }, [mobileDrawerTrigger])
 
   // Motion values for smooth scroll-based animations
@@ -102,22 +98,50 @@ const HeroSection = () => {
   }
 
   const handleAddDestination = () => {
-    // Sequential validation: check each field and focus the first empty one
+    // Check if we're on mobile
+    const isMobileView = !isDesktop
+
+    // Sequential validation: check each field and focus/show error for the first empty one
     if (!formData.from) {
-      setFieldToFocus('from')
-      setFocusTrigger(prev => prev + 1)
+      if (isMobileView) {
+        // On mobile, open the drawer and show toast
+        setIsMobileSearchOpen(true)
+        toast.error('Select departure airport', {
+          description: 'Please select where you\'re flying from first.',
+          icon: <AlertCircle className="w-5 h-5" />,
+        })
+      } else {
+        setFieldToFocus('from')
+        setFocusTrigger(prev => prev + 1)
+      }
       return
     }
 
     if (!formData.to) {
-      setFieldToFocus('to')
-      setFocusTrigger(prev => prev + 1)
+      if (isMobileView) {
+        setIsMobileSearchOpen(true)
+        toast.error('Select destination airport', {
+          description: 'Please select where you\'re flying to.',
+          icon: <AlertCircle className="w-5 h-5" />,
+        })
+      } else {
+        setFieldToFocus('to')
+        setFocusTrigger(prev => prev + 1)
+      }
       return
     }
 
     if (!formData.date) {
-      setFieldToFocus('date')
-      setFocusTrigger(prev => prev + 1)
+      if (isMobileView) {
+        setIsMobileSearchOpen(true)
+        toast.error('Select departure date', {
+          description: 'Please select when you want to fly.',
+          icon: <AlertCircle className="w-5 h-5" />,
+        })
+      } else {
+        setFieldToFocus('date')
+        setFocusTrigger(prev => prev + 1)
+      }
       return
     }
 
@@ -296,7 +320,6 @@ const HeroSection = () => {
                 onFormChange={handleFormChange}
                 focusTrigger={focusTrigger}
                 fieldToFocus={fieldToFocus}
-                dateOpenTrigger={focusDateTrigger}
               />
             </motion.div>
 
@@ -365,10 +388,7 @@ const HeroSection = () => {
                 <SearchForm
                   formData={formData}
                   onFormChange={handleFormChange}
-                  focusTrigger={focusTrigger}
-                  fieldToFocus={fieldToFocus}
                   isSticky={true}
-                  dateOpenTrigger={focusDateTrigger}
                 />
               </div>
             </div>

@@ -18,7 +18,6 @@ interface DateTimePickerProps {
   onDateChange: (date: string) => void;
   onTimeChange: (time: string) => void;
   autoFocus?: boolean;
-  openTrigger?: number;
 }
 
 export function DateTimePicker({
@@ -27,7 +26,6 @@ export function DateTimePicker({
   onDateChange,
   onTimeChange,
   autoFocus = false,
-  openTrigger = 0,
 }: DateTimePickerProps) {
   const { theme } = useTheme();
   const [open, setOpen] = React.useState(false);
@@ -38,13 +36,6 @@ export function DateTimePicker({
       setOpen(true);
     }
   }, [autoFocus]);
-
-  // Open when trigger changes (for programmatic opening)
-  React.useEffect(() => {
-    if (openTrigger > 0) {
-      setOpen(true);
-    }
-  }, [openTrigger]);
   // Parse date string correctly to avoid timezone issues
   const parseDate = (dateStr: string): Date | undefined => {
     if (!dateStr) return undefined;

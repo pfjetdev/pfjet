@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTheme } from 'next-themes'
 import { Phone, Plane, Route, Mail, ChevronRight, CalendarDays } from 'lucide-react'
 import Image from 'next/image'
@@ -17,7 +17,12 @@ import {
 
 const NavBar = () => {
   const [isOpen, setIsOpen] = useState(false)
-  const { theme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+  const { resolvedTheme } = useTheme()
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const navigationItems = [
     { name: 'Empty Legs', href: '/empty-legs', icon: Plane, description: 'Browse available flights' },
@@ -33,15 +38,19 @@ const NavBar = () => {
         {/* Logo */}
         <div className="flex-shrink-0">
           <Link href="/" className="cursor-pointer">
-            <Image
-              src={theme === 'dark' ? '/white-logo.svg' : '/black-logo.svg'}
-              alt="Logo"
-              width={170}
-              height={40}
-              className="h-5 w-auto"
-              priority
-              suppressHydrationWarning
-            />
+            {!mounted ? (
+              <div className="h-5 w-[170px]" />
+            ) : (
+              <Image
+                key={resolvedTheme}
+                src={resolvedTheme === 'dark' ? '/white-logo.svg' : '/black-logo.svg'}
+                alt="Logo"
+                width={170}
+                height={40}
+                className="h-5 w-auto"
+                priority
+              />
+            )}
           </Link>
         </div>
 

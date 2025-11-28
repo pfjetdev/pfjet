@@ -21,10 +21,9 @@ interface SearchFormProps {
   focusTrigger?: number
   fieldToFocus?: 'from' | 'to' | 'date' | null
   isSticky?: boolean
-  dateOpenTrigger?: number
 }
 
-const SearchForm = ({ formData, onFormChange, focusTrigger, fieldToFocus, isSticky = false, dateOpenTrigger = 0 }: SearchFormProps) => {
+const SearchForm = ({ formData, onFormChange, focusTrigger, fieldToFocus, isSticky = false }: SearchFormProps) => {
   const { theme } = useTheme()
   const router = useRouter()
   const [shouldAutoFocusFrom, setShouldAutoFocusFrom] = useState(false)
@@ -151,7 +150,6 @@ const SearchForm = ({ formData, onFormChange, focusTrigger, fieldToFocus, isStic
               onDateChange={(value) => handleInputChange('date', value)}
               onTimeChange={(value) => handleInputChange('time', value)}
               autoFocus={shouldAutoFocusDate}
-              openTrigger={dateOpenTrigger}
             />
           </div>
 

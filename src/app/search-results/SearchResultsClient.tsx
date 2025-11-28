@@ -590,12 +590,12 @@ function JetResultCard({
     <Link href={`/jets/${jet.slug}?${searchParams.toString()}`}>
       <div className="bg-card rounded-2xl overflow-hidden border border-border hover:shadow-lg transition-all duration-300 group">
         {/* Image */}
-        <div className="relative aspect-[4/3] bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900">
+        <div className="relative aspect-[16/9] overflow-hidden">
           <Image
             src={jet.image || '/placeholder-jet.jpg'}
             alt={jet.name}
             fill
-            className="object-contain p-4 sm:p-6 group-hover:scale-105 transition-transform duration-300"
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         </div>

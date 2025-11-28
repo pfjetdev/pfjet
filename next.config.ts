@@ -33,6 +33,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: '*.wikipedia.org',
       },
+      {
+        protocol: 'https',
+        hostname: 'cwiznhnowqjvziaghjaa.supabase.co',
+      },
     ],
     // Optimize image loading
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],

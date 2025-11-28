@@ -160,12 +160,12 @@ export default function EmptyLegFlightInfo({
 
         {/* Right Side - Aircraft Image */}
         <div className="flex flex-1 flex-col gap-[10px] items-start overflow-hidden py-[21px] self-stretch min-w-0 min-h-0">
-          <div className="aspect-[317/162] relative w-full">
+          <div className="aspect-[317/162] relative w-full overflow-hidden rounded-xl">
             <Image
               src={aircraftImage}
               alt={aircraftName}
               fill
-              className="object-contain"
+              className="object-cover"
               sizes="(max-width: 768px) 100vw, 50vw"
             />
           </div>

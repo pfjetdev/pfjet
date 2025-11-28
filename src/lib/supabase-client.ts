@@ -27,6 +27,15 @@ export interface Aircraft {
   updated_at: string;
 }
 
+// Helper to parse JSON fields that might come as strings
+function parseAircraftData(data: any): Aircraft {
+  return {
+    ...data,
+    gallery: typeof data.gallery === 'string' ? JSON.parse(data.gallery) : data.gallery || [],
+    features: typeof data.features === 'string' ? JSON.parse(data.features) : data.features || [],
+  };
+}
+
 // Fetch all aircraft grouped by category
 export async function getAircraftByCategories() {
   const { data, error } = await supabase
@@ -40,7 +49,7 @@ export async function getAircraftByCategories() {
     return [];
   }
 
-  return data as Aircraft[];
+  return (data || []).map(parseAircraftData);
 }
 
 // Fetch aircraft by category
@@ -56,7 +65,7 @@ export async function getAircraftByCategory(categorySlug: string) {
     return [];
   }
 
-  return data as Aircraft[];
+  return (data || []).map(parseAircraftData);
 }
 
 // Fetch single aircraft by category and slug
@@ -73,7 +82,7 @@ export async function getAircraftBySlug(categorySlug: string, aircraftSlug: stri
     return null;
   }
 
-  return data as Aircraft;
+  return parseAircraftData(data);
 }
 
 // Get all unique categories

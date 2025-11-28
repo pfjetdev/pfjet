@@ -14,7 +14,7 @@ interface TopRouteCardProps {
 }
 
 export default function TopRouteCard({ fromCity, toCity, price, image }: TopRouteCardProps) {
-  const { updateFormData, triggerDateFocus, triggerMobileDrawer } = useFormContext()
+  const { updateFormData, triggerMobileDrawer } = useFormContext()
 
   const handleClick = () => {
     // Find airports for the cities to get IATA codes
@@ -33,15 +33,13 @@ export default function TopRouteCard({ fromCity, toCity, price, image }: TopRout
     updateFormData('from', fromValue)
     updateFormData('to', toValue)
 
-    // Desktop: open date picker, Mobile: open search drawer
+    // Mobile: open search drawer
     const isDesktop = window.innerWidth >= 768
-    setTimeout(() => {
-      if (isDesktop) {
-        triggerDateFocus()
-      } else {
+    if (!isDesktop) {
+      setTimeout(() => {
         triggerMobileDrawer()
-      }
-    }, 100)
+      }, 100)
+    }
   }
 
   return (

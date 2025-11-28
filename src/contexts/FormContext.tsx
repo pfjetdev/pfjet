@@ -15,8 +15,6 @@ interface FormContextType {
   updateFormData: (field: string, value: string) => void
   setFormData: (data: FormData) => void
   resetFormData: () => void
-  focusDateTrigger: number
-  triggerDateFocus: () => void
   mobileDrawerTrigger: number
   triggerMobileDrawer: () => void
 }
@@ -42,7 +40,6 @@ export const useFormContext = () => {
 export const FormProvider = ({ children }: { children: React.ReactNode }) => {
   const [formData, setFormDataState] = useState<FormData>(defaultFormData)
   const [isInitialized, setIsInitialized] = useState(false)
-  const [focusDateTrigger, setFocusDateTrigger] = useState(0)
   const [mobileDrawerTrigger, setMobileDrawerTrigger] = useState(0)
 
   // Load from sessionStorage on mount
@@ -106,18 +103,13 @@ export const FormProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [])
 
-  // Trigger focus on date field
-  const triggerDateFocus = useCallback(() => {
-    setFocusDateTrigger(prev => prev + 1)
-  }, [])
-
   // Trigger mobile drawer open
   const triggerMobileDrawer = useCallback(() => {
     setMobileDrawerTrigger(prev => prev + 1)
   }, [])
 
   return (
-    <FormContext.Provider value={{ formData, updateFormData, setFormData, resetFormData, focusDateTrigger, triggerDateFocus, mobileDrawerTrigger, triggerMobileDrawer }}>
+    <FormContext.Provider value={{ formData, updateFormData, setFormData, resetFormData, mobileDrawerTrigger, triggerMobileDrawer }}>
       {children}
     </FormContext.Provider>
   )

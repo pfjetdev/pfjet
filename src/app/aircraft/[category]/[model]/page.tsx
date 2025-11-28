@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import Footer from "@/components/Footer";
@@ -26,6 +26,7 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
+  type CarouselApi,
 } from "@/components/ui/carousel";
 import {
   Plane,
@@ -49,6 +50,28 @@ export default function AircraftModelPage() {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxImageIndex, setLightboxImageIndex] = useState(0);
+  const [carouselApi, setCarouselApi] = useState<CarouselApi>();
+
+  // Sync carousel with lightboxImageIndex
+  useEffect(() => {
+    if (carouselApi && isLightboxOpen) {
+      carouselApi.scrollTo(lightboxImageIndex);
+    }
+  }, [carouselApi, lightboxImageIndex, isLightboxOpen]);
+
+  // Update lightboxImageIndex when carousel changes
+  useEffect(() => {
+    if (!carouselApi) return;
+
+    const onSelect = () => {
+      setLightboxImageIndex(carouselApi.selectedScrollSnap());
+    };
+
+    carouselApi.on("select", onSelect);
+    return () => {
+      carouselApi.off("select", onSelect);
+    };
+  }, [carouselApi]);
   const [aircraftData, setAircraftData] = useState<Aircraft | null>(null);
   const [categoryModels, setCategoryModels] = useState<Aircraft[]>([]);
   const [loading, setLoading] = useState(true);
@@ -224,82 +247,157 @@ export default function AircraftModelPage() {
           <div className="flex flex-col lg:flex-row gap-6">
             {/* Left Column - 70% */}
             <div className="lg:w-[70%] space-y-6">
-              {/* Gallery - Bento Grid */}
+              {/* Gallery - Mobile: 1 large + row of small | Desktop: 2 top + 3 bottom */}
               <Card>
-                <CardContent className="p-6">
-                  <div className="grid grid-cols-4 gap-3 h-[500px]">
-                    {/* Large Image - Takes 2x2 grid */}
+                <CardContent className="px-4 py-0">
+                  {/* Mobile Layout */}
+                  <div className="flex flex-col gap-2 md:hidden">
+                    {/* Main large image */}
                     {aircraftData.gallery[0] && (
                       <button
                         onClick={() => {
                           setLightboxImageIndex(0);
                           setIsLightboxOpen(true);
                         }}
-                        className="col-span-2 row-span-2 relative rounded-lg overflow-hidden bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/30 group cursor-pointer hover:shadow-lg transition-all duration-300"
+                        className="relative aspect-[16/9] rounded-xl overflow-hidden bg-muted group cursor-pointer"
                       >
                         <Image
                           src={aircraftData.gallery[0]}
                           alt={`${aircraftData.name} - Image 1`}
                           fill
-                          className="object-contain p-6 group-hover:scale-105 transition-transform duration-300"
+                          className="object-cover group-hover:scale-105 transition-transform duration-300"
                           priority
                         />
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-all duration-300 flex items-center justify-center">
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 flex items-center justify-center">
                           <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 bg-white/90 dark:bg-black/90 rounded-full p-3 shadow-lg">
-                            <ZoomIn className="w-6 h-6 text-foreground" />
+                            <ZoomIn className="w-5 h-5 text-foreground" />
                           </div>
                         </div>
                       </button>
                     )}
 
-                    {/* Small Images - 4 images in 2x2 on the right */}
-                    {[1, 2, 3, 4].map((index) => {
-                      const imageExists = aircraftData.gallery[index];
-                      const remainingImages = aircraftData.gallery.length - 5;
-                      const isLastImage = index === 4;
-                      const shouldShowCounter = isLastImage && remainingImages > 0;
+                    {/* Small images row */}
+                    <div className="grid grid-cols-4 gap-2 h-[60px]">
+                      {[1, 2, 3, 4].map((index) => {
+                        const imageExists = aircraftData.gallery[index];
+                        const isLastImage = index === 4;
+                        const remainingImages = aircraftData.gallery.length - 5;
+                        const shouldShowCounter = isLastImage && remainingImages > 0;
 
-                      if (!imageExists && index > aircraftData.gallery.length - 1) {
+                        if (!imageExists) return null;
+
                         return (
-                          <div
+                          <button
                             key={index}
-                            className="relative rounded-lg bg-muted/30 border-2 border-dashed border-border"
-                          />
-                        );
-                      }
-
-                      return (
-                        <button
-                          key={index}
-                          onClick={() => {
-                            setLightboxImageIndex(index);
-                            setIsLightboxOpen(true);
-                          }}
-                          className="relative rounded-lg overflow-hidden bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/30 group cursor-pointer hover:shadow-lg transition-all duration-300"
-                        >
-                          <Image
-                            src={aircraftData.gallery[index]}
-                            alt={`${aircraftData.name} - Image ${index + 1}`}
-                            fill
-                            className="object-contain p-3 group-hover:scale-110 transition-transform duration-300"
-                          />
-                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-all duration-300 flex items-center justify-center">
-                            <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 bg-white/90 dark:bg-black/90 rounded-full p-2 shadow-lg">
-                              <ZoomIn className="w-5 h-5 text-foreground" />
-                            </div>
-                          </div>
-
-                          {/* Counter Overlay for last image if there are more */}
-                          {shouldShowCounter && (
-                            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center">
-                              <div className="text-white text-4xl font-bold">
-                                +{remainingImages}
+                            onClick={() => {
+                              setLightboxImageIndex(index);
+                              setIsLightboxOpen(true);
+                            }}
+                            className="relative rounded-lg overflow-hidden bg-muted group cursor-pointer"
+                          >
+                            <Image
+                              src={aircraftData.gallery[index]}
+                              alt={`${aircraftData.name} - Image ${index + 1}`}
+                              fill
+                              className="object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 flex items-center justify-center">
+                              <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 bg-white/90 dark:bg-black/90 rounded-full p-1.5 shadow-lg">
+                                <ZoomIn className="w-3 h-3 text-foreground" />
                               </div>
                             </div>
-                          )}
-                        </button>
-                      );
-                    })}
+
+                            {/* Counter Overlay for last image if there are more */}
+                            {shouldShowCounter && (
+                              <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center">
+                                <span className="text-white text-lg font-bold">
+                                  +{remainingImages}
+                                </span>
+                              </div>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Desktop Layout */}
+                  <div className="hidden md:flex flex-col gap-2">
+                    {/* Top row - 2 images */}
+                    <div className="grid grid-cols-2 gap-2 h-[280px]">
+                      {[0, 1].map((index) => {
+                        const imageExists = aircraftData.gallery[index];
+                        if (!imageExists) return null;
+
+                        return (
+                          <button
+                            key={index}
+                            onClick={() => {
+                              setLightboxImageIndex(index);
+                              setIsLightboxOpen(true);
+                            }}
+                            className="relative rounded-lg overflow-hidden bg-muted group cursor-pointer"
+                          >
+                            <Image
+                              src={aircraftData.gallery[index]}
+                              alt={`${aircraftData.name} - Image ${index + 1}`}
+                              fill
+                              className="object-cover group-hover:scale-105 transition-transform duration-300"
+                              priority={index === 0}
+                            />
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 flex items-center justify-center">
+                              <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 bg-white/90 dark:bg-black/90 rounded-full p-3 shadow-lg">
+                                <ZoomIn className="w-5 h-5 text-foreground" />
+                              </div>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Bottom row - 3 images */}
+                    <div className="grid grid-cols-3 gap-2 h-[180px]">
+                      {[2, 3, 4].map((index) => {
+                        const imageExists = aircraftData.gallery[index];
+                        const isLastImage = index === 4;
+                        const remainingImages = aircraftData.gallery.length - 5;
+                        const shouldShowCounter = isLastImage && remainingImages > 0;
+
+                        if (!imageExists) return null;
+
+                        return (
+                          <button
+                            key={index}
+                            onClick={() => {
+                              setLightboxImageIndex(index);
+                              setIsLightboxOpen(true);
+                            }}
+                            className="relative rounded-lg overflow-hidden bg-muted group cursor-pointer"
+                          >
+                            <Image
+                              src={aircraftData.gallery[index]}
+                              alt={`${aircraftData.name} - Image ${index + 1}`}
+                              fill
+                              className="object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 flex items-center justify-center">
+                              <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 bg-white/90 dark:bg-black/90 rounded-full p-2 shadow-lg">
+                                <ZoomIn className="w-4 h-4 text-foreground" />
+                              </div>
+                            </div>
+
+                            {/* Counter Overlay for last image if there are more */}
+                            {shouldShowCounter && (
+                              <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center">
+                                <span className="text-white text-3xl font-bold">
+                                  +{remainingImages}
+                                </span>
+                              </div>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -454,86 +552,79 @@ export default function AircraftModelPage() {
 
       {/* Fullscreen Lightbox Dialog */}
       <Dialog open={isLightboxOpen} onOpenChange={setIsLightboxOpen}>
-        <DialogContent className="max-w-[95vw] w-full h-[95vh] p-0 bg-black/95 border-0">
+        <DialogContent className="max-w-[100vw] md:max-w-[95vw] w-full h-[100vh] md:h-[95vh] p-0 bg-black border-0 rounded-none md:rounded-lg">
           <VisuallyHidden>
             <DialogTitle>{aircraftData.name} Gallery</DialogTitle>
           </VisuallyHidden>
           <div className="relative w-full h-full flex flex-col">
-            {/* Close Button */}
-            <DialogClose className="absolute top-4 right-4 z-50 rounded-full bg-white/10 hover:bg-white/20 p-2 transition-all duration-300 backdrop-blur-sm">
-              <X className="h-6 w-6 text-white" />
-              <span className="sr-only">Close</span>
-            </DialogClose>
+            {/* Header - Mobile optimized */}
+            <div className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between p-3 md:p-4 bg-gradient-to-b from-black/60 to-transparent">
+              {/* Aircraft Name - Hidden on mobile for cleaner look */}
+              <div className="hidden md:block bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
+                <span className="text-white text-sm font-medium">
+                  {aircraftData.name}
+                </span>
+              </div>
 
-            {/* Image Counter */}
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full">
-              <span className="text-white text-sm font-medium">
-                {lightboxImageIndex + 1} / {aircraftData.gallery.length}
-              </span>
+              {/* Image Counter - Centered on mobile */}
+              <div className="md:absolute md:left-1/2 md:-translate-x-1/2 bg-white/10 backdrop-blur-sm px-3 py-1.5 md:px-4 md:py-2 rounded-full">
+                <span className="text-white text-xs md:text-sm font-medium">
+                  {lightboxImageIndex + 1} / {aircraftData.gallery.length}
+                </span>
+              </div>
+
+              {/* Close Button */}
+              <DialogClose className="rounded-full bg-white/10 hover:bg-white/20 p-2 transition-all duration-300 backdrop-blur-sm ml-auto">
+                <X className="h-5 w-5 md:h-6 md:w-6 text-white" />
+                <span className="sr-only">Close</span>
+              </DialogClose>
             </div>
 
-            {/* Aircraft Name */}
-            <div className="absolute top-4 left-4 z-50 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
-              <span className="text-white text-sm font-medium">
-                {aircraftData.name}
-              </span>
-            </div>
-
-            {/* Carousel */}
-            <div className="flex-1 flex items-center justify-center p-8">
+            {/* Carousel - Full screen on mobile */}
+            <div className="flex-1 flex items-center justify-center pt-16 pb-24 md:pt-20 md:pb-28">
               <Carousel
+                setApi={setCarouselApi}
                 opts={{
                   align: "center",
                   loop: true,
+                  startIndex: lightboxImageIndex,
                 }}
-                className="w-full h-full"
+                className="w-full"
               >
-                <CarouselContent className="h-full">
+                <CarouselContent>
                   {aircraftData.gallery.map((image, index) => (
-                    <CarouselItem key={index} className="h-full">
-                      <div className="relative w-full h-full flex items-center justify-center">
-                        <div className="relative w-full h-[80vh]">
-                          <Image
-                            src={image}
-                            alt={`${aircraftData.name} - Image ${index + 1}`}
-                            fill
-                            className="object-contain"
-                            priority={index === lightboxImageIndex}
-                          />
-                        </div>
+                    <CarouselItem key={index} className="pl-0">
+                      <div className="relative w-full h-[35vh] md:h-[60vh] mx-auto">
+                        <Image
+                          src={image}
+                          alt={`${aircraftData.name} - Image ${index + 1}`}
+                          fill
+                          className="object-contain"
+                          priority={index === lightboxImageIndex}
+                        />
                       </div>
                     </CarouselItem>
                   ))}
                 </CarouselContent>
 
-                {/* Navigation Arrows */}
-                <CarouselPrevious
-                  className="left-4 h-12 w-12 bg-white/10 hover:bg-white/20 border-0 backdrop-blur-sm text-white"
-                  onClick={() => setLightboxImageIndex((prev) =>
-                    prev === 0 ? aircraftData.gallery.length - 1 : prev - 1
-                  )}
-                />
-                <CarouselNext
-                  className="right-4 h-12 w-12 bg-white/10 hover:bg-white/20 border-0 backdrop-blur-sm text-white"
-                  onClick={() => setLightboxImageIndex((prev) =>
-                    prev === aircraftData.gallery.length - 1 ? 0 : prev + 1
-                  )}
-                />
+                {/* Navigation Arrows - Hidden on mobile, use swipe instead */}
+                <CarouselPrevious className="hidden md:flex left-4 h-12 w-12 bg-white/10 hover:bg-white/20 border-0 backdrop-blur-sm text-white" />
+                <CarouselNext className="hidden md:flex right-4 h-12 w-12 bg-white/10 hover:bg-white/20 border-0 backdrop-blur-sm text-white" />
               </Carousel>
             </div>
 
-            {/* Thumbnail Navigation */}
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 max-w-[90vw] overflow-x-auto">
-              <div className="flex gap-2 p-2 bg-white/10 backdrop-blur-sm rounded-lg">
+            {/* Thumbnail Navigation - Smaller on mobile */}
+            <div className="absolute bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 z-50 max-w-[95vw] md:max-w-[90vw] overflow-x-auto scrollbar-hide">
+              <div className="flex gap-1.5 md:gap-2 p-1.5 md:p-2 bg-white/10 backdrop-blur-sm rounded-lg">
                 {aircraftData.gallery.map((image, index) => (
                   <button
                     key={index}
                     onClick={() => setLightboxImageIndex(index)}
                     className={`
-                      relative flex-shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 transition-all duration-300
+                      relative flex-shrink-0 w-12 h-12 md:w-16 md:h-16 rounded-md overflow-hidden border-2 transition-all duration-300
                       ${
                         lightboxImageIndex === index
-                          ? "border-white scale-110 shadow-lg"
+                          ? "border-white scale-105 md:scale-110 shadow-lg"
                           : "border-white/30 hover:border-white/60 opacity-60 hover:opacity-100"
                       }
                     `}
@@ -542,7 +633,7 @@ export default function AircraftModelPage() {
                       src={image}
                       alt={`Thumbnail ${index + 1}`}
                       fill
-                      className="object-contain p-1"
+                      className="object-cover"
                     />
                   </button>
                 ))}
