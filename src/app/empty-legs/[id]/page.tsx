@@ -36,8 +36,9 @@ export default async function EmptyLegDetailPage({ params }: PageProps) {
     notFound()
   }
 
-  // Format dates
-  const departureDate = new Date(emptyLeg.departureDate)
+  // Format dates - parse as local to avoid timezone issues
+  const [year, month, day] = emptyLeg.departureDate.split('-').map(Number)
+  const departureDate = new Date(year, month - 1, day)
   const formattedDepartureDate = departureDate.toLocaleDateString('en-US', { day: 'numeric', month: 'long' })
   const shortDate = departureDate.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }).toUpperCase()
 

@@ -37,8 +37,9 @@ export default async function JetSharingDetailPage({ params }: PageProps) {
     notFound()
   }
 
-  // Format dates
-  const departureDate = new Date(flight.departureDate)
+  // Format dates - parse as local to avoid timezone issues
+  const [year, month, day] = flight.departureDate.split('-').map(Number)
+  const departureDate = new Date(year, month - 1, day)
   const formattedDepartureDate = departureDate.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })
   const shortDate = departureDate.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }).toUpperCase()
 

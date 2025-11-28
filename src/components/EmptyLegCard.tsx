@@ -11,7 +11,10 @@ interface EmptyLegCardProps {
 }
 
 export default function EmptyLegCard({ emptyLeg }: EmptyLegCardProps) {
-  const formattedDate = new Date(emptyLeg.departureDate).toLocaleDateString('en-US', {
+  // Parse date as local to avoid timezone issues (YYYY-MM-DD parsed as UTC by default)
+  const [year, month, day] = emptyLeg.departureDate.split('-').map(Number)
+  const localDate = new Date(year, month - 1, day)
+  const formattedDate = localDate.toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
     weekday: 'short'
