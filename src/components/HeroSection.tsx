@@ -140,32 +140,36 @@ const HeroSection = () => {
         >
           {/* Background Image - hidden on mobile, using next/image for optimization */}
           {/* Light theme image - shown by default, hidden when dark theme is active */}
-          <div className="hidden md:block absolute inset-0">
-            <Image
-              src="/day.jpg"
-              alt="Private jet background"
-              fill
-              priority
-              fetchPriority="high"
-              quality={85}
-              className={cn(
-                "object-cover object-center transition-opacity duration-300",
-                mounted && theme === 'dark' ? "opacity-0" : "opacity-100"
-              )}
-              sizes="100vw"
-            />
-            {/* Dark theme image - only visible when dark theme is active */}
-            {mounted && theme === 'dark' && (
+          {/* Only render on desktop to avoid loading 72KB image on mobile where it's hidden */}
+          {isDesktop && (
+            <div className="absolute inset-0">
               <Image
-                src="/night.jpg"
+                src="/day.jpg"
                 alt="Private jet background"
                 fill
+                priority
+                fetchPriority="high"
                 quality={85}
-                className="object-cover object-center opacity-100"
-                sizes="100vw"
+                className={cn(
+                  "object-cover object-center transition-opacity duration-300",
+                  mounted && theme === 'dark' ? "opacity-0" : "opacity-100"
+                )}
+                sizes="(min-width: 768px) 100vw, 0px"
               />
-            )}
-          </div>
+              {/* Dark theme image - only visible when dark theme is active */}
+              {mounted && theme === 'dark' && (
+                <Image
+                  src="/night.jpg"
+                  alt="Private jet background"
+                  fill
+                  loading="lazy"
+                  quality={85}
+                  className="object-cover object-center opacity-100"
+                  sizes="(min-width: 768px) 100vw, 0px"
+                />
+              )}
+            </div>
+          )}
 
           {/* Overlay - hidden on mobile */}
           <div className="hidden md:block absolute inset-0 bg-black/20" />
