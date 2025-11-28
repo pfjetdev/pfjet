@@ -31,21 +31,32 @@ export function MobileDateTimePicker({
   theme
 }: MobileDateTimePickerProps) {
   const [openDate, setOpenDate] = React.useState(false)
+
+  // Parse date string to local Date to avoid timezone issues
+  const parseLocalDate = (dateStr: string): Date => {
+    const [year, month, day] = dateStr.split('-').map(Number)
+    return new Date(year, month - 1, day)
+  }
+
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(
-    date ? new Date(date) : undefined
+    date ? parseLocalDate(date) : undefined
   )
 
   const handleDateSelect = (newDate: Date | undefined) => {
     if (newDate) {
       setSelectedDate(newDate)
-      onDateChange(newDate.toISOString().split('T')[0])
+      // Use local date to avoid timezone issues (toISOString converts to UTC which can shift the day)
+      const year = newDate.getFullYear()
+      const month = String(newDate.getMonth() + 1).padStart(2, '0')
+      const day = String(newDate.getDate()).padStart(2, '0')
+      onDateChange(`${year}-${month}-${day}`)
       setOpenDate(false)
     }
   }
 
   const formatDate = (dateStr: string) => {
     if (!dateStr) return ''
-    const d = new Date(dateStr)
+    const d = parseLocalDate(dateStr)
     return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
   }
 

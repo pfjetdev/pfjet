@@ -24,25 +24,37 @@ export function MobileDatePickerNew({
   theme
 }: MobileDatePickerProps) {
   const [open, setOpen] = React.useState(false)
+
+  // Parse date string to local Date to avoid timezone issues
+  const parseLocalDate = (dateStr: string): Date => {
+    const [year, month, day] = dateStr.split('-').map(Number)
+    return new Date(year, month - 1, day)
+  }
+
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(
-    date ? new Date(date) : undefined
+    date ? parseLocalDate(date) : undefined
   )
   const [month, setMonth] = React.useState<Date | undefined>(
-    date ? new Date(date) : new Date()
+    date ? parseLocalDate(date) : new Date()
   )
 
   const handleDateSelect = (newDate: Date | undefined) => {
     if (newDate) {
       setSelectedDate(newDate)
-      onDateChange(newDate.toISOString().split('T')[0])
+      // Use local date to avoid timezone issues (toISOString converts to UTC which can shift the day)
+      const year = newDate.getFullYear()
+      const month = String(newDate.getMonth() + 1).padStart(2, '0')
+      const day = String(newDate.getDate()).padStart(2, '0')
+      onDateChange(`${year}-${month}-${day}`)
       setOpen(false)
     }
   }
 
   const formatDate = (dateStr: string) => {
     if (!dateStr) return 'Select date'
-    const d = new Date(dateStr)
+    const d = parseLocalDate(dateStr)
     const today = new Date()
+    today.setHours(0, 0, 0, 0)
     const tomorrow = new Date(today)
     tomorrow.setDate(tomorrow.getDate() + 1)
 
