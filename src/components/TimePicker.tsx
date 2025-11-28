@@ -80,24 +80,27 @@ export function TimePicker({ value, onChange }: TimePickerProps) {
     <div className="flex items-center space-x-2 flex-1 h-full w-full">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <div className="flex items-center space-x-2 flex-1 h-full cursor-pointer w-full">
+          <button
+            type="button"
+            className="flex items-center space-x-2 flex-1 h-full cursor-pointer w-full text-left"
+          >
             <Clock
               className={`w-4 h-4 flex-shrink-0 ${
                 theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
               }`}
             />
-            <button
+            <span
               className={cn(
-                'w-full text-left border-0 bg-transparent text-sm font-medium focus:outline-none cursor-pointer',
+                'text-sm font-medium',
                 theme === 'dark'
-                  ? 'text-gray-100 placeholder-gray-400'
-                  : 'text-gray-900 placeholder-gray-500',
+                  ? 'text-gray-100'
+                  : 'text-gray-900',
                 !value && 'text-muted-foreground'
               )}
             >
               {value ? formatTime(value) : 'Select time'}
-            </button>
-          </div>
+            </span>
+          </button>
         </PopoverTrigger>
         <PopoverContent className="w-[280px] p-0" align="start">
           <div className="p-3 border-b flex justify-between items-center">

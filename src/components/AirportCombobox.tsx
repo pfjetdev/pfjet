@@ -121,22 +121,19 @@ export function AirportCombobox({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <div
-          className="flex items-center space-x-2 h-full cursor-pointer w-full"
+        <button
+          type="button"
+          className="flex items-center space-x-2 h-full cursor-pointer w-full text-left"
           onClick={() => setOpen(true)}
         >
           {icon && <div className="flex-shrink-0">{icon}</div>}
-          <input
-            type="text"
-            placeholder={placeholder}
-            value={value}
-            readOnly
-            className={cn(
-              "w-full border-0 bg-transparent focus:outline-none cursor-pointer",
-              className
-            )}
-          />
-        </div>
+          <span className={cn(
+            "w-full truncate",
+            value ? className : "text-muted-foreground"
+          )}>
+            {value || placeholder}
+          </span>
+        </button>
       </PopoverTrigger>
       <PopoverContent className="w-[450px] p-0" align="start">
         <Command shouldFilter={false}>

@@ -39,7 +39,7 @@ export function PassengerPicker({ value, onChange, maxPassengers = 20, fullCard 
     return (
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <div className="w-full cursor-pointer">
+          <button type="button" className="w-full cursor-pointer text-left">
             <p
               className="text-xs text-gray-500 mb-0.5"
               style={{ fontFamily: 'Montserrat, sans-serif' }}
@@ -53,7 +53,7 @@ export function PassengerPicker({ value, onChange, maxPassengers = 20, fullCard 
               <UserPlus className="w-4 h-4 text-gray-600" />
               <span>{passengers}</span>
             </p>
-          </div>
+          </button>
         </PopoverTrigger>
         <PopoverContent className="w-[280px] p-0" align="start">
           <div className="p-4">
@@ -126,23 +126,26 @@ export function PassengerPicker({ value, onChange, maxPassengers = 20, fullCard 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <div className="flex items-center space-x-2 h-full cursor-pointer w-full">
+        <button
+          type="button"
+          className="flex items-center space-x-2 h-full cursor-pointer w-full text-left"
+        >
           <UserPlus
             className={`w-4 h-4 flex-shrink-0 ${
               theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
             }`}
           />
-          <button
+          <span
             className={cn(
-              'text-left border-0 bg-transparent text-sm font-medium focus:outline-none cursor-pointer',
+              'text-sm font-medium',
               theme === 'dark'
-                ? 'text-gray-100 placeholder-gray-400'
-                : 'text-gray-900 placeholder-gray-500'
+                ? 'text-gray-100'
+                : 'text-gray-900'
             )}
           >
             {passengers}
-          </button>
-        </div>
+          </span>
+        </button>
       </PopoverTrigger>
         <PopoverContent className="w-[280px] p-0" align="start">
           <div className="p-4">
