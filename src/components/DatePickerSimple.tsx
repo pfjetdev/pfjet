@@ -65,18 +65,21 @@ export function DatePickerSimple({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <div className="flex items-center space-x-2 h-full px-2 cursor-pointer">
+        <button
+          type="button"
+          className="flex items-center space-x-2 h-full px-2 cursor-pointer text-left"
+        >
           <CalendarDays className="w-4 h-4 flex-shrink-0 text-muted-foreground" />
-          <button
+          <span
             className={cn(
-              'w-full text-left border-0 bg-transparent text-sm font-medium focus:outline-none cursor-pointer',
+              'text-sm font-medium',
               !date && 'text-muted-foreground'
             )}
             style={{ fontFamily: 'Montserrat, sans-serif' }}
           >
             {date ? formatDate(date) : placeholder}
-          </button>
-        </div>
+          </span>
+        </button>
       </PopoverTrigger>
       <PopoverContent className="w-auto overflow-hidden p-0" align="start">
         <Calendar

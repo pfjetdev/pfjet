@@ -239,22 +239,25 @@ export default function EmptyLegsFilters({ onFilterChange, minPrice = 0, maxPric
         <div className="relative">
           <Popover open={passengersOpen} onOpenChange={setPassengersOpen}>
             <PopoverTrigger asChild>
-              <div className={cn(
-                "h-12 rounded-xl bg-background border transition-all cursor-pointer",
-                passengers !== '1'
-                  ? "border-primary/70 ring-2 ring-primary/10"
-                  : "border-border hover:border-primary/50"
-              )}>
+              <button
+                type="button"
+                className={cn(
+                  "h-12 rounded-xl bg-background border transition-all cursor-pointer w-full text-left",
+                  passengers !== '1'
+                    ? "border-primary/70 ring-2 ring-primary/10"
+                    : "border-border hover:border-primary/50"
+                )}
+              >
                 <div className="flex items-center space-x-2 h-full px-2">
                   <UserPlus className="w-4 h-4 flex-shrink-0 text-muted-foreground" />
-                  <button
-                    className="w-full text-left border-0 bg-transparent text-sm font-medium focus:outline-none cursor-pointer"
+                  <span
+                    className="text-sm font-medium"
                     style={{ fontFamily: 'Montserrat, sans-serif' }}
                   >
                     {passengers} {parseInt(passengers) === 1 ? 'passenger' : 'passengers'}
-                  </button>
+                  </span>
                 </div>
-              </div>
+              </button>
             </PopoverTrigger>
           <PopoverContent className="w-[280px] p-0" align="start">
             <div className="p-3 border-b">

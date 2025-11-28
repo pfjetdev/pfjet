@@ -142,7 +142,10 @@ export default function EmptyLegHeroBlock({
           {/* Passengers - Editable */}
           <Popover open={desktopPickerOpen} onOpenChange={setDesktopPickerOpen}>
             <PopoverTrigger asChild>
-              <div className="flex items-center gap-2 sm:gap-3 cursor-pointer hover:opacity-80 transition-opacity">
+              <button
+                type="button"
+                className="flex items-center gap-2 sm:gap-3 cursor-pointer hover:opacity-80 transition-opacity text-left"
+              >
                 <Users className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" />
                 <div>
                   <p
@@ -158,7 +161,7 @@ export default function EmptyLegHeroBlock({
                     Click to change (up to {passengers})
                   </p>
                 </div>
-              </div>
+              </button>
             </PopoverTrigger>
             <PopoverContent className="w-[280px] p-0" align="start">
               <div className="p-4">
