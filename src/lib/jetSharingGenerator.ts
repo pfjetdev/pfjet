@@ -540,6 +540,131 @@ export async function generateAllJetSharingFlights(count: number = 100): Promise
 }
 
 /**
+ * Generate future dates with a specific seed
+ */
+function generateFutureDatesWithSeed(random: () => number, count: number, seed: number): Date[] {
+  const dates: Date[] = []
+  // Convert seed to date (format: YYYYMMDD)
+  const year = Math.floor(seed / 10000)
+  const month = Math.floor((seed % 10000) / 100) - 1
+  const day = seed % 100
+  const baseDate = new Date(year, month, day)
+  baseDate.setHours(0, 0, 0, 0)
+
+  for (let i = 0; i < count; i++) {
+    const daysAhead = 2 + Math.floor(random() * 13)
+    const date = new Date(baseDate)
+    date.setDate(date.getDate() + daysAhead)
+    dates.push(date)
+  }
+
+  return dates.sort((a, b) => a.getTime() - b.getTime())
+}
+
+/**
+ * Generate all Jet Sharing flights with a specific seed (for ID lookup)
+ */
+async function generateAllJetSharingFlightsWithSeed(count: number, seed: number): Promise<JetSharingFlight[]> {
+  const random = seededRandom(seed)
+
+  // Fetch routes and aircraft in parallel
+  const [routes, { data: aircraftData }] = await Promise.all([
+    fetchJetSharingRoutesFromSupabase(count),
+    supabase
+      .from('aircraft')
+      .select('id, name, slug, category, category_slug, image, passengers, range, speed')
+  ])
+
+  if (!routes || routes.length === 0) {
+    return []
+  }
+
+  if (!aircraftData || aircraftData.length === 0) {
+    return []
+  }
+
+  // Generate dates using the provided seed
+  const dates = generateFutureDatesWithSeed(random, routes.length, seed)
+
+  // Generate flights from database routes
+  const flights: JetSharingFlight[] = []
+
+  for (let i = 0; i < routes.length; i++) {
+    const route = routes[i]
+
+    if (!route.from_city || !route.to_city) {
+      continue
+    }
+
+    const fromAirportData = findAirportDataByCityName(route.from_city.name)
+    const toAirportData = findAirportDataByCityName(route.to_city.name)
+
+    const fromAirport: Airport = {
+      city: route.from_city.name,
+      code: fromAirportData?.code || route.from_city.name.substring(0, 3).toUpperCase(),
+      country: route.from_city.country_code === 'US' ? 'United States' : route.from_city.country_code,
+      countryCode: route.from_city.country_code,
+      lat: fromAirportData?.lat || 0,
+      lng: fromAirportData?.lon || 0,
+      image: route.from_city.image || undefined,
+      timezone: CITY_TIMEZONES[route.from_city.name] || 'UTC',
+    }
+
+    const toAirport: Airport = {
+      city: route.to_city.name,
+      code: toAirportData?.code || route.to_city.name.substring(0, 3).toUpperCase(),
+      country: route.to_city.country_code === 'US' ? 'United States' : route.to_city.country_code,
+      countryCode: route.to_city.country_code,
+      lat: toAirportData?.lat || 0,
+      lng: toAirportData?.lon || 0,
+      image: route.to_city.image || undefined,
+      timezone: CITY_TIMEZONES[route.to_city.name] || 'UTC',
+    }
+
+    const categoryAircraft = aircraftData.filter(a => a.category === route.aircraft_category)
+    const aircraft = categoryAircraft.length > 0
+      ? categoryAircraft[Math.floor(random() * categoryAircraft.length)]
+      : aircraftData[Math.floor(random() * aircraftData.length)]
+
+    const distanceNm = route.distance_nm || 0
+    const pricePerSeat = calculatePricePerSeat(distanceNm, aircraft.category, random)
+    const totalSeats = getSeatsByCategory(aircraft.category, random)
+    const availableSeats = Math.max(1, Math.floor(totalSeats * (0.2 + random() * 0.6)))
+    const flightDuration = convertDuration(route.duration)
+    const departureTime = generateDepartureTime(random)
+    const arrivalTime = calculateArrivalTime(departureTime, flightDuration)
+
+    flights.push({
+      id: `js-${seed}-${route.id}`,
+      from: fromAirport,
+      to: toAirport,
+      departureDate: formatDateString(dates[i % dates.length]),
+      departureTime,
+      arrivalTime,
+      aircraft: {
+        id: aircraft.id,
+        name: aircraft.name,
+        slug: aircraft.slug,
+        category: aircraft.category,
+        categorySlug: aircraft.category_slug,
+        image: aircraft.image || '/placeholder-jet.jpg',
+        passengers: aircraft.passengers,
+        range: aircraft.range,
+        speed: aircraft.speed,
+      },
+      totalSeats,
+      availableSeats,
+      pricePerSeat,
+      flightDuration,
+      status: 'available',
+      isFeatured: random() > 0.85,
+    })
+  }
+
+  return flights
+}
+
+/**
  * Get a specific Jet Sharing flight by ID
  * @param id - Flight ID in format "js-{seed}-{route_uuid}"
  */
@@ -550,8 +675,15 @@ export async function getJetSharingFlightById(id: string): Promise<JetSharingFli
       return null
     }
 
-    // Generate all flights for today's seed
-    const allFlights = await generateAllJetSharingFlights(100)
+    // Extract seed from ID to ensure we generate with the same seed
+    const parts = id.split('-')
+    if (parts.length < 3) {
+      return null
+    }
+    const seedFromId = parseInt(parts[1])
+
+    // Generate flights with the seed from the ID
+    const allFlights = await generateAllJetSharingFlightsWithSeed(100, seedFromId)
 
     // Find the flight with matching ID
     return allFlights.find(flight => flight.id === id) || null
