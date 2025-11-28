@@ -1,6 +1,7 @@
 import { JetSharingFlight, Airport } from '@/types/jetSharing'
 import { supabase } from './supabase'
 import airportsData from '@/data/airports-full.json'
+import { formatDateString } from './dateUtils'
 
 // Type for routes from Supabase
 interface JetSharingRouteDB {
@@ -311,15 +312,16 @@ function calculateArrivalTime(departureTime: string, duration: string): string {
 // Filter past flights
 function filterPastFlights(flights: JetSharingFlight[]): JetSharingFlight[] {
   const now = new Date()
+  const todayStr = formatDateString(now)
 
   return flights.filter(flight => {
     const departureDateTime = new Date(`${flight.departureDate}T${flight.departureTime}`)
 
-    if (flight.departureDate === now.toISOString().split('T')[0]) {
+    if (flight.departureDate === todayStr) {
       return departureDateTime > now
     }
 
-    return new Date(flight.departureDate) >= new Date(now.toISOString().split('T')[0])
+    return flight.departureDate >= todayStr
   })
 }
 
@@ -449,8 +451,8 @@ export async function generateDynamicJetSharingFlights(count: number = 50): Prom
     const departureTime = generateDepartureTime(random)
     const arrivalTime = calculateArrivalTime(departureTime, duration)
 
-    // Generate departure date
-    const departureDate = dates[i % dates.length].toISOString().split('T')[0]
+    // Generate departure date using formatDateString to avoid timezone issues
+    const departureDate = formatDateString(dates[i % dates.length])
 
     // Create ID using route UUID (КАК В EMPTY LEGS - БЕЗ индекса!)
     // Format: js-{seed}-{routeUUID}

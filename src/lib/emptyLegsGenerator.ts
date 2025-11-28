@@ -1,6 +1,7 @@
 import { EmptyLeg, Airport } from '@/types/emptyLegs'
 import { supabase } from './supabase'
 import airportsData from '@/data/airports-full.json'
+import { formatDateString } from './dateUtils'
 
 // Type for routes from Supabase
 interface EmptyLegRouteDB {
@@ -262,17 +263,18 @@ const CITY_TIMEZONES: Record<string, string> = {
 // Filter out flights that have already departed
 function filterPastFlights(emptyLegs: EmptyLeg[]): EmptyLeg[] {
   const now = new Date()
+  const todayStr = formatDateString(now)
 
   return emptyLegs.filter(leg => {
     const departureDateTime = new Date(`${leg.departureDate}T${leg.departureTime}`)
 
     // If the flight is today, check if departure time has passed
-    if (leg.departureDate === now.toISOString().split('T')[0]) {
+    if (leg.departureDate === todayStr) {
       return departureDateTime > now
     }
 
     // For future dates, include all flights
-    return new Date(leg.departureDate) >= new Date(now.toISOString().split('T')[0])
+    return leg.departureDate >= todayStr
   })
 }
 
@@ -734,7 +736,7 @@ export async function generateEmptyLegsFromCity(userCity: string = 'JFK', count:
       id: `el-${seed}-${i}`,
       from: fromAirport,
       to: toAirport,
-      departureDate: dates[i].toISOString().split('T')[0],
+      departureDate: formatDateString(dates[i]),
       departureTime,
       arrivalTime,
       aircraft: {
@@ -853,7 +855,7 @@ export async function generateAllEmptyLegs(count: number = 100): Promise<EmptyLe
       id: `el-${seed}-${route.id}`,
       from: fromAirport,
       to: toAirport,
-      departureDate: dates[i % dates.length].toISOString().split('T')[0],
+      departureDate: formatDateString(dates[i % dates.length]),
       departureTime,
       arrivalTime,
       aircraft: {

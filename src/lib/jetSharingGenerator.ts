@@ -1,6 +1,7 @@
 import { JetSharingFlight, Airport } from '@/types/jetSharing'
 import { supabase } from './supabase'
 import airportsData from '@/data/airports-full.json'
+import { formatDateString } from './dateUtils'
 
 // Type for routes from Supabase
 interface JetSharingRouteDB {
@@ -243,17 +244,18 @@ async function fetchJetSharingRoutesFromSupabase(limit: number = 100): Promise<J
 // Filter out flights that have already departed
 function filterPastFlights(flights: JetSharingFlight[]): JetSharingFlight[] {
   const now = new Date()
+  const todayStr = formatDateString(now)
 
   return flights.filter(flight => {
     const departureDateTime = new Date(`${flight.departureDate}T${flight.departureTime}`)
 
     // If the flight is today, check if departure time has passed
-    if (flight.departureDate === now.toISOString().split('T')[0]) {
+    if (flight.departureDate === todayStr) {
       return departureDateTime > now
     }
 
     // For future dates, include all flights
-    return new Date(flight.departureDate) >= new Date(now.toISOString().split('T')[0])
+    return flight.departureDate >= todayStr
   })
 }
 
@@ -508,7 +510,7 @@ export async function generateAllJetSharingFlights(count: number = 100): Promise
       id: `js-${seed}-${route.id}`,
       from: fromAirport,
       to: toAirport,
-      departureDate: dates[i % dates.length].toISOString().split('T')[0],
+      departureDate: formatDateString(dates[i % dates.length]),
       departureTime,
       arrivalTime,
       aircraft: {
