@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { FormProvider } from "@/contexts/FormContext";
@@ -18,7 +19,15 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
   display: "swap",
-  preload: false, // Not critical for initial render
+  preload: false,
+});
+
+// Load Clash Display using next/font for optimal loading
+const clashDisplay = localFont({
+  src: "./ClashDisplay-Variable.ttf",
+  variable: "--font-clash-display",
+  display: "swap",
+  preload: true,
 });
 
 export const viewport: Viewport = {
@@ -44,27 +53,21 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Preload critical fonts */}
+        {/* Preload Clash Display font with highest priority */}
         <link
           rel="preload"
           href="/ClashDisplay-Variable.ttf"
           as="font"
           type="font/ttf"
           crossOrigin="anonymous"
-        />
-        {/* Preload hero images */}
-        <link
-          rel="preload"
-          href="/day.jpg"
-          as="image"
-          type="image/jpeg"
+          fetchPriority="high"
         />
         {/* DNS prefetch for external resources */}
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
         <link rel="dns-prefetch" href="https://images.pexels.com" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${clashDisplay.variable} antialiased`}
       >
         <ThemeProvider
           attribute="class"

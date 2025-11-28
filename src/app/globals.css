@@ -1,11 +1,12 @@
 @import "tailwindcss";
 
+/* Clash Display font - use optional to prevent render blocking */
 @font-face {
   font-family: 'Clash Display';
-  src: url('./ClashDisplay-Variable.ttf') format('truetype');
+  src: url('/ClashDisplay-Variable.ttf') format('truetype');
   font-weight: 100 900;
   font-style: normal;
-  font-display: swap;
+  font-display: optional; /* Skip font if not loaded within ~100ms */
 }
 
 @custom-variant dark (&:is(.dark *));

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { MoveRight, Plane, Car, Hotel, Gift, X, Check, Phone, ArrowUpRight } from 'lucide-react'
 import {
   Dialog,
@@ -396,10 +397,14 @@ function PackageContent({ pkg }: { pkg: typeof packages[0] }) {
   return (
     <div className="space-y-6">
       {/* Hero Image */}
-      <div
-        className="relative h-48 rounded-xl bg-cover bg-center overflow-hidden"
-        style={{ backgroundImage: `url(${pkg.image})` }}
-      >
+      <div className="relative h-48 rounded-xl overflow-hidden">
+        <Image
+          src={pkg.image}
+          alt={pkg.title}
+          fill
+          className="object-cover object-center"
+          sizes="(max-width: 768px) 100vw, 400px"
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
         <div className="absolute bottom-4 left-4 flex items-center gap-3">
           <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
@@ -562,9 +567,15 @@ export default function PackagesSection() {
                 <div
                   key={pkg.id}
                   onClick={() => handlePackageClick(pkg)}
-                  className="relative bg-cover bg-center bg-no-repeat rounded-xl overflow-hidden cursor-pointer active:scale-[0.98] md:hover:scale-[1.02] transition-all duration-300 group"
-                  style={{ backgroundImage: `url(${pkg.image})` }}
+                  className="relative rounded-xl overflow-hidden cursor-pointer active:scale-[0.98] md:hover:scale-[1.02] transition-all duration-300 group"
                 >
+                  <Image
+                    src={pkg.image}
+                    alt={pkg.title}
+                    fill
+                    className="object-cover object-center"
+                    sizes="(max-width: 768px) 50vw, 25vw"
+                  />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent group-hover:from-black/80 transition-all" />
 
                   {/* Icon badge */}

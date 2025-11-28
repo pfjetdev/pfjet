@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { ChevronDown, MoveRight, Check } from "lucide-react";
 import {
   Select,
@@ -301,10 +302,12 @@ export default function DestinationsSection() {
                         className="block"
                       >
                         <div className="relative h-48 md:h-64 rounded-lg overflow-hidden group cursor-pointer active:scale-[0.98] md:hover:scale-[1.02] transition-transform duration-300">
-                          <img
+                          <Image
                             src={city.image || '/placeholder-city.jpg'}
                             alt={city.name}
-                            className="absolute inset-0 w-full h-full object-cover"
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 640px) 60vw, (max-width: 768px) 48vw, (max-width: 1024px) 33vw, 25vw"
                           />
                           <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors duration-300" />
                           <div className="absolute bottom-2 md:bottom-4 left-2 md:left-4 text-white">
