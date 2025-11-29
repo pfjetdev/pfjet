@@ -50,14 +50,14 @@ export default function EmptyLegHeroBlock({
   const [desktopPickerOpen, setDesktopPickerOpen] = useState(false);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 
-  // For Jet Sharing, use external state; for Empty Legs, use internal state
-  const selectedPassengers = isJetSharing && externalSelectedPassengers !== undefined
+  // Use external state if provided, otherwise use internal state
+  const selectedPassengers = externalSelectedPassengers !== undefined
     ? externalSelectedPassengers.toString()
     : internalSelectedPassengers;
   const passengersCount = parseInt(selectedPassengers) || 1;
 
   const updatePassengers = (newCount: string) => {
-    if (isJetSharing && onPassengersChange) {
+    if (onPassengersChange) {
       onPassengersChange(parseInt(newCount) || 1);
     } else {
       setInternalSelectedPassengers(newCount);

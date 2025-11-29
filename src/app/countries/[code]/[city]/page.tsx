@@ -7,15 +7,22 @@ import { useParams, useRouter } from 'next/navigation'
 import { AirportCombobox } from '@/components/AirportCombobox'
 import { DateTimePicker } from '@/components/DateTimePicker'
 import { PassengerPicker } from '@/components/PassengerPicker'
-import { PlaneTakeoff, PlaneLanding, ArrowLeft } from 'lucide-react'
+import { MobileAirportPickerNew as MobileAirportPicker } from '@/components/MobileAirportPickerNew'
+import { MobileDatePicker } from '@/components/MobileDatePicker'
+import { MobileTimePicker } from '@/components/MobileTimePicker'
+import { MobilePassengerPicker } from '@/components/MobilePassengerPicker'
+import { PlaneTakeoff, PlaneLanding, ArrowLeft, Plane } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import Footer from '@/components/Footer'
 import ImageWithFallback from '@/components/ImageWithFallback'
 import { Skeleton } from '@/components/ui/skeleton'
 import { supabase, type Country, type City } from '@/lib/supabase'
+import { useIsMobile } from '@/hooks/useIsMobile'
 
 export default function CityDetailPage() {
   const { resolvedTheme } = useTheme()
   const params = useParams()
+  const isMobile = useIsMobile()
 
   // Use dark theme as default to prevent flash
   const theme = resolvedTheme || 'dark'
@@ -264,101 +271,172 @@ export default function CityDetailPage() {
 
             {/* Right Column - Search Form */}
             <div className="lg:w-[380px]">
-              <div className={`rounded-xl p-6 sticky top-6 ${
-                theme === 'dark' ? 'bg-gray-800/50 border border-gray-700' : 'bg-gray-50 border border-gray-200'
-              }`}>
-                <h3 className={`text-xl font-semibold mb-6 ${
-                  theme === 'dark' ? 'text-white' : 'text-gray-900'
-                }`} style={{ fontFamily: 'Clash Display, sans-serif' }}>
-                  Book Your Flight
-                </h3>
+              {/* Mobile Form - Same style as homepage */}
+              {isMobile ? (
+                <div className="space-y-3">
+                  {/* From and To Fields Container */}
+                  <div className={cn(
+                    "rounded-xl overflow-hidden relative",
+                    "bg-[#0F142E] dark:bg-white"
+                  )}>
+                    {/* From Field */}
+                    <div className="relative px-4 pt-4 pb-3">
+                      <label className="text-xs mb-1 block text-white/60 dark:text-gray-600">
+                        From
+                      </label>
+                      <div className="text-2xl font-semibold text-white dark:text-gray-900">
+                        <MobileAirportPicker
+                          value={from}
+                          onValueChange={setFrom}
+                          placeholder="ex. Amsterdam, AMS"
+                          label="Departure Airport"
+                          fieldType="from"
+                        />
+                      </div>
+                    </div>
 
-                <div className="space-y-4">
-                  {/* From Field */}
-                  <div>
-                    <label className={`block text-sm font-medium mb-2 ${
-                      theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
-                    }`}>
-                      From
-                    </label>
-                    <div className={`rounded-lg border px-3 py-2.5 ${
-                      theme === 'dark' ? 'border-gray-600' : 'border-gray-300'
-                    }`}>
-                      <AirportCombobox
-                        value={from}
-                        onValueChange={setFrom}
-                        placeholder="Departure city"
-                        icon={<PlaneTakeoff className="w-4 h-4" />}
-                        fieldType="from"
-                      />
+                    {/* Divider */}
+                    <div className="h-px mx-4 bg-white/10 dark:bg-gray-200" />
+
+                    {/* To Field - Pre-filled */}
+                    <div className="relative px-4 pt-3 pb-4">
+                      <label className="text-xs mb-1 block text-white/60 dark:text-gray-600">
+                        Going to
+                      </label>
+                      <div className="text-xl font-semibold text-white dark:text-gray-900 flex items-center gap-2">
+                        <PlaneLanding className="w-5 h-5 text-white/60 dark:text-gray-500" />
+                        <span>{city.name}, {countryCode}</span>
+                      </div>
                     </div>
                   </div>
 
-                  {/* To Field - Pre-filled */}
-                  <div>
-                    <label className={`block text-sm font-medium mb-2 ${
-                      theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
-                    }`}>
-                      To
-                    </label>
-                    <div className={`rounded-lg border px-4 py-3 flex items-center gap-3 ${
-                      theme === 'dark'
-                        ? 'border-gray-600 bg-gray-700/50'
-                        : 'border-gray-300 bg-gray-100'
-                    }`}>
-                      <PlaneLanding className="w-4 h-4" />
-                      <span className={theme === 'dark' ? 'text-gray-200' : 'text-gray-900'}>
-                        {city.name}, {countryCode}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Date & Time */}
-                  <div>
-                    <label className={`block text-sm font-medium mb-2 ${
-                      theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
-                    }`}>
-                      Date & Time
-                    </label>
-                    <div className={`rounded-lg border px-3 py-2.5 ${
-                      theme === 'dark' ? 'border-gray-600' : 'border-gray-300'
-                    }`}>
-                      <DateTimePicker
-                        date={date}
-                        time={time}
-                        onDateChange={setDate}
-                        onTimeChange={setTime}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Passengers */}
-                  <div>
-                    <label className={`block text-sm font-medium mb-2 ${
-                      theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
-                    }`}>
-                      Passengers
-                    </label>
-                    <div className={`rounded-lg border px-3 py-2.5 ${
-                      theme === 'dark' ? 'border-gray-600' : 'border-gray-300'
-                    }`}>
-                      <PassengerPicker
-                        value={passengers}
-                        onChange={setPassengers}
-                      />
-                    </div>
+                  {/* Date, Time and Passengers - Three Columns */}
+                  <div className="grid grid-cols-3 gap-2">
+                    <MobileDatePicker
+                      date={date}
+                      onDateChange={setDate}
+                      compact
+                    />
+                    <MobileTimePicker
+                      time={time}
+                      onTimeChange={setTime}
+                      compact
+                    />
+                    <MobilePassengerPicker
+                      value={passengers}
+                      onChange={setPassengers}
+                      compact
+                    />
                   </div>
 
                   {/* Search Button */}
                   <button
                     onClick={handleSearch}
-                    className="w-full text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 hover:opacity-90 mt-6"
+                    className="w-full text-white px-6 py-4 rounded-xl font-medium transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:opacity-90"
                     style={{ backgroundColor: 'var(--brand-red)' }}
                   >
-                    Search a Flight
+                    <span>Search a Jet</span>
+                    <Plane className="w-5 h-5 rotate-45" />
                   </button>
                 </div>
-              </div>
+              ) : (
+                /* Desktop Form */
+                <div className={`rounded-xl p-6 sticky top-6 ${
+                  theme === 'dark' ? 'bg-gray-800/50 border border-gray-700' : 'bg-gray-50 border border-gray-200'
+                }`}>
+                  <h3 className={`text-xl font-semibold mb-6 ${
+                    theme === 'dark' ? 'text-white' : 'text-gray-900'
+                  }`} style={{ fontFamily: 'Clash Display, sans-serif' }}>
+                    Book Your Flight
+                  </h3>
+
+                  <div className="space-y-4">
+                    {/* From Field */}
+                    <div>
+                      <label className={`block text-sm font-medium mb-2 ${
+                        theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+                      }`}>
+                        From
+                      </label>
+                      <div className={`rounded-lg border px-3 py-2.5 ${
+                        theme === 'dark' ? 'border-gray-600' : 'border-gray-300'
+                      }`}>
+                        <AirportCombobox
+                          value={from}
+                          onValueChange={setFrom}
+                          placeholder="Departure city"
+                          icon={<PlaneTakeoff className="w-4 h-4" />}
+                          fieldType="from"
+                        />
+                      </div>
+                    </div>
+
+                    {/* To Field - Pre-filled */}
+                    <div>
+                      <label className={`block text-sm font-medium mb-2 ${
+                        theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+                      }`}>
+                        To
+                      </label>
+                      <div className={`rounded-lg border px-4 py-3 flex items-center gap-3 ${
+                        theme === 'dark'
+                          ? 'border-gray-600 bg-gray-700/50'
+                          : 'border-gray-300 bg-gray-100'
+                      }`}>
+                        <PlaneLanding className="w-4 h-4" />
+                        <span className={theme === 'dark' ? 'text-gray-200' : 'text-gray-900'}>
+                          {city.name}, {countryCode}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Date & Time */}
+                    <div>
+                      <label className={`block text-sm font-medium mb-2 ${
+                        theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+                      }`}>
+                        Date & Time
+                      </label>
+                      <div className={`rounded-lg border px-3 py-2.5 ${
+                        theme === 'dark' ? 'border-gray-600' : 'border-gray-300'
+                      }`}>
+                        <DateTimePicker
+                          date={date}
+                          time={time}
+                          onDateChange={setDate}
+                          onTimeChange={setTime}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Passengers */}
+                    <div>
+                      <label className={`block text-sm font-medium mb-2 ${
+                        theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+                      }`}>
+                        Passengers
+                      </label>
+                      <div className={`rounded-lg border px-3 py-2.5 ${
+                        theme === 'dark' ? 'border-gray-600' : 'border-gray-300'
+                      }`}>
+                        <PassengerPicker
+                          value={passengers}
+                          onChange={setPassengers}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Search Button */}
+                    <button
+                      onClick={handleSearch}
+                      className="w-full text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 hover:opacity-90 mt-6"
+                      style={{ backgroundColor: 'var(--brand-red)' }}
+                    >
+                      Search a Flight
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

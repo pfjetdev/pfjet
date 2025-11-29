@@ -1055,6 +1055,13 @@ export default function JetDetailClient({
         <CreateOrderForm
           jetName={aircraft.name}
           price={`$ ${estimatedPrice.toLocaleString()}`}
+          fromLocation={fromAirport.city}
+          toLocation={toAirport.city}
+          departureDate={date ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}` : undefined}
+          departureTime={time}
+          selectedPassengers={passengers}
+          productId={aircraft.id}
+          productType="charter"
         />
       </div>
       </div>
@@ -1091,6 +1098,13 @@ export default function JetDetailClient({
         price={`$ ${estimatedPrice.toLocaleString()}`}
         open={orderDrawerOpen}
         onOpenChange={setOrderDrawerOpen}
+        fromLocation={fromAirport.city}
+        toLocation={toAirport.city}
+        departureDate={date ? date.toISOString().split('T')[0] : undefined}
+        departureTime={time}
+        selectedPassengers={passengers}
+        productId={aircraft.id}
+        productType="charter"
       />
 
       {/* Lightbox Dialog */}

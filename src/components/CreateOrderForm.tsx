@@ -1,7 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowUpRight, ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowUpRight, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { submitOrder, type OrderType } from '@/lib/supabase-client';
 
 interface CreateOrderFormProps {
   jetName: string;
@@ -10,6 +12,14 @@ interface CreateOrderFormProps {
   isJetSharing?: boolean;
   availableSeats?: number;
   selectedPassengers?: number;
+  // Flight details for charter orders
+  fromLocation?: string;
+  toLocation?: string;
+  departureDate?: string;
+  departureTime?: string;
+  // Product info
+  productId?: string;
+  productType?: 'empty_leg' | 'jet_sharing' | 'charter';
 }
 
 export default function CreateOrderForm({
@@ -18,7 +28,13 @@ export default function CreateOrderForm({
   hideTitle = false,
   isJetSharing = false,
   availableSeats = 1,
-  selectedPassengers = 1
+  selectedPassengers = 1,
+  fromLocation,
+  toLocation,
+  departureDate,
+  departureTime,
+  productId,
+  productType = 'charter',
 }: CreateOrderFormProps) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -26,14 +42,55 @@ export default function CreateOrderForm({
   const [countryCode, setCountryCode] = useState('+1');
   const [orderConditionsOpen, setOrderConditionsOpen] = useState(false);
   const [cancellationPolicyOpen, setCancellationPolicyOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Extract price number from string (e.g., "$ 2,340" -> 2340)
   const pricePerSeat = parseFloat(price.replace(/[^0-9.]/g, ''));
   const totalPrice = isJetSharing ? pricePerSeat * selectedPassengers : pricePerSeat;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Order created:', { jetName, name, email, phone: `${countryCode}${phone}`, price });
+
+    if (!name || !email || !phone) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    const orderType: OrderType = isJetSharing ? 'jet_sharing' : productType === 'empty_leg' ? 'empty_leg' : 'charter';
+
+    const result = await submitOrder({
+      name,
+      email,
+      phone: `${countryCode}${phone}`,
+      order_type: orderType,
+      from_location: fromLocation,
+      to_location: toLocation,
+      departure_date: departureDate,
+      departure_time: departureTime,
+      passengers: selectedPassengers,
+      product_id: productId,
+      product_name: jetName,
+      product_type: productType,
+      price: totalPrice,
+    });
+
+    setIsSubmitting(false);
+
+    if (result.success) {
+      toast.success('Order submitted successfully!', {
+        description: 'We will contact you shortly to confirm your booking.',
+      });
+      // Reset form
+      setName('');
+      setEmail('');
+      setPhone('');
+    } else {
+      toast.error('Failed to submit order', {
+        description: result.error || 'Please try again later.',
+      });
+    }
   };
 
   return (
@@ -154,16 +211,21 @@ export default function CreateOrderForm({
         {/* Submit Button */}
         <button
           type="submit"
-          className="w-full flex items-center justify-between px-6 py-4 bg-[#DF1F3D] hover:bg-[#c91a35] text-white rounded-full transition-all duration-200 active:scale-95 shadow-lg hover:shadow-xl group"
+          disabled={isSubmitting}
+          className="w-full flex items-center justify-between px-6 py-4 bg-[#DF1F3D] hover:bg-[#c91a35] text-white rounded-full transition-all duration-200 active:scale-95 shadow-lg hover:shadow-xl group disabled:opacity-70 disabled:cursor-not-allowed"
         >
           <span
             className="text-sm font-bold tracking-wider uppercase"
             style={{ fontFamily: 'Montserrat, sans-serif' }}
           >
-            Create Order
+            {isSubmitting ? 'Submitting...' : 'Create Order'}
           </span>
           <div className="w-6 h-6 bg-white text-[#DF1F3D] rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-            <ArrowUpRight className="w-4 h-4" strokeWidth={3} />
+            {isSubmitting ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <ArrowUpRight className="w-4 h-4" strokeWidth={3} />
+            )}
           </div>
         </button>
 

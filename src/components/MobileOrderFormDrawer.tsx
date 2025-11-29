@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { X, ArrowUpRight, ChevronDown, ChevronUp, User, Mail, Phone, CreditCard } from 'lucide-react'
+import { X, ArrowUpRight, ChevronDown, User, Mail, Phone, CreditCard, Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
 import {
   Drawer,
   DrawerContent,
@@ -10,6 +11,7 @@ import {
   DrawerClose,
 } from '@/components/ui/drawer'
 import { cn } from '@/lib/utils'
+import { submitOrder, type OrderType } from '@/lib/supabase-client'
 
 interface MobileOrderFormDrawerProps {
   jetName: string
@@ -19,6 +21,14 @@ interface MobileOrderFormDrawerProps {
   isJetSharing?: boolean
   availableSeats?: number
   selectedPassengers?: number
+  // Flight details
+  fromLocation?: string
+  toLocation?: string
+  departureDate?: string
+  departureTime?: string
+  // Product info
+  productId?: string
+  productType?: 'empty_leg' | 'jet_sharing' | 'charter'
 }
 
 export default function MobileOrderFormDrawer({
@@ -29,6 +39,12 @@ export default function MobileOrderFormDrawer({
   isJetSharing = false,
   availableSeats = 1,
   selectedPassengers = 1,
+  fromLocation,
+  toLocation,
+  departureDate,
+  departureTime,
+  productId,
+  productType = 'charter',
 }: MobileOrderFormDrawerProps) {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -36,15 +52,56 @@ export default function MobileOrderFormDrawer({
   const [countryCode, setCountryCode] = useState('+1')
   const [orderConditionsOpen, setOrderConditionsOpen] = useState(false)
   const [cancellationPolicyOpen, setCancellationPolicyOpen] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Extract price number from string (e.g., "$ 2,340" -> 2340)
   const pricePerSeat = parseFloat(price.replace(/[^0-9.]/g, ''))
   const totalPrice = isJetSharing ? pricePerSeat * selectedPassengers : pricePerSeat
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Order created:', { jetName, name, email, phone: `${countryCode}${phone}`, price })
-    onOpenChange(false)
+
+    if (!name || !email || !phone) {
+      toast.error('Please fill in all required fields')
+      return
+    }
+
+    setIsSubmitting(true)
+
+    const orderType: OrderType = isJetSharing ? 'jet_sharing' : productType === 'empty_leg' ? 'empty_leg' : 'charter'
+
+    const result = await submitOrder({
+      name,
+      email,
+      phone: `${countryCode}${phone}`,
+      order_type: orderType,
+      from_location: fromLocation,
+      to_location: toLocation,
+      departure_date: departureDate,
+      departure_time: departureTime,
+      passengers: selectedPassengers,
+      product_id: productId,
+      product_name: jetName,
+      product_type: productType,
+      price: totalPrice,
+    })
+
+    setIsSubmitting(false)
+
+    if (result.success) {
+      toast.success('Order submitted successfully!', {
+        description: 'We will contact you shortly to confirm your booking.',
+      })
+      // Reset form and close drawer
+      setName('')
+      setEmail('')
+      setPhone('')
+      onOpenChange(false)
+    } else {
+      toast.error('Failed to submit order', {
+        description: result.error || 'Please try again later.',
+      })
+    }
   }
 
   return (
@@ -179,16 +236,21 @@ export default function MobileOrderFormDrawer({
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-[#DF1F3D] hover:bg-[#c91a35] text-white rounded-full transition-all duration-200 active:scale-[0.98] shadow-lg hover:shadow-xl"
+              disabled={isSubmitting}
+              className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-[#DF1F3D] hover:bg-[#c91a35] text-white rounded-full transition-all duration-200 active:scale-[0.98] shadow-lg hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed"
             >
               <span
                 className="text-sm font-bold tracking-wider uppercase"
                 style={{ fontFamily: 'Montserrat, sans-serif' }}
               >
-                Create Order
+                {isSubmitting ? 'Submitting...' : 'Create Order'}
               </span>
               <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
-                <ArrowUpRight className="w-4 h-4" strokeWidth={2.5} />
+                {isSubmitting ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <ArrowUpRight className="w-4 h-4" strokeWidth={2.5} />
+                )}
               </div>
             </button>
 

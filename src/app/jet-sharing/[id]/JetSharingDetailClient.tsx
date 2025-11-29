@@ -91,11 +91,17 @@ export default function JetSharingDetailClient({
         {/* Right Column - Order Form - Desktop Only */}
         <div className="hidden lg:block">
           <CreateOrderForm
-            jetName={`${flight.from.city} - ${flight.to.city}`}
+            jetName={`Jet Sharing: ${flight.from.city} → ${flight.to.city}`}
             price={`$ ${flight.pricePerSeat.toLocaleString()}`}
             isJetSharing={true}
             availableSeats={flight.availableSeats}
             selectedPassengers={selectedPassengers}
+            fromLocation={flight.from.city}
+            toLocation={flight.to.city}
+            departureDate={flight.departureDate}
+            departureTime={flight.departureTime}
+            productId={flight.id}
+            productType="jet_sharing"
           />
         </div>
       </div>
@@ -109,13 +115,19 @@ export default function JetSharingDetailClient({
 
       {/* Mobile Order Form Drawer */}
       <MobileOrderFormDrawer
-        jetName={`${flight.from.city} - ${flight.to.city}`}
+        jetName={`Jet Sharing: ${flight.from.city} → ${flight.to.city}`}
         price={`$ ${flight.pricePerSeat.toLocaleString()}`}
         open={isDrawerOpen}
         onOpenChange={setIsDrawerOpen}
         isJetSharing={true}
         availableSeats={flight.availableSeats}
         selectedPassengers={selectedPassengers}
+        fromLocation={flight.from.city}
+        toLocation={flight.to.city}
+        departureDate={flight.departureDate}
+        departureTime={flight.departureTime}
+        productId={flight.id}
+        productType="jet_sharing"
       />
     </>
   )

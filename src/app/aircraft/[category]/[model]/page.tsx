@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import Footer from "@/components/Footer";
 import {
@@ -536,9 +537,11 @@ export default function AircraftModelPage() {
                   ))}
 
                   <div className="pt-4 border-t border-border">
-                    <Button className="w-full" size="lg">
-                      Request a Quote
-                    </Button>
+                    <Link href="/contact">
+                      <Button className="w-full" size="lg">
+                        Request a Quote
+                      </Button>
+                    </Link>
                   </div>
                 </CardContent>
               </Card>

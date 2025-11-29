@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { toast } from 'sonner';
 import Footer from '@/components/Footer';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -18,6 +19,7 @@ import {
   CheckCircle,
   Plane
 } from 'lucide-react';
+import { submitContactForm } from '@/lib/supabase-client';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -37,14 +39,31 @@ export default function ContactPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!formData.name || !formData.email || !formData.message) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
     setIsSubmitting(true);
 
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    const result = await submitContactForm({
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      message: `Subject: ${formData.subject}\n\n${formData.message}`,
+    });
 
     setIsSubmitting(false);
-    setIsSubmitted(true);
-    setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+
+    if (result.success) {
+      setIsSubmitted(true);
+      setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+    } else {
+      toast.error('Failed to send message', {
+        description: result.error || 'Please try again later.',
+      });
+    }
   };
 
   const contactInfo = [

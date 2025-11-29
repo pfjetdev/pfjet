@@ -111,3 +111,165 @@ export async function getAircraftCategories() {
 
   return categories;
 }
+
+// ==================== ORDERS / LEADS ====================
+
+export type OrderType = 'charter' | 'empty_leg' | 'jet_sharing' | 'search' | 'contact' | 'multi_city';
+export type OrderStatus = 'new' | 'contacted' | 'confirmed' | 'completed' | 'cancelled';
+
+export interface OrderData {
+  // Contact info
+  name: string;
+  email: string;
+  phone: string;
+
+  // Order type
+  order_type: OrderType;
+
+  // Flight details (optional)
+  from_location?: string;
+  to_location?: string;
+  departure_date?: string;
+  departure_time?: string;
+  passengers?: number;
+
+  // For multi-city
+  routes?: Array<{
+    from: string;
+    to: string;
+    date: string;
+    time: string;
+    passengers: number;
+  }>;
+
+  // Product reference
+  product_id?: string;
+  product_name?: string;
+  product_type?: string;
+
+  // Pricing
+  price?: number;
+  currency?: string;
+
+  // Additional
+  message?: string;
+  source_url?: string;
+}
+
+export interface OrderResult {
+  success: boolean;
+  data?: { id: string };
+  error?: string;
+}
+
+// Send notification to Telegram
+async function sendToTelegram(orderData: OrderData): Promise<void> {
+  try {
+    await fetch('/api/telegram', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(orderData),
+    });
+  } catch (err) {
+    console.error('Error sending to Telegram:', err);
+    // Don't throw - Telegram is optional
+  }
+}
+
+// Submit a new order/lead
+export async function submitOrder(orderData: OrderData): Promise<OrderResult> {
+  try {
+    const { data, error } = await supabase
+      .from('orders')
+      .insert([{
+        name: orderData.name,
+        email: orderData.email,
+        phone: orderData.phone,
+        order_type: orderData.order_type,
+        from_location: orderData.from_location || null,
+        to_location: orderData.to_location || null,
+        departure_date: orderData.departure_date || null,
+        departure_time: orderData.departure_time || null,
+        passengers: orderData.passengers || 1,
+        routes: orderData.routes || null,
+        product_id: orderData.product_id || null,
+        product_name: orderData.product_name || null,
+        product_type: orderData.product_type || null,
+        price: orderData.price || null,
+        currency: orderData.currency || 'USD',
+        message: orderData.message || null,
+        source_url: orderData.source_url || (typeof window !== 'undefined' ? window.location.href : null),
+        status: 'new',
+      }])
+      .select('id')
+      .single();
+
+    if (error) {
+      console.error('Error submitting order:', error);
+      return { success: false, error: error.message };
+    }
+
+    // Send to Telegram (non-blocking)
+    sendToTelegram(orderData);
+
+    return { success: true, data: { id: data.id } };
+  } catch (err) {
+    console.error('Error submitting order:', err);
+    return { success: false, error: 'Failed to submit order' };
+  }
+}
+
+// Submit a search request (lighter version for search form)
+export async function submitSearchRequest(searchData: {
+  from: string;
+  to: string;
+  date: string;
+  time: string;
+  passengers: number;
+}): Promise<OrderResult> {
+  try {
+    const { data, error } = await supabase
+      .from('orders')
+      .insert([{
+        name: 'Search Request',
+        email: 'search@pfjet.com',
+        phone: '',
+        order_type: 'search',
+        from_location: searchData.from,
+        to_location: searchData.to,
+        departure_date: searchData.date,
+        departure_time: searchData.time,
+        passengers: searchData.passengers,
+        source_url: typeof window !== 'undefined' ? window.location.href : null,
+        status: 'new',
+      }])
+      .select('id')
+      .single();
+
+    if (error) {
+      console.error('Error submitting search request:', error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, data: { id: data.id } };
+  } catch (err) {
+    console.error('Error submitting search request:', err);
+    return { success: false, error: 'Failed to submit search request' };
+  }
+}
+
+// Submit contact form
+export async function submitContactForm(contactData: {
+  name: string;
+  email: string;
+  phone: string;
+  message: string;
+}): Promise<OrderResult> {
+  return submitOrder({
+    name: contactData.name,
+    email: contactData.email,
+    phone: contactData.phone,
+    order_type: 'contact',
+    message: contactData.message,
+  });
+}

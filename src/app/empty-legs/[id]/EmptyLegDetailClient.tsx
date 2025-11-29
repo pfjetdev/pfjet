@@ -27,6 +27,7 @@ export default function EmptyLegDetailClient({
 }: EmptyLegDetailClientProps) {
   const router = useRouter()
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+  const [selectedPassengers, setSelectedPassengers] = useState(1)
 
   const handleOpenDrawer = () => {
     setIsDrawerOpen(true)
@@ -54,6 +55,8 @@ export default function EmptyLegDetailClient({
             passengers={emptyLeg.availableSeats}
             image={emptyLeg.to.image || emptyLeg.aircraft.image}
             pricePerJet={emptyLeg.discountedPrice.toLocaleString()}
+            selectedPassengers={selectedPassengers}
+            onPassengersChange={setSelectedPassengers}
           />
 
           {/* Flight Information Component */}
@@ -77,8 +80,16 @@ export default function EmptyLegDetailClient({
         {/* Right Column - Order Form - Desktop Only */}
         <div className="hidden lg:block">
           <CreateOrderForm
-            jetName={`${emptyLeg.from.city} - ${emptyLeg.to.city}`}
+            jetName={`Empty Leg: ${emptyLeg.from.city} → ${emptyLeg.to.city}`}
             price={`$ ${emptyLeg.discountedPrice.toLocaleString()}`}
+            fromLocation={emptyLeg.from.city}
+            toLocation={emptyLeg.to.city}
+            departureDate={emptyLeg.departureDate}
+            departureTime={emptyLeg.departureTime}
+            selectedPassengers={selectedPassengers}
+            availableSeats={emptyLeg.availableSeats}
+            productId={emptyLeg.id}
+            productType="empty_leg"
           />
         </div>
       </div>
@@ -91,10 +102,18 @@ export default function EmptyLegDetailClient({
 
       {/* Mobile Order Form Drawer */}
       <MobileOrderFormDrawer
-        jetName={`${emptyLeg.from.city} - ${emptyLeg.to.city}`}
+        jetName={`Empty Leg: ${emptyLeg.from.city} → ${emptyLeg.to.city}`}
         price={`$ ${emptyLeg.discountedPrice.toLocaleString()}`}
         open={isDrawerOpen}
         onOpenChange={setIsDrawerOpen}
+        fromLocation={emptyLeg.from.city}
+        toLocation={emptyLeg.to.city}
+        departureDate={emptyLeg.departureDate}
+        departureTime={emptyLeg.departureTime}
+        selectedPassengers={selectedPassengers}
+        availableSeats={emptyLeg.availableSeats}
+        productId={emptyLeg.id}
+        productType="empty_leg"
       />
     </>
   )

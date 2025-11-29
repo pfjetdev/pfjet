@@ -474,9 +474,12 @@ function AircraftContent() {
 
                       {/* Call to Action */}
                       <div className="mt-6 pt-6 border-t border-border">
-                        <button className="w-full bg-primary text-primary-foreground py-3 px-4 rounded-lg font-medium hover:opacity-90 transition-opacity">
+                        <Link
+                          href="/contact"
+                          className="block w-full bg-primary text-primary-foreground py-3 px-4 rounded-lg font-medium hover:opacity-90 transition-opacity text-center"
+                        >
                           Request a Quote
-                        </button>
+                        </Link>
                       </div>
                     </div>
                   </div>
