@@ -24,7 +24,7 @@ interface MobileSearchFormProps {
 }
 
 const MobileSearchForm = ({ formData, onFormChange }: MobileSearchFormProps) => {
-  const { theme } = useTheme()
+  const { resolvedTheme } = useTheme()
   const router = useRouter()
 
   const handleSwapDestinations = () => {
@@ -73,14 +73,14 @@ const MobileSearchForm = ({ formData, onFormChange }: MobileSearchFormProps) => 
       {/* From and To Fields Container */}
       <div className={cn(
         "rounded-xl overflow-hidden relative",
-        theme === 'dark' ? 'bg-white' : 'bg-[#0F142E]'
+        resolvedTheme === 'dark' ? 'bg-white' : 'bg-[#0F142E]'
       )}>
         {/* Swap Button - positioned on the right */}
         <button
           onClick={handleSwapDestinations}
           className={cn(
             "absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full transition-all duration-200 shadow-lg z-10",
-            theme === 'dark'
+            resolvedTheme === 'dark'
               ? 'bg-gray-900 hover:bg-gray-800 text-white'
               : 'bg-white hover:bg-white/90 text-gray-900'
           )}
@@ -93,11 +93,11 @@ const MobileSearchForm = ({ formData, onFormChange }: MobileSearchFormProps) => 
         <div className="relative px-4 pt-4 pb-3">
           <label className={cn(
             "text-xs mb-1 block",
-            theme === 'dark' ? 'text-gray-600' : 'text-white/60'
+            resolvedTheme === 'dark' ? 'text-gray-600' : 'text-white/60'
           )}>From</label>
           <div className={cn(
             "text-2xl font-semibold",
-            theme === 'dark'
+            resolvedTheme === 'dark'
               ? 'text-gray-900'
               : 'text-white'
           )}>
@@ -107,7 +107,7 @@ const MobileSearchForm = ({ formData, onFormChange }: MobileSearchFormProps) => 
               placeholder="ex. Amsterdam, AMS"
               label="Departure Airport"
               fieldType="from"
-              theme={theme}
+              resolvedTheme={resolvedTheme}
             />
           </div>
         </div>
@@ -115,18 +115,18 @@ const MobileSearchForm = ({ formData, onFormChange }: MobileSearchFormProps) => 
         {/* Divider */}
         <div className={cn(
           "h-px mx-4",
-          theme === 'dark' ? 'bg-gray-200' : 'bg-white/10'
+          resolvedTheme === 'dark' ? 'bg-gray-200' : 'bg-white/10'
         )} />
 
         {/* To Field */}
         <div className="relative px-4 pt-3 pb-4">
           <label className={cn(
             "text-xs mb-1 block",
-            theme === 'dark' ? 'text-gray-600' : 'text-white/60'
+            resolvedTheme === 'dark' ? 'text-gray-600' : 'text-white/60'
           )}>Going to</label>
           <div className={cn(
             "text-2xl font-semibold",
-            theme === 'dark'
+            resolvedTheme === 'dark'
               ? 'text-gray-900'
               : 'text-white'
           )}>
@@ -137,35 +137,38 @@ const MobileSearchForm = ({ formData, onFormChange }: MobileSearchFormProps) => 
               label="Destination Airport"
               showNearby={false}
               fieldType="to"
-              theme={theme}
+              resolvedTheme={resolvedTheme}
             />
           </div>
         </div>
       </div>
 
-      {/* Date and Time Pickers - Two Columns */}
-      <div className="grid grid-cols-2 gap-3">
+      {/* Date, Time and Passengers - Three Columns */}
+      <div className="grid grid-cols-3 gap-2">
         {/* Date Picker */}
         <MobileDatePicker
           date={formData.date}
           onDateChange={(value) => onFormChange('date', value)}
-          theme={theme}
+          resolvedTheme={resolvedTheme}
+          compact
         />
 
         {/* Time Picker */}
         <MobileTimePicker
           time={formData.time}
           onTimeChange={(value) => onFormChange('time', value)}
-          theme={theme}
+          resolvedTheme={resolvedTheme}
+          compact
+        />
+
+        {/* Passengers Selector */}
+        <MobilePassengerPicker
+          value={formData.passengers}
+          onChange={(value) => onFormChange('passengers', value)}
+          resolvedTheme={resolvedTheme}
+          compact
         />
       </div>
-
-      {/* Passengers Selector */}
-      <MobilePassengerPicker
-        value={formData.passengers}
-        onChange={(value) => onFormChange('passengers', value)}
-        theme={theme}
-      />
 
       {/* Search Button */}
       <button

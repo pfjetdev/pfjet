@@ -17,7 +17,7 @@ interface TimePickerProps {
 }
 
 export function TimePicker({ value, onChange }: TimePickerProps) {
-  const { theme } = useTheme();
+  const { resolvedTheme: theme } = useTheme();
   const [open, setOpen] = React.useState(false);
 
   // Parse current time and period

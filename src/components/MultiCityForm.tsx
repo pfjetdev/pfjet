@@ -35,7 +35,7 @@ interface MultiCityFormProps {
 }
 
 const MultiCityForm = ({ initialFormData }: MultiCityFormProps) => {
-  const { theme } = useTheme()
+  const { resolvedTheme: theme } = useTheme()
   const { setFormData } = useFormContext()
   const isMobile = useIsMobile()
 

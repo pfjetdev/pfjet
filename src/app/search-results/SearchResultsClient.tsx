@@ -114,23 +114,46 @@ export default function SearchResultsClient({
 
   const [selectedDate, setSelectedDate] = useState<Date>(parseInitialDate(initialDate));
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [isSearching, setIsSearching] = useState(!skipSearch);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
-  // Simulate 5 second search (skip if returning from detail page)
+  // Create a unique key for this search based on route
+  const searchKey = `search-completed-${from}-${to}-${initialDate}`;
+
+  // Check if search was already completed (for browser back button)
+  const [isSearching, setIsSearching] = useState(() => {
+    if (skipSearch) return false;
+    if (typeof window !== 'undefined') {
+      const alreadySearched = sessionStorage.getItem(searchKey);
+      if (alreadySearched === 'true') return false;
+    }
+    return true;
+  });
+
+  // Simulate 5 second search (skip if returning from detail page or already searched)
   useEffect(() => {
     if (skipSearch) {
       setIsSearching(false);
+      sessionStorage.setItem(searchKey, 'true');
       return;
+    }
+
+    // Check sessionStorage again in case of hydration
+    if (typeof window !== 'undefined') {
+      const alreadySearched = sessionStorage.getItem(searchKey);
+      if (alreadySearched === 'true') {
+        setIsSearching(false);
+        return;
+      }
     }
 
     setIsSearching(true);
     const timer = setTimeout(() => {
       setIsSearching(false);
+      sessionStorage.setItem(searchKey, 'true');
     }, 5000);
 
     return () => clearTimeout(timer);
-  }, [skipSearch]);
+  }, [skipSearch, searchKey]);
 
   // Generate prices for all aircraft
   const aircraftWithPrices = useMemo(() => {

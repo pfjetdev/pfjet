@@ -27,7 +27,7 @@ export function DateTimePicker({
   onTimeChange,
   autoFocus = false,
 }: DateTimePickerProps) {
-  const { theme } = useTheme();
+  const { resolvedTheme: theme } = useTheme();
   const [open, setOpen] = React.useState(false);
 
   // Auto-open when autoFocus changes

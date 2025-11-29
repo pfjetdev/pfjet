@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/drawer"
 
 const HeroSection = () => {
-  const { theme } = useTheme()
+  const { resolvedTheme: theme } = useTheme()
   const router = useRouter()
   const [mounted, setMounted] = useState(false)
   const [activeTab, setActiveTab] = useState('plane')
@@ -160,7 +160,7 @@ const HeroSection = () => {
     <section className="w-full px-4">
       <div className="max-w-7xl mx-auto">
         <div
-          className="min-h-[700px] md:h-[600px] md:rounded-3xl md:border md:border-border bg-background/50 backdrop-blur-sm flex flex-col items-center justify-start relative overflow-hidden pb-6"
+          className="pb-8 md:h-[600px] md:rounded-3xl md:border md:border-border bg-background/50 backdrop-blur-sm flex flex-col items-center justify-start relative overflow-hidden"
         >
           {/* Background Image - hidden on mobile, using next/image for optimization */}
           {/* Light theme image - shown by default, hidden when dark theme is active */}

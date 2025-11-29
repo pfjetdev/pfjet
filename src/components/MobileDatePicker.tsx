@@ -19,13 +19,19 @@ interface MobileDatePickerProps {
   date: string
   onDateChange: (date: string) => void
   theme?: string
+  resolvedTheme?: string
+  compact?: boolean
 }
 
 export function MobileDatePicker({
   date,
   onDateChange,
-  theme
+  theme,
+  resolvedTheme,
+  compact = false
 }: MobileDatePickerProps) {
+  // Use resolvedTheme if provided, otherwise fall back to theme
+  const currentTheme = resolvedTheme || theme
   const [open, setOpen] = React.useState(false)
 
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(
@@ -131,37 +137,41 @@ export function MobileDatePicker({
     <Drawer open={open} onOpenChange={setOpen} shouldScaleBackground={false}>
       <DrawerTrigger asChild>
         <div className={cn(
-          "rounded-2xl p-4 border cursor-pointer transition-all hover:shadow-md h-28 flex flex-col relative",
-          theme === 'dark'
+          "rounded-2xl border cursor-pointer transition-all hover:shadow-md flex flex-col relative",
+          compact ? "p-3 h-[72px]" : "p-4 h-28",
+          currentTheme === 'dark'
             ? 'bg-gray-800/95 border-white/20 hover:bg-gray-800/80'
             : 'bg-white border-gray-200 hover:bg-gray-50'
         )}>
           <div className="flex items-start justify-between">
             <CalendarIcon className={cn(
-              "w-6 h-6",
-              theme === 'dark' ? 'text-white' : 'text-gray-900'
+              currentTheme === 'dark' ? 'text-white' : 'text-gray-900',
+              compact ? "w-4 h-4" : "w-6 h-6"
             )} />
-            <div className={cn(
-              "p-1.5 rounded-full",
-              theme === 'dark' ? 'bg-gray-700/50' : 'bg-gray-100'
-            )}>
-              <MoveUpRight className={cn(
-                "w-3.5 h-3.5",
-                theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
-              )} />
-            </div>
+            {!compact && (
+              <div className={cn(
+                "p-1.5 rounded-full",
+                currentTheme === 'dark' ? 'bg-gray-700/50' : 'bg-gray-100'
+              )}>
+                <MoveUpRight className={cn(
+                  "w-3.5 h-3.5",
+                  currentTheme === 'dark' ? 'text-gray-400' : 'text-gray-600'
+                )} />
+              </div>
+            )}
           </div>
           <div className="mt-auto">
             <div className={cn(
-              "text-sm font-semibold",
-              theme === 'dark' ? 'text-white' : 'text-gray-900'
+              "font-semibold",
+              compact ? "text-xs" : "text-sm",
+              currentTheme === 'dark' ? 'text-white' : 'text-gray-900'
             )}>
-              Departure
+              {compact ? (date ? formatDateLabel(date) : 'Date') : 'Departure'}
             </div>
-            {date && (
+            {!compact && date && (
               <div className={cn(
                 "text-xs mt-0.5",
-                theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+                currentTheme === 'dark' ? 'text-gray-400' : 'text-gray-500'
               )}>
                 {formatDateLabel(date)}
               </div>

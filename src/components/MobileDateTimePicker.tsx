@@ -23,6 +23,7 @@ interface MobileDateTimePickerProps {
   onDateChange: (date: string) => void
   onTimeChange: (time: string) => void
   theme?: string
+  resolvedTheme?: string
 }
 
 export function MobileDateTimePicker({
@@ -30,8 +31,11 @@ export function MobileDateTimePicker({
   time,
   onDateChange,
   onTimeChange,
-  theme
+  theme: themeProp,
+  resolvedTheme
 }: MobileDateTimePickerProps) {
+  // Use resolvedTheme if provided, otherwise fall back to theme
+  const theme = resolvedTheme || themeProp
   const [openDate, setOpenDate] = React.useState(false)
 
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(

@@ -25,16 +25,14 @@ export default function Footer() {
             {/* Logo and Contact Info */}
             <div className="flex flex-col gap-6 md:gap-11">
               {/* Logo */}
-              <div className="flex items-center gap-2">
-                <div className="w-5 h-5 bg-red-500 rounded-sm flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">✓</span>
-                </div>
-                <span
-                  className="text-white text-lg md:text-xl font-bold"
-                  style={{ fontFamily: 'Clash Display, sans-serif' }}
-                >
-                  Priority Flyers
-                </span>
+              <div>
+                <Image
+                  src="/white-logo.svg"
+                  alt="Logo"
+                  width={170}
+                  height={40}
+                  className="h-5 w-auto"
+                />
               </div>
 
               {/* Contact Details */}

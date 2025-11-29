@@ -379,7 +379,7 @@ function AircraftContent() {
                   {/* Left Column - Image and Description (70%) */}
                   <div className="lg:w-[70%] space-y-6">
                     {/* Aircraft Image */}
-                    <div className="relative w-full h-[400px] rounded-xl overflow-hidden">
+                    <div className="relative w-full h-[200px] md:h-[350px] rounded-xl overflow-hidden">
                       <Image
                         src={currentAircraft.image}
                         alt={currentAircraft.name}

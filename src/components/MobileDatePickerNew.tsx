@@ -18,13 +18,17 @@ interface MobileDatePickerProps {
   date: string
   onDateChange: (date: string) => void
   theme?: string
+  resolvedTheme?: string
 }
 
 export function MobileDatePickerNew({
   date,
   onDateChange,
-  theme
+  theme: themeProp,
+  resolvedTheme
 }: MobileDatePickerProps) {
+  // Use resolvedTheme if provided, otherwise fall back to theme
+  const theme = resolvedTheme || themeProp
   const [open, setOpen] = React.useState(false)
 
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(

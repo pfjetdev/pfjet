@@ -19,7 +19,7 @@ interface PassengerPickerProps {
 }
 
 export function PassengerPicker({ value, onChange, maxPassengers = 20, fullCard = false }: PassengerPickerProps) {
-  const { theme } = useTheme();
+  const { resolvedTheme: theme } = useTheme();
   const [open, setOpen] = React.useState(false);
   const passengers = parseInt(value) || 1;
 

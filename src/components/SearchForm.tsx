@@ -24,7 +24,7 @@ interface SearchFormProps {
 }
 
 const SearchForm = ({ formData, onFormChange, focusTrigger, fieldToFocus, isSticky = false }: SearchFormProps) => {
-  const { theme } = useTheme()
+  const { resolvedTheme: theme } = useTheme()
   const router = useRouter()
   const [shouldAutoFocusFrom, setShouldAutoFocusFrom] = useState(false)
   const [shouldAutoFocusTo, setShouldAutoFocusTo] = useState(false)
