@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
 /* Clash Display font - use optional to prevent render blocking */
 @font-face {
