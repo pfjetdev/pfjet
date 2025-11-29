@@ -30,8 +30,8 @@ export function MobileDatePicker({
   resolvedTheme,
   compact = false
 }: MobileDatePickerProps) {
-  // Use resolvedTheme if provided, otherwise fall back to theme
-  const currentTheme = resolvedTheme || theme
+  // Use resolvedTheme if provided, otherwise fall back to theme, default to 'dark' to prevent flash
+  const currentTheme = resolvedTheme || theme || 'dark'
   const [open, setOpen] = React.useState(false)
 
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(

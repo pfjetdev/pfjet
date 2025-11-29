@@ -20,9 +20,12 @@ import {
 } from "@/components/ui/drawer"
 
 const HeroSection = () => {
-  const { resolvedTheme: theme } = useTheme()
+  const { resolvedTheme } = useTheme()
   const router = useRouter()
   const [mounted, setMounted] = useState(false)
+
+  // Use dark theme as default before hydration to prevent flash
+  const theme = (mounted && resolvedTheme) ? resolvedTheme : 'dark'
   const [activeTab, setActiveTab] = useState('plane')
   const [focusTrigger, setFocusTrigger] = useState(0)
   const [fieldToFocus, setFieldToFocus] = useState<'from' | 'to' | 'date' | null>(null)

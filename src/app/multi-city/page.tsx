@@ -9,10 +9,13 @@ import Footer from '@/components/Footer'
 import { Skeleton } from '@/components/ui/skeleton'
 
 function MultiCityContent() {
-  const { theme } = useTheme()
+  const { resolvedTheme } = useTheme()
   const router = useRouter()
   const searchParams = useSearchParams()
   const [mounted, setMounted] = useState(false)
+
+  // Use dark theme as default before hydration to prevent flash
+  const theme = mounted ? resolvedTheme : 'dark'
 
   // Get initial form data from URL
   const initialFormData = {

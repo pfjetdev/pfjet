@@ -31,8 +31,8 @@ export function MobileTimePicker({
   resolvedTheme,
   compact = false
 }: MobileTimePickerProps) {
-  // Use resolvedTheme if provided, otherwise fall back to theme
-  const currentTheme = resolvedTheme || theme
+  // Use resolvedTheme if provided, otherwise fall back to theme, default to 'dark' to prevent flash
+  const currentTheme = resolvedTheme || theme || 'dark'
   const [open, setOpen] = React.useState(false)
 
   // Convert 24h format to 12h format for initial state

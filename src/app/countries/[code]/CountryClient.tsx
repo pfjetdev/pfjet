@@ -14,7 +14,10 @@ interface CountryClientProps {
 }
 
 export default function CountryClient({ country, cities }: CountryClientProps) {
-  const { theme } = useTheme()
+  const { resolvedTheme } = useTheme()
+
+  // Use dark theme as default to prevent flash
+  const theme = resolvedTheme || 'dark'
 
   return (
     <div className="min-h-screen bg-background transition-colors duration-300">

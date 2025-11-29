@@ -14,8 +14,11 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { supabase, type Country, type City } from '@/lib/supabase'
 
 export default function CityDetailPage() {
-  const { theme } = useTheme()
+  const { resolvedTheme } = useTheme()
   const params = useParams()
+
+  // Use dark theme as default to prevent flash
+  const theme = resolvedTheme || 'dark'
   const router = useRouter()
   const countryCode = (params.code as string).toUpperCase()
   const citySlug = params.city as string
