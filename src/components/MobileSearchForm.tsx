@@ -1,13 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useTheme } from 'next-themes'
 import { useRouter } from 'next/navigation'
-import { PlaneTakeoff, PlaneLanding, ArrowUpDown, Calendar, Clock, Users, Plane } from 'lucide-react'
+import { ArrowUpDown, Plane } from 'lucide-react'
 import { toast } from 'sonner'
-import { AirportCombobox } from '@/components/AirportCombobox'
 import { MobileAirportPickerNew as MobileAirportPicker } from '@/components/MobileAirportPickerNew'
-import { PassengerPicker } from '@/components/PassengerPicker'
 import { MobileDatePicker } from '@/components/MobileDatePicker'
 import { MobileTimePicker } from '@/components/MobileTimePicker'
 import { MobilePassengerPicker } from '@/components/MobilePassengerPicker'
@@ -25,17 +21,7 @@ interface MobileSearchFormProps {
 }
 
 const MobileSearchForm = ({ formData, onFormChange }: MobileSearchFormProps) => {
-  const { resolvedTheme } = useTheme()
   const router = useRouter()
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  // Use dark theme as default before hydration to prevent flash
-  // resolvedTheme can be undefined initially even after mount, so always fallback to 'dark'
-  const theme = (mounted && resolvedTheme) ? resolvedTheme : 'dark'
 
   const handleSwapDestinations = () => {
     const temp = formData.from
@@ -80,19 +66,19 @@ const MobileSearchForm = ({ formData, onFormChange }: MobileSearchFormProps) => 
 
   return (
     <div className="w-full space-y-3">
-      {/* From and To Fields Container */}
+      {/* From and To Fields Container - Using Tailwind dark: classes for instant theme switching */}
       <div className={cn(
         "rounded-xl overflow-hidden relative",
-        theme === 'dark' ? 'bg-white' : 'bg-[#0F142E]'
+        // Light theme: dark background, Dark theme: white background (inverted design)
+        "bg-[#0F142E] dark:bg-white"
       )}>
         {/* Swap Button - positioned on the right */}
         <button
           onClick={handleSwapDestinations}
           className={cn(
             "absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full transition-all duration-200 shadow-lg z-10",
-            theme === 'dark'
-              ? 'bg-gray-900 hover:bg-gray-800 text-white'
-              : 'bg-white hover:bg-white/90 text-gray-900'
+            "bg-white hover:bg-white/90 text-gray-900",
+            "dark:bg-gray-900 dark:hover:bg-gray-800 dark:text-white"
           )}
           aria-label="Swap destinations"
         >
@@ -101,45 +87,29 @@ const MobileSearchForm = ({ formData, onFormChange }: MobileSearchFormProps) => 
 
         {/* From Field */}
         <div className="relative px-4 pt-4 pb-3">
-          <label className={cn(
-            "text-xs mb-1 block",
-            theme === 'dark' ? 'text-gray-600' : 'text-white/60'
-          )}>From</label>
-          <div className={cn(
-            "text-2xl font-semibold",
-            theme === 'dark'
-              ? 'text-gray-900'
-              : 'text-white'
-          )}>
+          <label className="text-xs mb-1 block text-white/60 dark:text-gray-600">
+            From
+          </label>
+          <div className="text-2xl font-semibold text-white dark:text-gray-900">
             <MobileAirportPicker
               value={formData.from}
               onValueChange={(value) => onFormChange('from', value)}
               placeholder="ex. Amsterdam, AMS"
               label="Departure Airport"
               fieldType="from"
-              theme={theme}
             />
           </div>
         </div>
 
         {/* Divider */}
-        <div className={cn(
-          "h-px mx-4",
-          theme === 'dark' ? 'bg-gray-200' : 'bg-white/10'
-        )} />
+        <div className="h-px mx-4 bg-white/10 dark:bg-gray-200" />
 
         {/* To Field */}
         <div className="relative px-4 pt-3 pb-4">
-          <label className={cn(
-            "text-xs mb-1 block",
-            theme === 'dark' ? 'text-gray-600' : 'text-white/60'
-          )}>Going to</label>
-          <div className={cn(
-            "text-2xl font-semibold",
-            theme === 'dark'
-              ? 'text-gray-900'
-              : 'text-white'
-          )}>
+          <label className="text-xs mb-1 block text-white/60 dark:text-gray-600">
+            Going to
+          </label>
+          <div className="text-2xl font-semibold text-white dark:text-gray-900">
             <MobileAirportPicker
               value={formData.to}
               onValueChange={(value) => onFormChange('to', value)}
@@ -147,7 +117,6 @@ const MobileSearchForm = ({ formData, onFormChange }: MobileSearchFormProps) => 
               label="Destination Airport"
               showNearby={false}
               fieldType="to"
-              theme={theme}
             />
           </div>
         </div>
@@ -159,7 +128,6 @@ const MobileSearchForm = ({ formData, onFormChange }: MobileSearchFormProps) => 
         <MobileDatePicker
           date={formData.date}
           onDateChange={(value) => onFormChange('date', value)}
-          theme={theme}
           compact
         />
 
@@ -167,7 +135,6 @@ const MobileSearchForm = ({ formData, onFormChange }: MobileSearchFormProps) => 
         <MobileTimePicker
           time={formData.time}
           onTimeChange={(value) => onFormChange('time', value)}
-          theme={theme}
           compact
         />
 
@@ -175,7 +142,6 @@ const MobileSearchForm = ({ formData, onFormChange }: MobileSearchFormProps) => 
         <MobilePassengerPicker
           value={formData.passengers}
           onChange={(value) => onFormChange('passengers', value)}
-          theme={theme}
           compact
         />
       </div>

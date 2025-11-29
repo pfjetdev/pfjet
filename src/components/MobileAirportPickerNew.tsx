@@ -37,8 +37,6 @@ interface MobileAirportPickerProps {
   label?: string
   showNearby?: boolean
   fieldType?: FieldType
-  theme?: string
-  resolvedTheme?: string
 }
 
 export function MobileAirportPickerNew({

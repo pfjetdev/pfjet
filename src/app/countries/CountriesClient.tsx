@@ -1,11 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { ArrowUpRight } from 'lucide-react';
 import type { Continent, Country } from './page';
+import { cn } from '@/lib/utils';
 
 const continents: Continent[] = ['Europe', 'Asia', 'North America', 'South America', 'Africa', 'Oceania'];
+const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
 // Mapping for continent names from DestinationsSection to Countries page
 const continentMapping: Record<string, Continent> = {
@@ -38,6 +40,8 @@ function groupCountriesByLetter(countries: Country[]): Record<string, Country[]>
 export default function CountriesClient({ countriesByContinent }: CountriesClientProps) {
   const searchParams = useSearchParams();
   const continentParam = searchParams.get('continent');
+  const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const [selectedLetter, setSelectedLetter] = useState<string | null>(null);
 
   // Get initial continent from URL or default to 'Europe'
   const getInitialContinent = (): Continent => {
@@ -65,6 +69,23 @@ export default function CountriesClient({ countriesByContinent }: CountriesClien
   const countries = countriesByContinent[selectedContinent] || [];
   const groupedCountries = groupCountriesByLetter(countries);
   const letters = Object.keys(groupedCountries).sort();
+  const availableLetters = new Set(letters);
+
+  // Handle letter click - scroll to section
+  const handleLetterClick = (letter: string) => {
+    if (!availableLetters.has(letter)) return;
+
+    setSelectedLetter(letter);
+    const section = sectionRefs.current[letter];
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  // Reset selected letter when continent changes
+  useEffect(() => {
+    setSelectedLetter(null);
+  }, [selectedContinent]);
 
   return (
     <div className="min-h-screen bg-background transition-colors duration-300">
@@ -79,29 +100,63 @@ export default function CountriesClient({ countriesByContinent }: CountriesClien
           </h1>
 
           {/* Continent Selector */}
-          <div className="flex flex-wrap gap-3">
-            {continents.map((continent) => (
-              <button
-                key={continent}
-                onClick={() => setSelectedContinent(continent)}
-                className={`
-                  px-6 py-3 rounded-full font-medium transition-all duration-200
-                  ${selectedContinent === continent
-                    ? 'bg-foreground text-background shadow-lg'
-                    : 'bg-card text-foreground border border-border hover:bg-accent hover:shadow-md'
-                  }
-                `}
-                style={{ fontFamily: 'Montserrat, sans-serif' }}
-              >
-                {continent}
-              </button>
-            ))}
+          <div className="overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+            <div className="flex gap-3 min-w-max">
+              {continents.map((continent) => (
+                <button
+                  key={continent}
+                  onClick={() => setSelectedContinent(continent)}
+                  className={cn(
+                    "px-6 py-3 rounded-full font-medium transition-all duration-200 whitespace-nowrap flex-shrink-0",
+                    selectedContinent === continent
+                      ? "bg-foreground text-background shadow-lg"
+                      : "bg-card text-foreground border border-border hover:bg-accent hover:shadow-md"
+                  )}
+                  style={{ fontFamily: 'Montserrat, sans-serif' }}
+                >
+                  {continent}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Alphabet Filter */}
+          <div className="overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+            <div className="flex gap-1 min-w-max">
+              {alphabet.map((letter) => {
+                const isAvailable = availableLetters.has(letter);
+                const isSelected = selectedLetter === letter;
+
+                return (
+                  <button
+                    key={letter}
+                    onClick={() => handleLetterClick(letter)}
+                    disabled={!isAvailable}
+                    className={cn(
+                      "w-9 h-9 rounded-lg font-medium text-sm transition-all duration-200 flex-shrink-0",
+                      isSelected
+                        ? "bg-primary text-primary-foreground shadow-md"
+                        : isAvailable
+                          ? "bg-card text-foreground border border-border hover:bg-accent hover:shadow-sm"
+                          : "bg-muted/50 text-muted-foreground/40 cursor-not-allowed"
+                    )}
+                    style={{ fontFamily: 'Montserrat, sans-serif' }}
+                  >
+                    {letter}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* Countries Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {letters.map((letter) => (
-              <div key={letter} className="space-y-3">
+              <div
+                key={letter}
+                ref={(el) => { sectionRefs.current[letter] = el; }}
+                className="space-y-3 scroll-mt-4"
+              >
                 {/* Letter Header */}
                 <h2
                   className="text-lg font-medium text-foreground"

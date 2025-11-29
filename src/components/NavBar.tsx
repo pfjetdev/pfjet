@@ -1,8 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useTheme } from 'next-themes'
-import { Phone, Plane, Route, Mail, ChevronRight, CalendarDays, Users, Newspaper, Globe, ChevronDown, MoreHorizontal } from 'lucide-react'
+import { useState } from 'react'
+import { Phone, Plane, Route, Mail, ChevronRight, CalendarDays, Users, Newspaper, Globe, ChevronDown } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ThemeToggle } from './ThemeToggle'
@@ -12,7 +11,6 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from '@/components/ui/sheet'
 import {
   DropdownMenu,
@@ -23,12 +21,6 @@ import {
 
 const NavBar = () => {
   const [isOpen, setIsOpen] = useState(false)
-  const [mounted, setMounted] = useState(false)
-  const { resolvedTheme } = useTheme()
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
 
   // Main navigation items (shown in navbar)
   const mainNavItems = [
@@ -52,22 +44,27 @@ const NavBar = () => {
   return (
     <nav className="w-full py-4 px-4 lg:px-8">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        {/* Logo */}
+        {/* Logo - using CSS-based theme switching to prevent hydration flash */}
         <div className="flex-shrink-0">
-          <Link href="/" className="cursor-pointer">
-            {!mounted ? (
-              <div className="h-5 w-[170px]" />
-            ) : (
-              <Image
-                key={resolvedTheme}
-                src={resolvedTheme === 'dark' ? '/white-logo.svg' : '/black-logo.svg'}
-                alt="Logo"
-                width={170}
-                height={40}
-                className="h-5 w-auto"
-                priority
-              />
-            )}
+          <Link href="/" className="cursor-pointer relative">
+            {/* Light theme logo - hidden in dark mode */}
+            <Image
+              src="/black-logo.svg"
+              alt="Logo"
+              width={170}
+              height={40}
+              className="h-5 w-auto dark:hidden"
+              priority
+            />
+            {/* Dark theme logo - hidden in light mode */}
+            <Image
+              src="/white-logo.svg"
+              alt="Logo"
+              width={170}
+              height={40}
+              className="h-5 w-auto hidden dark:block"
+              priority
+            />
           </Link>
         </div>
 

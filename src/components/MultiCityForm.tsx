@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useTheme } from 'next-themes'
 import { PlaneTakeoff, PlaneLanding, Plus, X, ArrowUpDown, Plane } from 'lucide-react'
 import { toast } from 'sonner'
 import { AirportCombobox } from '@/components/AirportCombobox'
@@ -35,7 +34,6 @@ interface MultiCityFormProps {
 }
 
 const MultiCityForm = ({ initialFormData }: MultiCityFormProps) => {
-  const { resolvedTheme: theme } = useTheme()
   const { setFormData } = useFormContext()
   const isMobile = useIsMobile()
 
@@ -166,13 +164,9 @@ const MultiCityForm = ({ initialFormData }: MultiCityFormProps) => {
       {/* Routes */}
       {routes.map((route, index) => (
         <div key={route.id} className="relative">
-          {/* Route Number Badge */}
+          {/* Route Number Badge - using Tailwind dark: classes */}
           <div className="flex items-center gap-3 mb-2">
-            <div className={`px-3 py-1 rounded-full text-sm font-medium ${
-              theme === 'dark'
-                ? 'bg-gray-700 text-gray-200'
-                : 'bg-gray-100 text-gray-700'
-            }`}>
+            <div className="px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200">
               Flight {index + 1}
             </div>
 
@@ -180,11 +174,7 @@ const MultiCityForm = ({ initialFormData }: MultiCityFormProps) => {
             {routes.length > 2 && (
               <button
                 onClick={() => removeRoute(route.id)}
-                className={`p-1.5 rounded-full transition-colors ${
-                  theme === 'dark'
-                    ? 'hover:bg-red-900/30 text-red-400'
-                    : 'hover:bg-red-50 text-red-600'
-                }`}
+                className="p-1.5 rounded-full transition-colors hover:bg-red-50 text-red-600 dark:hover:bg-red-900/30 dark:text-red-400"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -194,20 +184,12 @@ const MultiCityForm = ({ initialFormData }: MultiCityFormProps) => {
           {/* Route Form - Mobile Version */}
           {isMobile ? (
             <div className="space-y-3">
-              {/* From and To Fields Container */}
-              <div className={cn(
-                "rounded-xl overflow-hidden relative",
-                theme === 'dark' ? 'bg-white' : 'bg-[#0F142E]'
-              )}>
+              {/* From and To Fields Container - using Tailwind dark: classes */}
+              <div className="rounded-xl overflow-hidden relative bg-[#0F142E] dark:bg-white">
                 {/* Swap Button - positioned on the right */}
                 <button
                   onClick={() => handleSwapDestinations(route.id)}
-                  className={cn(
-                    "absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full transition-all duration-200 shadow-lg z-10",
-                    theme === 'dark'
-                      ? 'bg-gray-900 hover:bg-gray-800 text-white'
-                      : 'bg-white hover:bg-white/90 text-gray-900'
-                  )}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full transition-all duration-200 shadow-lg z-10 bg-white hover:bg-white/90 text-gray-900 dark:bg-gray-900 dark:hover:bg-gray-800 dark:text-white"
                   aria-label="Swap destinations"
                 >
                   <ArrowUpDown className="w-4 h-4" />
@@ -215,45 +197,25 @@ const MultiCityForm = ({ initialFormData }: MultiCityFormProps) => {
 
                 {/* From Field */}
                 <div className="relative px-4 pt-4 pb-3">
-                  <label className={cn(
-                    "text-xs mb-1 block",
-                    theme === 'dark' ? 'text-gray-600' : 'text-white/60'
-                  )}>From</label>
-                  <div className={cn(
-                    "text-2xl font-semibold",
-                    theme === 'dark'
-                      ? 'text-gray-900'
-                      : 'text-white'
-                  )}>
+                  <label className="text-xs mb-1 block text-white/60 dark:text-gray-600">From</label>
+                  <div className="text-2xl font-semibold text-white dark:text-gray-900">
                     <MobileAirportPicker
                       value={route.from}
                       onValueChange={(value) => handleInputChange(route.id, 'from', value)}
                       placeholder="ex. Amsterdam, AMS"
                       label="Departure Airport"
                       fieldType="from"
-                      theme={theme}
                     />
                   </div>
                 </div>
 
                 {/* Divider */}
-                <div className={cn(
-                  "h-px mx-4",
-                  theme === 'dark' ? 'bg-gray-200' : 'bg-white/10'
-                )} />
+                <div className="h-px mx-4 bg-white/10 dark:bg-gray-200" />
 
                 {/* To Field */}
                 <div className="relative px-4 pt-3 pb-4">
-                  <label className={cn(
-                    "text-xs mb-1 block",
-                    theme === 'dark' ? 'text-gray-600' : 'text-white/60'
-                  )}>Going to</label>
-                  <div className={cn(
-                    "text-2xl font-semibold",
-                    theme === 'dark'
-                      ? 'text-gray-900'
-                      : 'text-white'
-                  )}>
+                  <label className="text-xs mb-1 block text-white/60 dark:text-gray-600">Going to</label>
+                  <div className="text-2xl font-semibold text-white dark:text-gray-900">
                     <MobileAirportPicker
                       value={route.to}
                       onValueChange={(value) => handleInputChange(route.id, 'to', value)}
@@ -261,7 +223,6 @@ const MultiCityForm = ({ initialFormData }: MultiCityFormProps) => {
                       label="Destination Airport"
                       showNearby={false}
                       fieldType="to"
-                      theme={theme}
                     />
                   </div>
                 </div>
@@ -273,14 +234,12 @@ const MultiCityForm = ({ initialFormData }: MultiCityFormProps) => {
                 <MobileDatePicker
                   date={route.date}
                   onDateChange={(value) => handleInputChange(route.id, 'date', value)}
-                  theme={theme}
                 />
 
                 {/* Time Picker */}
                 <MobileTimePicker
                   time={route.time}
                   onTimeChange={(value) => handleInputChange(route.id, 'time', value)}
-                  theme={theme}
                 />
               </div>
 
@@ -288,16 +247,11 @@ const MultiCityForm = ({ initialFormData }: MultiCityFormProps) => {
               <MobilePassengerPicker
                 value={route.passengers}
                 onChange={(value) => handleInputChange(route.id, 'passengers', value)}
-                theme={theme}
               />
             </div>
           ) : (
-            /* Desktop Version */
-            <div className={`backdrop-blur-sm rounded-xl shadow-xl border p-2 h-16 ${
-              theme === 'dark'
-                ? 'bg-gray-800/95 border-white/30'
-                : 'bg-white/95 border-white/50'
-            }`}>
+            /* Desktop Version - using Tailwind dark: classes */
+            <div className="backdrop-blur-sm rounded-xl shadow-xl border p-2 h-16 bg-white/95 border-white/50 dark:bg-gray-800/95 dark:border-white/30">
               <div className="flex flex-col lg:flex-row items-center gap-2 lg:gap-0 h-full">
 
                 {/* From Field */}
@@ -307,20 +261,16 @@ const MultiCityForm = ({ initialFormData }: MultiCityFormProps) => {
                     onValueChange={(value) => handleInputChange(route.id, 'from', value)}
                     placeholder="From"
                     icon={
-                      <PlaneTakeoff
-                        className={`w-4 h-4 ${
-                          theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-                        }`}
-                      />
+                      <PlaneTakeoff className="w-4 h-4 text-gray-600 dark:text-gray-300" />
                     }
-                    className={theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}
+                    className="text-gray-900 dark:text-gray-100"
                     fieldType="from"
                     disabled={index > 0}
                   />
                 </div>
 
                 {/* Divider */}
-                <div className={`hidden lg:block w-px h-8 ${theme === 'dark' ? 'bg-gray-600' : 'bg-gray-200'}`}></div>
+                <div className="hidden lg:block w-px h-8 bg-gray-200 dark:bg-gray-600"></div>
 
                 {/* To Field */}
                 <div className="flex-1 lg:flex-[2] relative h-full">
@@ -329,20 +279,16 @@ const MultiCityForm = ({ initialFormData }: MultiCityFormProps) => {
                     onValueChange={(value) => handleInputChange(route.id, 'to', value)}
                     placeholder="To"
                     icon={
-                      <PlaneLanding
-                        className={`w-4 h-4 ${
-                          theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-                        }`}
-                      />
+                      <PlaneLanding className="w-4 h-4 text-gray-600 dark:text-gray-300" />
                     }
-                    className={theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}
+                    className="text-gray-900 dark:text-gray-100"
                     showNearby={false}
                     fieldType="to"
                   />
                 </div>
 
                 {/* Divider */}
-                <div className={`hidden lg:block w-px h-8 ${theme === 'dark' ? 'bg-gray-600' : 'bg-gray-200'}`}></div>
+                <div className="hidden lg:block w-px h-8 bg-gray-200 dark:bg-gray-600"></div>
 
                 {/* Date and Time Picker */}
                 <div className="flex-[2] relative h-full px-2">
@@ -355,7 +301,7 @@ const MultiCityForm = ({ initialFormData }: MultiCityFormProps) => {
                 </div>
 
                 {/* Divider */}
-                <div className={`hidden lg:block w-px h-8 ${theme === 'dark' ? 'bg-gray-600' : 'bg-gray-200'}`}></div>
+                <div className="hidden lg:block w-px h-8 bg-gray-200 dark:bg-gray-600"></div>
 
                 {/* Passengers Field */}
                 <div className="flex-shrink-0 w-20 relative h-full">
@@ -370,19 +316,16 @@ const MultiCityForm = ({ initialFormData }: MultiCityFormProps) => {
         </div>
       ))}
 
-      {/* Add Route Button */}
+      {/* Add Route Button - using Tailwind dark: classes */}
       <button
         onClick={addRoute}
         disabled={isAddFlightDisabled}
-        className={`w-full py-3 sm:py-3 rounded-xl border-2 border-dashed transition-all duration-200 flex items-center justify-center gap-2 text-sm sm:text-base ${
+        className={cn(
+          "w-full py-3 sm:py-3 rounded-xl border-2 border-dashed transition-all duration-200 flex items-center justify-center gap-2 text-sm sm:text-base",
           isAddFlightDisabled
-            ? theme === 'dark'
-              ? 'border-gray-700 text-gray-600 cursor-not-allowed opacity-50'
-              : 'border-gray-200 text-gray-400 cursor-not-allowed opacity-50'
-            : theme === 'dark'
-              ? 'border-gray-600 hover:border-gray-500 hover:bg-gray-800/50 text-gray-300'
-              : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50 text-gray-600'
-        }`}
+            ? "border-gray-200 text-gray-400 cursor-not-allowed opacity-50 dark:border-gray-700 dark:text-gray-600"
+            : "border-gray-300 hover:border-gray-400 hover:bg-gray-50 text-gray-600 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-800/50 dark:text-gray-300"
+        )}
       >
         <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
         <span className="font-medium">Add another flight</span>

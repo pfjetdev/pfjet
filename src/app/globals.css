@@ -193,3 +193,14 @@ body[data-scroll-locked] {
   position: relative !important;
   touch-action: none !important;
 }
+
+/* Theme-based visibility using CSS - prevents hydration mismatch flash */
+/* Show only in light theme */
+.dark [data-hide-on-theme='dark'] {
+  display: none !important;
+}
+
+/* Show only in dark theme */
+:root:not(.dark) [data-hide-on-theme='light'] {
+  display: none !important;
+}

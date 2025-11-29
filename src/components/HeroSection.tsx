@@ -1,6 +1,5 @@
 'use client'
 
-import { useTheme } from 'next-themes'
 import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useWindowScroll } from '@uidotdev/usehooks'
@@ -20,12 +19,8 @@ import {
 } from "@/components/ui/drawer"
 
 const HeroSection = () => {
-  const { resolvedTheme } = useTheme()
   const router = useRouter()
   const [mounted, setMounted] = useState(false)
-
-  // Use dark theme as default before hydration to prevent flash
-  const theme = (mounted && resolvedTheme) ? resolvedTheme : 'dark'
   const [activeTab, setActiveTab] = useState('plane')
   const [focusTrigger, setFocusTrigger] = useState(0)
   const [fieldToFocus, setFieldToFocus] = useState<'from' | 'to' | 'date' | null>(null)
@@ -166,35 +161,35 @@ const HeroSection = () => {
           className="pb-8 md:h-[600px] md:rounded-3xl md:border md:border-border bg-background/50 backdrop-blur-sm flex flex-col items-center justify-start relative overflow-hidden"
         >
           {/* Background Image - hidden on mobile, using next/image for optimization */}
-          {/* Light theme image - shown by default, hidden when dark theme is active */}
+          {/* Using CSS-based theme switching with data-hide-on-theme to prevent hydration flash */}
           {/* Only render on desktop to avoid loading 72KB image on mobile where it's hidden */}
           {isDesktop && (
             <div className="absolute inset-0">
-              <Image
-                src="/day.jpg"
-                alt="Private jet background"
-                fill
-                priority
-                fetchPriority="high"
-                quality={85}
-                className={cn(
-                  "object-cover object-center transition-opacity duration-300",
-                  mounted && theme === 'dark' ? "opacity-0" : "opacity-100"
-                )}
-                sizes="(min-width: 768px) 100vw, 0px"
-              />
-              {/* Dark theme image - only visible when dark theme is active */}
-              {mounted && theme === 'dark' && (
+              {/* Light theme image - hidden when dark theme is active */}
+              <div data-hide-on-theme="dark" className="absolute inset-0">
+                <Image
+                  src="/day.jpg"
+                  alt="Private jet background"
+                  fill
+                  priority
+                  fetchPriority="high"
+                  quality={85}
+                  className="object-cover object-center"
+                  sizes="(min-width: 768px) 100vw, 0px"
+                />
+              </div>
+              {/* Dark theme image - hidden when light theme is active */}
+              <div data-hide-on-theme="light" className="absolute inset-0">
                 <Image
                   src="/night.jpg"
                   alt="Private jet background"
                   fill
-                  loading="lazy"
+                  priority
                   quality={85}
-                  className="object-cover object-center opacity-100"
+                  className="object-cover object-center"
                   sizes="(min-width: 768px) 100vw, 0px"
                 />
-              )}
+              </div>
             </div>
           )}
 
@@ -212,14 +207,9 @@ const HeroSection = () => {
               Explore Any Destination Worldwide
             </p>
 
-            {/* Mobile Jet Sharing Toggle - visible on mobile only */}
+            {/* Mobile Jet Sharing Toggle - visible on mobile only - using Tailwind dark: classes */}
             <div className="md:hidden flex justify-start">
-              <div className={cn(
-                "flex backdrop-blur-sm rounded-full p-0.5 border transition-all",
-                theme === 'dark'
-                  ? 'bg-gray-800/80 border-gray-600/50'
-                  : 'bg-gray-100 border-gray-300'
-              )}>
+              <div className="flex backdrop-blur-sm rounded-full p-0.5 border transition-all bg-gray-100 border-gray-300 dark:bg-gray-800/80 dark:border-gray-600/50">
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
@@ -228,9 +218,7 @@ const HeroSection = () => {
                     "flex items-center gap-1.5 px-4 py-2 rounded-full transition-all duration-200 text-sm font-medium",
                     activeTab === 'plane'
                       ? 'bg-white text-gray-900 shadow-lg'
-                      : theme === 'dark'
-                        ? 'text-gray-200 hover:bg-gray-700/50'
-                        : 'text-gray-700 hover:bg-gray-200'
+                      : 'text-gray-700 hover:bg-gray-200 dark:text-gray-200 dark:hover:bg-gray-700/50'
                   )}
                 >
                   <Plane size={16} />
@@ -244,9 +232,7 @@ const HeroSection = () => {
                     "flex items-center gap-1.5 px-4 py-2 rounded-full transition-all duration-200 text-sm font-medium",
                     activeTab === 'seat'
                       ? 'bg-white text-gray-900 shadow-lg'
-                      : theme === 'dark'
-                        ? 'text-gray-200 hover:bg-gray-700/50'
-                        : 'text-gray-700 hover:bg-gray-200'
+                      : 'text-gray-700 hover:bg-gray-200 dark:text-gray-200 dark:hover:bg-gray-700/50'
                   )}
                 >
                   <svg width="16" height="16" viewBox="0 0 24 35" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -260,14 +246,9 @@ const HeroSection = () => {
 
           {/* Forms Container */}
           <div className="relative z-10 w-full px-0 md:px-4 space-y-3">
-            {/* Jet Sharing Toggle - visible on desktop only */}
+            {/* Jet Sharing Toggle - visible on desktop only - using Tailwind dark: classes */}
             <div className="hidden md:flex justify-center">
-              <div className={cn(
-                "flex backdrop-blur-sm rounded-full p-0.5 border transition-all",
-                theme === 'dark'
-                  ? 'bg-gray-800/80 border-gray-600/50'
-                  : 'bg-white/10 border-white/20'
-              )}>
+              <div className="flex backdrop-blur-sm rounded-full p-0.5 border transition-all bg-white/10 border-white/20 dark:bg-gray-800/80 dark:border-gray-600/50">
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
@@ -276,9 +257,7 @@ const HeroSection = () => {
                     "flex items-center gap-1.5 px-4 py-2 rounded-full transition-all duration-200 text-sm font-medium",
                     activeTab === 'plane'
                       ? 'bg-white text-gray-900 shadow-lg'
-                      : theme === 'dark'
-                        ? 'text-gray-200 hover:bg-gray-700/50'
-                        : 'text-white hover:bg-white/10'
+                      : 'text-white hover:bg-white/10 dark:text-gray-200 dark:hover:bg-gray-700/50'
                   )}
                 >
                   <Plane size={16} />
@@ -292,9 +271,7 @@ const HeroSection = () => {
                     "flex items-center gap-1.5 px-4 py-2 rounded-full transition-all duration-200 text-sm font-medium",
                     activeTab === 'seat'
                       ? 'bg-white text-gray-900 shadow-lg'
-                      : theme === 'dark'
-                        ? 'text-gray-200 hover:bg-gray-700/50'
-                        : 'text-white hover:bg-white/10'
+                      : 'text-white hover:bg-white/10 dark:text-gray-200 dark:hover:bg-gray-700/50'
                   )}
                 >
                   <svg width="16" height="16" viewBox="0 0 24 35" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -334,18 +311,13 @@ const HeroSection = () => {
               />
             </div>
 
-            {/* Add Destination Button */}
+            {/* Add Destination Button - using Tailwind dark: classes */}
             <div className="w-full max-w-6xl mx-auto">
               <motion.button
                 whileHover={{ scale: 1.02, x: 2 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleAddDestination}
-                className={cn(
-                  "flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 text-sm font-medium backdrop-blur-sm",
-                  theme === 'dark'
-                    ? 'bg-gray-800/80 border border-gray-600/50 text-gray-200 hover:bg-gray-700/80'
-                    : 'bg-white border border-gray-200 text-gray-900 hover:bg-gray-50 shadow-sm'
-                )}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 text-sm font-medium backdrop-blur-sm bg-white border border-gray-200 text-gray-900 hover:bg-gray-50 shadow-sm dark:bg-gray-800/80 dark:border-gray-600/50 dark:text-gray-200 dark:hover:bg-gray-700/80 dark:shadow-none"
               >
                 <Plus size={16} />
                 <span>Add a destination</span>
@@ -355,11 +327,7 @@ const HeroSection = () => {
 
           {/* Bottom Left Text - hidden on mobile */}
           <div className="hidden md:block absolute bottom-6 left-6 z-10">
-            <p className={`text-sm max-w-xs ${
-              theme === 'dark'
-                ? 'text-gray-200'
-                : 'text-white'
-            } drop-shadow-md`}>
+            <p className="text-sm max-w-xs text-white dark:text-gray-200 drop-shadow-md">
               Book a private jet to any destination worldwide with unmatched luxury and flexibility.
             </p>
           </div>
@@ -382,12 +350,7 @@ const HeroSection = () => {
             className="fixed top-2 left-0 right-0 z-50 px-2 md:px-4"
           >
             <div className="w-full max-w-[1400px] mx-auto">
-              <div className={cn(
-                "backdrop-blur-md rounded-2xl shadow-2xl p-3",
-                theme === 'dark'
-                  ? "bg-white/95 border border-border/20"
-                  : "bg-[#0F142E]/95 border border-white/10"
-              )}>
+              <div className="backdrop-blur-md rounded-2xl shadow-2xl p-3 bg-[#0F142E]/95 border border-white/10 dark:bg-white/95 dark:border-border/20">
                 <SearchForm
                   formData={formData}
                   onFormChange={handleFormChange}
@@ -415,12 +378,7 @@ const HeroSection = () => {
           >
             <button
               onClick={() => setIsMobileSearchOpen(true)}
-              className={cn(
-                "w-full backdrop-blur-md rounded-2xl shadow-xl p-4 flex items-center justify-between active:scale-[0.98] transition-transform",
-                theme === 'dark'
-                  ? "bg-white/95 border border-border/20"
-                  : "bg-[#0F142E]/95 border border-white/10"
-              )}
+              className="w-full backdrop-blur-md rounded-2xl shadow-xl p-4 flex items-center justify-between active:scale-[0.98] transition-transform bg-[#0F142E]/95 border border-white/10 dark:bg-white/95 dark:border-border/20"
             >
               <div className="flex items-center gap-3 flex-1">
                 <div className="p-2 rounded-lg bg-[#DF1F3D]/20">
@@ -428,25 +386,16 @@ const HeroSection = () => {
                 </div>
                 <div className="text-left flex-1">
                   {formData.from && formData.to ? (
-                    <p className={cn(
-                      "text-sm font-semibold",
-                      theme === 'dark' ? "text-foreground" : "text-white"
-                    )}>
+                    <p className="text-sm font-semibold text-white dark:text-foreground">
                       {formData.from} → {formData.to}
                     </p>
                   ) : (
-                    <p className={cn(
-                      "text-sm font-semibold",
-                      theme === 'dark' ? "text-muted-foreground" : "text-white/70"
-                    )}>
+                    <p className="text-sm font-semibold text-white/70 dark:text-muted-foreground">
                       Search flights
                     </p>
                   )}
                   {formData.date && (
-                    <p className={cn(
-                      "text-xs",
-                      theme === 'dark' ? "text-muted-foreground" : "text-white/60"
-                    )}>
+                    <p className="text-xs text-white/60 dark:text-muted-foreground">
                       {formData.date}
                     </p>
                   )}

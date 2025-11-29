@@ -16,20 +16,14 @@ import { cn } from "@/lib/utils"
 interface MobilePassengerPickerProps {
   value: string
   onChange: (value: string) => void
-  theme?: string
-  resolvedTheme?: string
   compact?: boolean
 }
 
 export function MobilePassengerPicker({
   value,
   onChange,
-  theme,
-  resolvedTheme,
   compact = false
 }: MobilePassengerPickerProps) {
-  // Use resolvedTheme if provided, otherwise fall back to theme, default to 'dark' to prevent flash
-  const currentTheme = resolvedTheme || theme || 'dark'
   const [open, setOpen] = React.useState(false)
   const passengers = parseInt(value) || 1
 
@@ -55,40 +49,30 @@ export function MobilePassengerPicker({
         <div className={cn(
           "rounded-2xl border cursor-pointer transition-all hover:shadow-md flex flex-col relative",
           compact ? "p-3 h-[72px]" : "p-4 h-28",
-          currentTheme === 'dark'
-            ? 'bg-gray-800/95 border-white/20 hover:bg-gray-800/80'
-            : 'bg-white border-gray-200 hover:bg-gray-50'
+          // Using Tailwind dark: classes instead of JS conditions - prevents hydration flash
+          "bg-white border-gray-200 hover:bg-gray-50",
+          "dark:bg-gray-800/95 dark:border-white/20 dark:hover:bg-gray-800/80"
         )}>
           <div className="flex items-start justify-between">
             <Users className={cn(
-              currentTheme === 'dark' ? 'text-white' : 'text-gray-900',
+              "text-gray-900 dark:text-white",
               compact ? "w-4 h-4" : "w-6 h-6"
             )} />
             {!compact && (
-              <div className={cn(
-                "p-1.5 rounded-full",
-                currentTheme === 'dark' ? 'bg-gray-700/50' : 'bg-gray-100'
-              )}>
-                <MoveUpRight className={cn(
-                  "w-3.5 h-3.5",
-                  currentTheme === 'dark' ? 'text-gray-400' : 'text-gray-600'
-                )} />
+              <div className="p-1.5 rounded-full bg-gray-100 dark:bg-gray-700/50">
+                <MoveUpRight className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
               </div>
             )}
           </div>
           <div className="mt-auto">
             <div className={cn(
-              "font-semibold",
-              compact ? "text-xs" : "text-sm",
-              currentTheme === 'dark' ? 'text-white' : 'text-gray-900'
+              "font-semibold text-gray-900 dark:text-white",
+              compact ? "text-xs" : "text-sm"
             )}>
               {compact ? `${passengers} pax` : 'Passengers'}
             </div>
             {!compact && (
-              <div className={cn(
-                "text-xs mt-0.5",
-                currentTheme === 'dark' ? 'text-gray-400' : 'text-gray-500'
-              )}>
+              <div className="text-xs mt-0.5 text-gray-500 dark:text-gray-400">
                 {passengers} {passengers === 1 ? 'passenger' : 'passengers'}
               </div>
             )}
