@@ -7,6 +7,7 @@ import { FormProvider } from "@/contexts/FormContext";
 import { ConditionalNavBar } from "@/components/ConditionalNavBar";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { Toaster } from "@/components/ui/sonner";
+import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -114,6 +115,7 @@ export default function RootLayout({
             <ConditionalNavBar />
             {children}
             <Toaster position="top-center" closeButton />
+            <PWAInstallPrompt />
           </FormProvider>
         </ThemeProvider>
       </body>
