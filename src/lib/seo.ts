@@ -1,10 +1,12 @@
 import type { Metadata } from 'next'
 
 // Base URL for the site
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://pfjet.vercel.app'
+
 export const siteConfig = {
   name: 'PF Jet',
-  url: process.env.NEXT_PUBLIC_SITE_URL || 'https://pfjet.com',
-  ogImage: '/og-image.jpg',
+  url: baseUrl,
+  ogImage: `${baseUrl}/og-image.jpg`,
   description: 'Book private jet flights worldwide. Empty legs, jet sharing, and luxury charter services.',
   keywords: [
     'private jet',
