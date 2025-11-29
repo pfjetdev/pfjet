@@ -5,6 +5,8 @@ import EmptyLegDetailClient from './EmptyLegDetailClient'
 import Footer from '@/components/Footer'
 import { parseDateString } from '@/lib/dateUtils'
 import { format } from 'date-fns'
+import { createEmptyLegMetadata } from '@/lib/seo'
+import { EmptyLegJsonLd, BreadcrumbJsonLd } from '@/components/JsonLd'
 
 export const revalidate = 86400 // Revalidate every 24 hours
 
@@ -24,10 +26,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
   }
 
-  return {
-    title: `${emptyLeg.from.city} to ${emptyLeg.to.city} - Empty Leg Flight | PrivateJet`,
-    description: `Book this empty leg flight from ${emptyLeg.from.city} to ${emptyLeg.to.city} with ${emptyLeg.discount}% discount. Only $${emptyLeg.discountedPrice.toLocaleString()}.`,
-  }
+  return createEmptyLegMetadata({
+    id: resolvedParams.id,
+    from_city: emptyLeg.from.city,
+    to_city: emptyLeg.to.city,
+    departure_date: emptyLeg.departureDate,
+    aircraft_type: emptyLeg.aircraft.name,
+    price: emptyLeg.discountedPrice,
+    image: emptyLeg.aircraft.image,
+  })
 }
 
 export default async function EmptyLegDetailPage({ params }: PageProps) {
@@ -49,6 +56,29 @@ export default async function EmptyLegDetailPage({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-background transition-colors duration-300">
+      {/* JSON-LD Structured Data */}
+      <EmptyLegJsonLd
+        emptyLeg={{
+          id: resolvedParams.id,
+          from_city: emptyLeg.from.city,
+          from_airport: emptyLeg.from.code,
+          to_city: emptyLeg.to.city,
+          to_airport: emptyLeg.to.code,
+          departure_date: emptyLeg.departureDate,
+          departure_time: emptyLeg.departureTime,
+          aircraft_type: emptyLeg.aircraft.name,
+          price: emptyLeg.discountedPrice,
+          image: emptyLeg.aircraft.image,
+        }}
+      />
+      <BreadcrumbJsonLd
+        items={[
+          { name: 'Home', url: '/' },
+          { name: 'Empty Legs', url: '/empty-legs' },
+          { name: `${emptyLeg.from.city} to ${emptyLeg.to.city}`, url: `/empty-legs/${resolvedParams.id}` },
+        ]}
+      />
+
       <main className="pt-4 sm:pt-6 px-4 pb-20 lg:pb-12">
         <div className="max-w-7xl mx-auto space-y-4 sm:space-y-8">
           {/* Route Title */}

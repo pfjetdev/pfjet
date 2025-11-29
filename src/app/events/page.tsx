@@ -1,12 +1,9 @@
-import { Metadata } from 'next'
 import { supabase, Event } from '@/lib/supabase'
 import EventsClient from './EventsClient'
 import Footer from '@/components/Footer'
+import { pageMetadata } from '@/lib/seo'
 
-export const metadata: Metadata = {
-  title: 'Events 2026 - Exclusive VIP Events | PrivateJet',
-  description: 'Discover exclusive VIP events worldwide. F1 races, Art Basel, Fashion Weeks, and more premium experiences with private jet travel.',
-}
+export const metadata = pageMetadata.events
 
 export const revalidate = 3600 // Revalidate every hour
 

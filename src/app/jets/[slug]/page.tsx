@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation';
 import { supabase } from '@/lib/supabase-client';
 import JetDetailClient from './JetDetailClient';
 import Footer from '@/components/Footer';
+import { createAircraftMetadata, siteConfig } from '@/lib/seo';
+import { AircraftJsonLd, BreadcrumbJsonLd } from '@/components/JsonLd';
 
 export const revalidate = 86400;
 
@@ -33,15 +35,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
   }
 
-  return {
-    title: `${aircraft.name} - Private Jet Charter | PrivateJet`,
-    description: `Book ${aircraft.name} for your private flight. ${aircraft.category} jet with ${aircraft.passengers} passengers. Range: ${aircraft.range}, Speed: ${aircraft.speed}.`,
-    openGraph: {
-      title: `${aircraft.name} - Private Jet Charter`,
-      description: `${aircraft.category} jet with ${aircraft.passengers} passengers`,
-      images: [aircraft.image],
-    },
-  };
+  return createAircraftMetadata({
+    name: aircraft.name,
+    slug: aircraft.slug,
+    category: aircraft.category,
+    category_slug: aircraft.category_slug,
+    description: aircraft.description,
+    passengers: aircraft.passengers,
+    range: aircraft.range,
+    speed: aircraft.speed,
+    image: aircraft.image,
+  });
 }
 
 export default async function JetDetailPage({ params, searchParams }: PageProps) {
@@ -67,6 +71,17 @@ export default async function JetDetailPage({ params, searchParams }: PageProps)
 
   return (
     <div className="min-h-screen bg-background transition-colors duration-300">
+      {/* JSON-LD Structured Data */}
+      <AircraftJsonLd aircraft={aircraft} />
+      <BreadcrumbJsonLd
+        items={[
+          { name: 'Home', url: '/' },
+          { name: 'Aircraft', url: '/aircraft' },
+          { name: aircraft.category, url: `/aircraft?category=${aircraft.category_slug}` },
+          { name: aircraft.name, url: `/jets/${aircraft.slug}` },
+        ]}
+      />
+
       <main className="pt-4 sm:pt-6 px-4 pb-12 lg:pb-12">
         <div className="max-w-7xl mx-auto">
           <JetDetailClient

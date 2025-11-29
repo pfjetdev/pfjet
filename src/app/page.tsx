@@ -6,9 +6,13 @@ import FeaturesSection from "@/components/FeaturesSection";
 import Footer from "@/components/Footer";
 import { generateAllEmptyLegs } from "@/lib/emptyLegsGenerator";
 import { supabase, Event } from "@/lib/supabase";
+import { pageMetadata } from "@/lib/seo";
 
 // Revalidate page every hour for fresh data with caching
 export const revalidate = 3600;
+
+// SEO Metadata for homepage
+export const metadata = pageMetadata.home;
 
 // Dynamic imports for below-the-fold components with ssr: false where possible
 const EmptyLegsSection = dynamic(() => import("@/components/EmptyLegsSection"), {

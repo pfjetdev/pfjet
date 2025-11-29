@@ -1,4 +1,4 @@
-import type { Metadata, Viewport } from "next";
+import type { Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
@@ -8,6 +8,8 @@ import { ConditionalNavBar } from "@/components/ConditionalNavBar";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { Toaster } from "@/components/ui/sonner";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
+import { defaultMetadata } from "@/lib/seo";
+import { OrganizationJsonLd, WebSiteJsonLd, LocalBusinessJsonLd } from "@/components/JsonLd";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,17 +42,12 @@ export const viewport: Viewport = {
   ],
 };
 
-export const metadata: Metadata = {
-  title: "PF Jet - Private Jet Charter",
-  description: "Book private jet flights worldwide. Empty legs, jet sharing, and luxury charter services.",
-  keywords: ["private jet", "charter", "empty legs", "jet sharing", "luxury travel"],
+export const metadata = {
+  ...defaultMetadata,
   appleWebApp: {
     capable: true,
-    statusBarStyle: "black-translucent",
+    statusBarStyle: "black-translucent" as const,
     title: "PF Jet",
-  },
-  formatDetection: {
-    telephone: true,
   },
 };
 
@@ -100,6 +97,11 @@ export default function RootLayout({
             `,
           }}
         />
+
+        {/* Global JSON-LD Structured Data */}
+        <OrganizationJsonLd />
+        <WebSiteJsonLd />
+        <LocalBusinessJsonLd />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${clashDisplay.variable} antialiased`}

@@ -1,12 +1,9 @@
-import { Metadata } from 'next'
 import { generateAllEmptyLegs } from '@/lib/emptyLegsGenerator'
 import EmptyLegsClient from './EmptyLegsClient'
 import Footer from '@/components/Footer'
+import { pageMetadata } from '@/lib/seo'
 
-export const metadata: Metadata = {
-  title: 'Empty Legs - Discounted Private Jet Flights | PrivateJet',
-  description: 'Find discounted private jet empty leg flights. Save up to 75% on luxury private jet travel with our exclusive empty leg deals.',
-}
+export const metadata = pageMetadata.emptyLegs
 
 export const revalidate = 86400 // Revalidate every 24 hours
 

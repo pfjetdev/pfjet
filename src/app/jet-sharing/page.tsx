@@ -1,12 +1,9 @@
-import { Metadata } from 'next'
 import { generateAllJetSharingFlights } from '@/lib/jetSharingGenerator'
 import JetSharingClient from './JetSharingClient'
 import Footer from '@/components/Footer'
+import { pageMetadata } from '@/lib/seo'
 
-export const metadata: Metadata = {
-  title: 'Jet Sharing - Shared Private Jet Flights | PrivateJet',
-  description: 'Book individual seats on shared private jet flights. Share the luxury of private jet travel at a fraction of the cost.',
-}
+export const metadata = pageMetadata.jetSharing
 
 export const revalidate = 86400 // Revalidate every 24 hours
 

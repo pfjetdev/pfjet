@@ -6,6 +6,8 @@ import JetSharingDetailClient from './JetSharingDetailClient'
 import Footer from '@/components/Footer'
 import { parseDateString } from '@/lib/dateUtils'
 import { format } from 'date-fns'
+import { createJetSharingMetadata } from '@/lib/seo'
+import { JetSharingJsonLd, BreadcrumbJsonLd } from '@/components/JsonLd'
 
 export const revalidate = 3600 // Revalidate every hour
 
@@ -25,10 +27,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
   }
 
-  return {
-    title: `${flight.from.city} to ${flight.to.city} - Shared Flight | PrivateJet`,
-    description: `Book seats on this shared private jet from ${flight.from.city} to ${flight.to.city}. $${flight.pricePerSeat.toLocaleString()} per seat. ${flight.availableSeats} seats available.`,
-  }
+  return createJetSharingMetadata({
+    id: resolvedParams.id,
+    from_city: flight.from.city,
+    to_city: flight.to.city,
+    departure_date: flight.departureDate,
+    aircraft_type: flight.aircraft.name,
+    price_per_seat: flight.pricePerSeat,
+    available_seats: flight.availableSeats,
+    image: flight.aircraft.image,
+  })
 }
 
 export default async function JetSharingDetailPage({ params }: PageProps) {
@@ -50,6 +58,28 @@ export default async function JetSharingDetailPage({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-background transition-colors duration-300">
+      {/* JSON-LD Structured Data */}
+      <JetSharingJsonLd
+        flight={{
+          id: resolvedParams.id,
+          from_city: flight.from.city,
+          to_city: flight.to.city,
+          departure_date: flight.departureDate,
+          departure_time: flight.departureTime,
+          aircraft_type: flight.aircraft.name,
+          price_per_seat: flight.pricePerSeat,
+          available_seats: flight.availableSeats,
+          image: flight.aircraft.image,
+        }}
+      />
+      <BreadcrumbJsonLd
+        items={[
+          { name: 'Home', url: '/' },
+          { name: 'Jet Sharing', url: '/jet-sharing' },
+          { name: `${flight.from.city} to ${flight.to.city}`, url: `/jet-sharing/${resolvedParams.id}` },
+        ]}
+      />
+
       <main className="pt-4 sm:pt-6 px-4 pb-20 lg:pb-12">
         <div className="max-w-7xl mx-auto space-y-4 sm:space-y-8">
           {/* Route Title */}
