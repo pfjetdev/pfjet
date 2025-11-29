@@ -150,6 +150,7 @@ interface AircraftDB {
   category: string
   category_slug: string
   image: string | null
+  gallery: string[] | null
   passengers: string
   range: string
   speed: string
@@ -159,7 +160,7 @@ interface AircraftDB {
 async function fetchAircraftDataInner(): Promise<AircraftDB[]> {
   const { data, error } = await supabase
     .from('aircraft')
-    .select('id, name, slug, category, category_slug, image, passengers, range, speed')
+    .select('id, name, slug, category, category_slug, image, gallery, passengers, range, speed')
 
   if (error) {
     console.error('Error fetching aircraft:', error)
@@ -792,6 +793,7 @@ export async function generateEmptyLegsFromCity(userCity: string = 'JFK', count:
         category: aircraft.category,
         categorySlug: aircraft.category_slug,
         image: aircraft.image || '/placeholder-jet.jpg',
+        gallery: aircraft.gallery || [],
         passengers: aircraft.passengers,
         range: aircraft.range,
         speed: aircraft.speed,
@@ -909,6 +911,7 @@ export async function generateAllEmptyLegs(count: number = 100): Promise<EmptyLe
         category: aircraft.category,
         categorySlug: aircraft.category_slug,
         image: aircraft.image || '/placeholder-jet.jpg',
+        gallery: aircraft.gallery || [],
         passengers: aircraft.passengers,
         range: aircraft.range,
         speed: aircraft.speed,
@@ -1021,6 +1024,7 @@ async function generateAllEmptyLegsWithSeed(count: number, seed: number): Promis
         category: aircraft.category,
         categorySlug: aircraft.category_slug,
         image: aircraft.image || '/placeholder-jet.jpg',
+        gallery: aircraft.gallery || [],
         passengers: aircraft.passengers,
         range: aircraft.range,
         speed: aircraft.speed,

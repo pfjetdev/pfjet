@@ -3,7 +3,7 @@
 import React, { useState, useEffect, Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import Footer from "@/components/Footer";
 import { Plane } from "lucide-react";
 import { getAircraftByCategories, Aircraft } from "@/lib/supabase-client";
@@ -31,13 +31,32 @@ interface AircraftCategory {
   models: AircraftModel[];
 }
 
+// Category icon mapping
+const categoryIconMap: Record<string, string> = {
+  'turboprop': '/aircraft/turboprops.png',
+  'very-light': '/aircraft/verylightjet.png',
+  'light': '/aircraft/light.png',
+  'midsize': '/aircraft/midsizejet.png',
+  'super-mid': '/aircraft/supermidsizejet.png',
+  'heavy': '/aircraft/heavyjet.png',
+  'ultra-long': '/aircraft/longrangejet.png',
+  'vip-airliner': '/aircraft/vip-air.png',
+};
+
 function AircraftContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const categoryParam = searchParams.get('category');
 
   const [selectedCategory, setSelectedCategory] = useState(categoryParam || "turboprop");
   const [aircraftData, setAircraftData] = useState<AircraftCategory[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Update URL when category changes
+  const handleCategoryChange = (categoryId: string) => {
+    setSelectedCategory(categoryId);
+    router.replace(`/aircraft?category=${categoryId}`, { scroll: false });
+  };
 
   useEffect(() => {
     async function loadAircraft() {
@@ -289,10 +308,11 @@ function AircraftContent() {
             <div className="grid grid-cols-4 md:grid-cols-8 gap-1.5">
               {aircraftData.map((aircraft) => {
                 const isSelected = selectedCategory === aircraft.id;
+                const iconSrc = categoryIconMap[aircraft.id] || aircraft.image;
                 return (
                   <button
                     key={aircraft.id}
-                    onClick={() => setSelectedCategory(aircraft.id)}
+                    onClick={() => handleCategoryChange(aircraft.id)}
                     className={`
                       group relative flex flex-col items-center justify-center p-1.5 rounded-md border overflow-hidden
                       transition-all duration-300 hover:scale-[1.02] hover:shadow-sm
@@ -303,7 +323,7 @@ function AircraftContent() {
                       }
                     `}
                   >
-                    {/* Aircraft Image */}
+                    {/* Aircraft Icon */}
                     <div
                       className={`
                         relative w-full h-8 mb-1 rounded-sm overflow-hidden transition-all duration-300
@@ -315,14 +335,14 @@ function AircraftContent() {
                       `}
                     >
                       <Image
-                        src={aircraft.image}
+                        src={iconSrc}
                         alt={aircraft.name}
                         fill
                         className={`
                           object-contain p-0.5 transition-all duration-300
                           ${
                             isSelected
-                              ? 'brightness-110'
+                              ? 'opacity-100'
                               : 'opacity-70 group-hover:opacity-100'
                           }
                         `}
@@ -359,12 +379,12 @@ function AircraftContent() {
                   {/* Left Column - Image and Description (70%) */}
                   <div className="lg:w-[70%] space-y-6">
                     {/* Aircraft Image */}
-                    <div className="relative w-full h-[400px] rounded-xl overflow-hidden bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/30">
+                    <div className="relative w-full h-[400px] rounded-xl overflow-hidden">
                       <Image
                         src={currentAircraft.image}
                         alt={currentAircraft.name}
                         fill
-                        className="object-contain p-8"
+                        className="object-cover"
                         priority
                       />
                     </div>

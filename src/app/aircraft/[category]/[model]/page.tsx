@@ -223,7 +223,7 @@ export default function AircraftModelPage() {
           {/* Back Button */}
           <Button
             variant="ghost"
-            onClick={() => router.push("/aircraft")}
+            onClick={() => router.push(`/aircraft?category=${category}`)}
             className="mb-4"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />

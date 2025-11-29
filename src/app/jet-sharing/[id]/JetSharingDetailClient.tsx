@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { ArrowLeft } from 'lucide-react'
 import { JetSharingFlight } from '@/types/jetSharing'
 import EmptyLegHeroBlock from '@/components/EmptyLegHeroBlock'
 import EmptyLegFlightInfo from '@/components/EmptyLegFlightInfo'
@@ -23,6 +25,7 @@ export default function JetSharingDetailClient({
   arrivalTime12h,
   formattedDepartureDate,
 }: JetSharingDetailClientProps) {
+  const router = useRouter()
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [selectedPassengers, setSelectedPassengers] = useState(1)
 
@@ -39,6 +42,15 @@ export default function JetSharingDetailClient({
 
   return (
     <>
+      {/* Back Button */}
+      <button
+        onClick={() => router.push('/jet-sharing')}
+        className="group flex items-center gap-2 mb-4 text-muted-foreground hover:text-foreground transition-colors"
+      >
+        <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 group-hover:-translate-x-1 transition-transform" />
+        <span className="text-sm font-medium">Back to Jet Sharing</span>
+      </button>
+
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Left Column - Hero Block */}
@@ -72,6 +84,7 @@ export default function JetSharingDetailClient({
             arrivalDate={formattedDepartureDate}
             duration={flight.flightDuration}
             aircraftImage={flight.aircraft.image}
+            aircraftGallery={flight.aircraft.gallery}
           />
         </div>
 

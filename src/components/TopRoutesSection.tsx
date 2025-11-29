@@ -45,7 +45,7 @@ export default function TopRoutesSection() {
   }, []);
 
   return (
-    <section className="py-8 md:py-16 px-4 bg-background">
+    <section id="top-routes" className="py-8 md:py-16 px-4 bg-background scroll-mt-20">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-4 md:mb-12">

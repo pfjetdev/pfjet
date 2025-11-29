@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { ArrowLeft } from 'lucide-react'
 import { EmptyLeg } from '@/types/emptyLegs'
 import EmptyLegHeroBlock from '@/components/EmptyLegHeroBlock'
 import EmptyLegFlightInfo from '@/components/EmptyLegFlightInfo'
@@ -23,6 +25,7 @@ export default function EmptyLegDetailClient({
   arrivalTime12h,
   formattedDepartureDate,
 }: EmptyLegDetailClientProps) {
+  const router = useRouter()
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
 
   const handleOpenDrawer = () => {
@@ -31,6 +34,15 @@ export default function EmptyLegDetailClient({
 
   return (
     <>
+      {/* Back Button */}
+      <button
+        onClick={() => router.push('/empty-legs')}
+        className="group flex items-center gap-2 mb-4 text-muted-foreground hover:text-foreground transition-colors"
+      >
+        <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 group-hover:-translate-x-1 transition-transform" />
+        <span className="text-sm font-medium">Back to Empty Legs</span>
+      </button>
+
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Left Column - Hero Block */}
@@ -58,6 +70,7 @@ export default function EmptyLegDetailClient({
             arrivalDate={formattedDepartureDate}
             duration={emptyLeg.flightDuration}
             aircraftImage={emptyLeg.aircraft.image}
+            aircraftGallery={emptyLeg.aircraft.gallery}
           />
         </div>
 

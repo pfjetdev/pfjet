@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useTheme } from 'next-themes'
-import { Phone, Plane, Route, Mail, ChevronRight, CalendarDays } from 'lucide-react'
+import { Phone, Plane, Route, Mail, ChevronRight, CalendarDays, Users, Newspaper, Globe, ChevronDown, MoreHorizontal } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ThemeToggle } from './ThemeToggle'
@@ -14,6 +14,12 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 const NavBar = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -24,13 +30,24 @@ const NavBar = () => {
     setMounted(true)
   }, [])
 
-  const navigationItems = [
+  // Main navigation items (shown in navbar)
+  const mainNavItems = [
     { name: 'Empty Legs', href: '/empty-legs', icon: Plane, description: 'Browse available flights' },
-    { name: 'Events', href: '/events', icon: CalendarDays, description: 'Exclusive VIP events' },
-    { name: 'Top Routes', href: '#top-routes', icon: Route, description: 'Popular destinations' },
+    { name: 'Jet Sharing', href: '/jet-sharing', icon: Users, description: 'Share flights & save' },
     { name: 'Our Fleet', href: '/aircraft', icon: Plane, description: 'View our aircraft' },
+    { name: 'Top Routes', href: '/#top-routes', icon: Route, description: 'Popular destinations' },
     { name: 'Contact Us', href: '/contact', icon: Mail, description: 'Get in touch' },
   ]
+
+  // More menu items (shown in dropdown)
+  const moreNavItems = [
+    { name: 'Events', href: '/events', icon: CalendarDays, description: 'Exclusive VIP events' },
+    { name: 'News', href: '/news', icon: Newspaper, description: 'Latest updates' },
+    { name: 'Countries', href: '/countries', icon: Globe, description: 'Explore destinations' },
+  ]
+
+  // All navigation items for mobile menu
+  const allNavigationItems = [...mainNavItems, ...moreNavItems]
 
   return (
     <nav className="w-full py-4 px-4 lg:px-8">
@@ -55,16 +72,33 @@ const NavBar = () => {
         </div>
 
         {/* Desktop Navigation */}
-        <div className="hidden lg:flex items-center space-x-8">
-          {navigationItems.map((item) => (
+        <div className="hidden lg:flex items-center space-x-6">
+          {mainNavItems.map((item) => (
             <a
               key={item.name}
               href={item.href}
-              className="text-foreground hover:text-primary transition-colors duration-200 font-medium"
+              className="text-foreground hover:text-primary transition-colors duration-200 font-medium text-sm"
             >
               {item.name}
             </a>
           ))}
+
+          {/* More Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger className="flex items-center gap-1 text-foreground hover:text-primary transition-colors duration-200 font-medium text-sm outline-none">
+              More
+              <ChevronDown className="h-4 w-4" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-40">
+              {moreNavItems.map((item) => (
+                <DropdownMenuItem key={item.name} asChild>
+                  <a href={item.href} className="cursor-pointer">
+                    {item.name}
+                  </a>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         {/* Right Side - Phone & Theme Toggle */}
@@ -123,7 +157,7 @@ const NavBar = () => {
               <div className="flex-1 overflow-y-auto px-4 py-4">
                 {/* Menu Items */}
                 <div className="flex flex-col gap-1.5">
-                  {navigationItems.map((item, index) => {
+                  {allNavigationItems.map((item, index) => {
                     const Icon = item.icon
                     return (
                       <a
@@ -189,7 +223,7 @@ const NavBar = () => {
                     style={{
                       backgroundColor: '#DF1F3D',
                       animation: isOpen ? 'slideInBounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards' : 'none',
-                      animationDelay: `${navigationItems.length * 75}ms`,
+                      animationDelay: `${allNavigationItems.length * 75}ms`,
                       opacity: 0
                     }}
                   >

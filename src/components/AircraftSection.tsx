@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { MoveRight } from "lucide-react";
@@ -19,13 +19,11 @@ const aircraftTypes: AircraftType[] = [
   { id: 4, name: "Midsize", slug: "midsize", image: "/aircraft/midsizejet.png" },
   { id: 5, name: "Super-Mid", slug: "super-mid", image: "/aircraft/supermidsizejet.png" },
   { id: 6, name: "Heavy", slug: "heavy", image: "/aircraft/heavyjet.png" },
-  { id: 7, name: "Long Range Jet", slug: "ultra-long", image: "/aircraft/longrangejet.png" },
-  { id: 8, name: "VIP", slug: "vip", image: "/aircraft/vip.png" },
+  { id: 7, name: "Ultra Long", slug: "ultra-long", image: "/aircraft/longrangejet.png" },
+  { id: 8, name: "Vip Airliner", slug: "vip-airliner", image: "/aircraft/vip-air.png" },
 ];
 
 export default function AircraftSection() {
-  const [selectedAircraft, setSelectedAircraft] = useState<number>(1);
-
   return (
     <section className="py-8 md:py-16 px-4 sm:px-6 lg:px-8 bg-background">
       <div className="max-w-7xl mx-auto">
@@ -39,25 +37,17 @@ export default function AircraftSection() {
         {/* Content */}
         <div className="flex flex-col-reverse lg:flex-row gap-4 md:gap-8 lg:h-[500px]">
           {/* Left Column - Aircraft Menu (40%) */}
-          <div className="lg:w-2/5 space-y-2 md:space-y-3">
+          <div className="lg:w-2/5 space-y-1.5 md:space-y-2">
             {aircraftTypes.map((aircraft) => (
               <Link
                 key={aircraft.id}
                 href={`/aircraft?category=${aircraft.slug}`}
-                className={`
-                  flex items-center justify-between p-2 rounded-lg border cursor-pointer h-[50px] md:h-[60px]
-                  active:scale-[0.98] md:hover:scale-[1.02] transition-all duration-300
-                  ${
-                    selectedAircraft === aircraft.id
-                      ? 'ring-2 ring-primary bg-primary/5 border-primary'
-                      : 'hover:bg-accent border-border'
-                  }
-                `}
-                onMouseEnter={() => setSelectedAircraft(aircraft.id)}
+                className="group flex items-center justify-between px-3 py-2 rounded-xl cursor-pointer h-[52px] md:h-[58px]
+                  transition-all duration-200 bg-muted/50 hover:bg-muted text-foreground"
               >
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center gap-3">
                   {/* Aircraft Image */}
-                  <div className="w-14 md:w-18 h-10 md:h-12 relative flex-shrink-0">
+                  <div className="w-16 md:w-20 h-10 md:h-11 relative flex-shrink-0">
                     <Image
                       src={aircraft.image}
                       alt={aircraft.name}
@@ -67,21 +57,14 @@ export default function AircraftSection() {
                   </div>
 
                   {/* Aircraft Name */}
-                  <h3 className="text-xs md:text-sm font-semibold text-foreground">
+                  <h3 className="text-sm md:text-base font-medium">
                     {aircraft.name}
                   </h3>
                 </div>
 
                 {/* Arrow Icon */}
                 <MoveRight
-                  className={`
-                    w-3 h-3 transition-all duration-300
-                    ${
-                      selectedAircraft === aircraft.id
-                        ? "text-primary transform translate-x-1"
-                        : "text-muted-foreground"
-                    }
-                  `}
+                  className="w-4 h-4 transition-all duration-200 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0"
                 />
               </Link>
             ))}

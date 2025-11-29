@@ -428,7 +428,7 @@ export async function generateAllJetSharingFlights(count: number = 100): Promise
     fetchJetSharingRoutesFromSupabase(count),
     supabase
       .from('aircraft')
-      .select('id, name, slug, category, category_slug, image, passengers, range, speed')
+      .select('id, name, slug, category, category_slug, image, gallery, passengers, range, speed')
   ])
 
   if (!routes || routes.length === 0) {
@@ -521,6 +521,7 @@ export async function generateAllJetSharingFlights(count: number = 100): Promise
         category: aircraft.category,
         categorySlug: aircraft.category_slug,
         image: aircraft.image || '/placeholder-jet.jpg',
+        gallery: aircraft.gallery || [],
         passengers: aircraft.passengers,
         range: aircraft.range,
         speed: aircraft.speed,
@@ -572,7 +573,7 @@ async function generateAllJetSharingFlightsWithSeed(count: number, seed: number)
     fetchJetSharingRoutesFromSupabase(count),
     supabase
       .from('aircraft')
-      .select('id, name, slug, category, category_slug, image, passengers, range, speed')
+      .select('id, name, slug, category, category_slug, image, gallery, passengers, range, speed')
   ])
 
   if (!routes || routes.length === 0) {
@@ -648,6 +649,7 @@ async function generateAllJetSharingFlightsWithSeed(count: number, seed: number)
         category: aircraft.category,
         categorySlug: aircraft.category_slug,
         image: aircraft.image || '/placeholder-jet.jpg',
+        gallery: aircraft.gallery || [],
         passengers: aircraft.passengers,
         range: aircraft.range,
         speed: aircraft.speed,

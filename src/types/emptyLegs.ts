@@ -18,6 +18,7 @@ export interface Aircraft {
   category: string
   categorySlug: string
   image: string
+  gallery?: string[]
   passengers: string
   range: string
   speed: string
