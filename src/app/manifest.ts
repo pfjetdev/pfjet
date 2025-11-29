@@ -3,7 +3,7 @@ import type { MetadataRoute } from 'next'
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Priotiy Flyers Jet - Private Jet Charter',
-    short_name: 'Priotiy Flyers Jet',
+    short_name: 'PF Jet',
     description: 'Book private jet flights worldwide. Empty legs, jet sharing, and luxury charter services.',
     start_url: '/',
     display: 'standalone',
